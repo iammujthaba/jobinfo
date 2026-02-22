@@ -1,66 +1,591 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Job Applications Data</title>
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"/>
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Vacancy Approval | JobInfo</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap + Icons -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --ji-green: #25d366;
+      --ji-dark:  #1a1a2e;
+      --ji-bg:    #f0f2f5;
+      --sidebar-w: 220px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Roboto, sans-serif; background: var(--ji-bg); color: var(--ji-dark); display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--ji-dark);
+      color: #fff;
+      position: fixed;
+      top: 0; left: 0; height: 100vh;
+      display: flex; flex-direction: column;
+      padding: 0;
+      z-index: 100;
+    }
+    .sidebar-brand {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .sidebar-brand h1 { font-size: 1.25rem; font-weight: 700; }
+    .sidebar-brand h1 .green { color: var(--ji-green); }
+    .sidebar-brand p { font-size: .72rem; color: #aaa; margin: 2px 0 0; }
+    .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; overflow-y: auto; }
+    .sidebar-nav li a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 20px;
+      color: #cdd5f3; text-decoration: none;
+      font-size: .88rem; transition: all .2s;
+    }
+    .sidebar-nav li a:hover, .sidebar-nav li a.active {
+      background: var(--ji-green); color: #fff;
+    }
+    .sidebar-nav li a i { width: 18px; text-align: center; }
+    .sidebar-badge {
+      margin-left: auto;
+      background: #e74c3c; color: #fff;
+      border-radius: 10px; padding: 1px 7px;
+      font-size: .68rem; font-weight: 700;
+    }
+
+    /* ── Main ────────────────────────────────────── */
+    .main-area { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar {
+      background: #fff; border-bottom: 1px solid #e4e8f0;
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar h2 { font-size: 1rem; font-weight: 600; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; font-size: .85rem; color: #888; }
+    .content { padding: 28px; }
+
+    /* ── Cards ───────────────────────────────────── */
+    .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); cursor: pointer; transition: box-shadow .2s; }
+    .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+    .stat-card .label { font-size: .72rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; }
+    .stat-card.pending .value { color: #f39c12; }
+    .stat-card.approved .value { color: #27ae60; }
+    .stat-card.rejected .value { color: #e74c3c; }
+
+    /* ── Filter tabs ─────────────────────────────── */
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-tab {
+      padding: 7px 20px; border-radius: 20px; border: 2px solid #dde1e7;
+      background: #fff; color: #555; font-size: .85rem; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .filter-tab.active, .filter-tab:hover { border-color: var(--ji-green); background: var(--ji-green); color: #fff; }
+
+    /* ── Table card ──────────────────────────────── */
+    .table-card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    .table-card table { width: 100%; border-collapse: collapse; }
+    .table-card th {
+      background: #f8f9fc; text-align: left;
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      color: #888; padding: 12px 16px; white-space: nowrap;
+      border-bottom: 2px solid #eef0f4;
+    }
+    .table-card td { padding: 13px 16px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; font-size: .875rem; }
+    .table-card tr:last-child td { border-bottom: none; }
+    .table-card tr:hover td { background: #f9fafb; }
+    code.jc { background: #e8f5e9; color: #1e8449; padding: 2px 8px; border-radius: 10px; font-size: .8rem; font-weight: 700; }
+
+    /* ── Status badges ───────────────────────────── */
+    .badge-pending  { background: #fff3cd; color: #856404; padding: 3px 10px; border-radius: 20px; font-size: .74rem; font-weight: 600; }
+    .badge-approved { background: #d1f2eb; color: #1e8449; padding: 3px 10px; border-radius: 20px; font-size: .74rem; font-weight: 600; }
+    .badge-rejected { background: #fadbd8; color: #922b21; padding: 3px 10px; border-radius: 20px; font-size: .74rem; font-weight: 600; }
+
+    /* ── Action buttons ──────────────────────────── */
+    .btn-approve { background: var(--ji-green); color: #fff; border: none; border-radius: 7px; padding: 5px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .btn-approve:hover { background: #1ebe5d; }
+    .btn-reject  { background: #e74c3c; color: #fff; border: none; border-radius: 7px; padding: 5px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .btn-reject:hover { background: #c0392b; }
+
+    /* ── Modal ───────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 999;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 14px; padding: 28px;
+      width: 440px; max-width: 95%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-box h3 { margin-bottom: 14px; font-size: 1.05rem; }
+    .modal-box textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #dde1e7; border-radius: 8px;
+      font-size: .9rem; min-height: 90px; resize: vertical;
+    }
+    .modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+    .btn-cancel { background: #ecf0f1; color: #555; border: none; border-radius: 7px; padding: 8px 18px; cursor: pointer; font-weight: 600; }
+
+    /* ── Login screen ────────────────────────────── */
+    #login-screen {
+      position: fixed; inset: 0;
+      background: var(--ji-bg);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .login-card {
+      background: #fff; border-radius: 16px; padding: 40px 36px;
+      width: 360px; box-shadow: 0 12px 40px rgba(0,0,0,.12);
+      text-align: center;
+    }
+    .login-card h2 { font-size: 1.4rem; margin-bottom: 6px; }
+    .login-card p { color: #888; font-size: .88rem; margin-bottom: 24px; }
+    .login-card input {
+      width: 100%; padding: 11px 14px; border:1px solid #dde1e7;
+      border-radius: 8px; font-size: .95rem; margin-bottom: 12px;
+    }
+    .login-card input:focus { outline: none; border-color: var(--ji-green); box-shadow: 0 0 0 3px rgba(37,211,102,.15); }
+    .btn-login {
+      width: 100%; padding: 11px; border: none; border-radius: 8px;
+      background: var(--ji-green); color: #fff; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background .2s;
+    }
+    .btn-login:hover { background: #1ebe5d; }
+    #login-error { color: #e74c3c; font-size: .85rem; margin-top: 8px; display: none; }
+
+    /* ── Empty state ─────────────────────────────── */
+    .empty-state { padding: 48px; text-align: center; color: #aaa; }
+    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+
+    /* ── Vacancy detail popover ──────────────────── */
+    .desc-btn { background: none; border: none; color: #007bff; font-size: .8rem; cursor: pointer; padding: 0; }
+
+    /* ── Responsive ──────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { width: 0; overflow: hidden; transition: width .3s; }
+      .sidebar.open { width: var(--sidebar-w); }
+      .main-area { margin-left: 0; }
+      .topbar { padding: 12px 16px; }
+      .content { padding: 16px; }
+    }
+  </style>
 </head>
-<body class="bg-light">
-  <div class="container mt-5">
-    <h2 class="mb-4">Job Applications</h2>
-    <table id="dataTable" class="table table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>Full Name</th>
-          <th>Gender</th>
-          <th>District</th>
-          <th>Qualification</th>
-          <th>WhatsApp</th>
-          <th>Phone</th>
-          <th>DOB</th>
-          <th>CV</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <!-- Data will be dynamically loaded here -->
-      </tbody>
-    </table>
+
+<body>
+
+<!-- ── Login Screen ──────────────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <h2><span style="color:var(--ji-green)">Job</span>info Admin</h2>
+    <p>Vacancy Approval Panel</p>
+    <input type="text" id="login-user" placeholder="Username" autocomplete="username">
+    <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password">
+    <button class="btn-login" id="login-btn">Sign In</button>
+    <div id="login-error">Incorrect username or password.</div>
+  </div>
+</div>
+
+<!-- ── Sidebar ───────────────────────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <h1><span class="green">Job</span>info</h1>
+    <p>Admin Panel</p>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="#" class="active" data-filter="pending" id="nav-pending">
+      <i class="bi bi-hourglass-split"></i> Pending
+      <span class="sidebar-badge" id="badge-pending">0</span>
+    </a></li>
+    <li><a href="#" data-filter="approved" id="nav-approved">
+      <i class="bi bi-check-circle"></i> Approved
+    </a></li>
+    <li><a href="#" data-filter="rejected" id="nav-rejected">
+      <i class="bi bi-x-circle"></i> Rejected
+    </a></li>
+    <li><a href="index.html" target="_blank">
+      <i class="bi bi-globe"></i> View Website
+    </a></li>
+  </ul>
+</aside>
+
+<!-- ── Main Area ─────────────────────────────────────────────────────────────── -->
+<div class="main-area" id="main-area">
+
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button id="sidebar-toggle" style="background:none;border:none;font-size:1.2rem;cursor:pointer;display:none">
+        <i class="bi bi-list"></i>
+      </button>
+      <h2 id="page-heading">Pending Vacancies</h2>
+    </div>
+    <div class="topbar-right">
+      <span id="admin-name-label"></span>
+      <button id="logout-btn" style="background:none;border:none;color:#e74c3c;font-weight:600;cursor:pointer;font-size:.85rem">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </button>
+    </div>
   </div>
 
-  <script>
-    $(document).ready(function () {
-      const webAppUrl = 'https://script.google.com/macros/s/AKfycbw9oyYpQo2BT98pnXdwDNCZ1ra1NhnnqbdyE8b35Te3cZlQCkEpv5SeDOY5KDEBeJ74XA/exec'; // Replace with your latest URL
+  <div class="content">
 
-      fetch(webAppUrl)
-        .then((response) => response.json())
-        .then((data) => {
-          const tableBody = document.getElementById('tableBody');
-          data.forEach((row) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${row['full-name'] || ''}</td>
-              <td>${row['gender'] || ''}</td>
-              <td>${row['district'] || ''}</td>
-              <td>${row['qualification'] || ''}</td>
-              <td>${row['whatsapp'] || ''}</td>
-              <td>${row['phone'] || ''}</td>
-              <td>${row['dob'] || ''}</td>
-              <td>${
-                row['cv']
-                  ? `<a href='${row['cv']}' target='_blank'>Open CV</a>`
-                  : 'Not uploaded'
-              }</td>
-            `;
-            tableBody.appendChild(tr);
-          });
-          $('#dataTable').DataTable();
-        })
-        .catch((error) => console.error('Error fetching data:', error));
+    <!-- Stat Cards -->
+    <div class="stat-cards" id="stat-cards">
+      <div class="stat-card pending" data-filter="pending" style="cursor:pointer">
+        <div class="label">⏳ Pending</div>
+        <div class="value" id="stat-pending">—</div>
+      </div>
+      <div class="stat-card approved" data-filter="approved" style="cursor:pointer">
+        <div class="label">✅ Approved</div>
+        <div class="value" id="stat-approved">—</div>
+      </div>
+      <div class="stat-card rejected" data-filter="rejected" style="cursor:pointer">
+        <div class="label">❌ Rejected</div>
+        <div class="value" id="stat-rejected">—</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card" id="table-card">
+      <div class="empty-state" id="loading-state">
+        <div class="spinner-border text-success" role="status" style="width:2rem;height:2rem"></div>
+        <p class="mt-3">Loading vacancies…</p>
+      </div>
+      <table id="vacancies-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Location</th>
+            <th>Recruiter (WA)</th>
+            <th>Submitted</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="vacancies-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none">
+        <i class="bi bi-inbox"></i>
+        No vacancies in this category.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Reject Modal ──────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="reject-modal">
+  <div class="modal-box">
+    <h3>❌ Reject Vacancy</h3>
+    <p style="font-size:.85rem;color:#666;margin-bottom:12px">Provide a reason — it will be sent to the recruiter via WhatsApp.</p>
+    <textarea id="reject-reason" placeholder="e.g. Incomplete job description, missing contact info…"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancel-reject">Cancel</button>
+      <button class="btn-reject" id="confirm-reject">Reject &amp; Notify</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Detail Modal ──────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal-box" style="width:560px;max-width:96%">
+    <h3 id="detail-title"></h3>
+    <div id="detail-body" style="font-size:.88rem;line-height:1.7;white-space:pre-wrap;color:#444;max-height:340px;overflow-y:auto"></div>
+    <div class="modal-actions"><button class="btn-cancel" id="close-detail">Close</button></div>
+  </div>
+</div>
+
+<!-- ── Scripts ───────────────────────────────────────────────────────────────── -->
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/config.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════════════════════════
+   JobInfo Admin – Vacancy Approval Panel
+   All API calls go through credentials stored in sessionStorage after login.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+let adminUser = null;
+let adminPass = null;
+let currentFilter = "pending";
+let pendingRejectId = null;
+
+/* ── Helpers ──────────────────────────────────────────────────────────────── */
+function authHeaders() {
+  return {
+    "Content-Type": "application/json",
+    "Authorization": "Basic " + btoa(`${adminUser}:${adminPass}`),
+  };
+}
+
+function escHtml(s) {
+  return String(s || "—").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function fmtDate(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" });
+}
+
+/* ── Login ────────────────────────────────────────────────────────────────── */
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const u = document.getElementById("login-user").value.trim();
+  const p = document.getElementById("login-pass").value;
+  if (!u || !p) return;
+
+  // Test credentials against the backend
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies?status_filter=pending`, {
+      headers: { "Authorization": "Basic " + btoa(`${u}:${p}`) },
     });
-  </script>
+    if (res.status === 401 || res.status === 403) {
+      document.getElementById("login-error").style.display = "block";
+      return;
+    }
+  } catch {
+    // If backend is offline, allow offline mode with a warning (dev convenience)
+    console.warn("Backend offline – running in demo mode");
+  }
+
+  adminUser = u;
+  adminPass = p;
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("admin-name-label").textContent = `Hi, ${u}`;
+  loadStats();
+  loadVacancies(currentFilter);
+});
+
+document.getElementById("login-user").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("login-pass").focus(); });
+document.getElementById("login-pass").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("login-btn").click(); });
+
+/* ── Logout ───────────────────────────────────────────────────────────────── */
+document.getElementById("logout-btn").addEventListener("click", () => {
+  adminUser = adminPass = null;
+  document.getElementById("login-screen").style.display = "flex";
+});
+
+/* ── Sidebar nav ──────────────────────────────────────────────────────────── */
+document.querySelectorAll(".sidebar-nav a[data-filter]").forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    document.querySelectorAll(".sidebar-nav a").forEach(a => a.classList.remove("active"));
+    link.classList.add("active");
+    currentFilter = link.dataset.filter;
+    const headings = { pending: "Pending Vacancies", approved: "Approved Vacancies", rejected: "Rejected Vacancies" };
+    document.getElementById("page-heading").textContent = headings[currentFilter];
+    loadVacancies(currentFilter);
+  });
+});
+
+// Stat card clicks
+document.querySelectorAll(".stat-card[data-filter]").forEach(card => {
+  card.addEventListener("click", () => {
+    const f = card.dataset.filter;
+    document.querySelector(`.sidebar-nav a[data-filter="${f}"]`)?.click();
+  });
+});
+
+/* ── Load Stats ───────────────────────────────────────────────────────────── */
+async function loadStats() {
+  try {
+    const [p, a, r] = await Promise.all([
+      fetch(`${JOBINFO_CONFIG.API_URL}/api/vacancies?status_filter=pending&page_size=1`, { headers: authHeaders() }).then(r => r.json()),
+      fetch(`${JOBINFO_CONFIG.API_URL}/api/vacancies?page_size=1`, { headers: authHeaders() }).then(r => r.json()),
+      fetch(`${JOBINFO_CONFIG.API_URL}/api/vacancies?status_filter=rejected&page_size=1`, { headers: authHeaders() }).then(r => r.json()),
+    ]);
+    // Note: The public API returns approved only. For pending/rejected we use the admin API.
+    // We'll load each filter to get counts.
+    loadStatusCount("pending",  "stat-pending",  "badge-pending");
+    loadStatusCount("approved", "stat-approved", null);
+    loadStatusCount("rejected", "stat-rejected", null);
+  } catch (err) { console.error(err); }
+}
+
+async function loadStatusCount(status, elId, badgeId) {
+  try {
+    const url = `${JOBINFO_CONFIG.API_URL}/admin/api/vacancies?status_filter=${status}`;
+    const res = await fetch(url, { headers: authHeaders() });
+    const data = await res.json();
+    const total = data.total !== undefined ? data.total : (Array.isArray(data) ? data.length : "—");
+    const el = document.getElementById(elId);
+    if (el) el.textContent = total;
+    if (badgeId) {
+      const badge = document.getElementById(badgeId);
+      if (badge) badge.textContent = total;
+    }
+  } catch {}
+}
+
+/* ── Load Vacancies ───────────────────────────────────────────────────────── */
+async function loadVacancies(filter) {
+  const tbody = document.getElementById("vacancies-tbody");
+  const table = document.getElementById("vacancies-table");
+  const loading = document.getElementById("loading-state");
+  const empty = document.getElementById("empty-state");
+
+  table.style.display = "none";
+  empty.style.display = "none";
+  loading.style.display = "block";
+  tbody.innerHTML = "";
+
+  try {
+    const url = `${JOBINFO_CONFIG.API_URL}/admin/api/vacancies?status_filter=${filter}`;
+    const res = await fetch(url, { headers: authHeaders() });
+    if (!res.ok) throw new Error("API error " + res.status);
+    const data = await res.json();
+    const rows = data.results || data; // handle both shapes
+
+    loading.style.display = "none";
+
+    if (!rows || rows.length === 0) {
+      empty.style.display = "block";
+      return;
+    }
+
+    rows.forEach(v => tbody.insertAdjacentHTML("beforeend", buildRow(v, filter)));
+    table.style.display = "table";
+    attachRowListeners();
+
+  } catch (err) {
+    console.error(err);
+    loading.style.display = "none";
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Failed to load. Is the backend running?</td></tr>`;
+    table.style.display = "table";
+  }
+}
+
+/* ── Build Table Row ──────────────────────────────────────────────────────── */
+function buildRow(v, filter) {
+  const statusBadge = {
+    pending:  `<span class="badge-pending">⏳ Pending</span>`,
+    approved: `<span class="badge-approved">✅ Approved</span>`,
+    rejected: `<span class="badge-rejected">❌ Rejected</span>`,
+  }[v.status] || `<span class="badge-pending">${v.status}</span>`;
+
+  const actions = [];
+  if (filter !== "approved") {
+    actions.push(`<button class="btn-approve me-1" data-id="${v.id}"><i class="bi bi-check-lg"></i> Approve</button>`);
+  }
+  if (filter !== "rejected") {
+    actions.push(`<button class="btn-reject" data-id="${v.id}"><i class="bi bi-x-lg"></i> Reject</button>`);
+  }
+
+  const recruiterName = v.recruiter?.name || v.recruiter_name || "—";
+  const recruiterWa   = v.recruiter?.wa_number || v.recruiter_wa || "";
+
+  return `<tr>
+    <td><code class="jc">${escHtml(v.job_code)}</code></td>
+    <td>
+      <strong>${escHtml(v.title)}</strong>
+      ${v.description ? `<br><button class="desc-btn" data-title="${escHtml(v.title)}" data-desc="${escHtml(v.description)}">View details</button>` : ""}
+    </td>
+    <td>${escHtml(v.company)}</td>
+    <td>${escHtml(v.location)}</td>
+    <td>
+      ${escHtml(recruiterName)}
+      ${recruiterWa ? `<br><a href="https://wa.me/${recruiterWa}" target="_blank" style="font-size:.78rem;color:#25d366"><i class="bi bi-whatsapp"></i> ${recruiterWa}</a>` : ""}
+    </td>
+    <td style="white-space:nowrap">${fmtDate(v.created_at)}</td>
+    <td>${statusBadge}</td>
+    <td style="white-space:nowrap">${actions.join("")}</td>
+  </tr>`;
+}
+
+/* ── Row button listeners ─────────────────────────────────────────────────── */
+function attachRowListeners() {
+  document.querySelectorAll(".btn-approve[data-id]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Approve this vacancy? The recruiter will be notified via WhatsApp.")) return;
+      btn.disabled = true; btn.textContent = "Approving…";
+      try {
+        const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies/${btn.dataset.id}/approve`, {
+          method: "POST", headers: authHeaders(),
+        });
+        if (!res.ok) throw new Error("Failed");
+        loadVacancies(currentFilter);
+        loadStats();
+      } catch (err) {
+        alert("Error: " + err.message);
+        btn.disabled = false; btn.textContent = "Approve";
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-reject[data-id]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      pendingRejectId = btn.dataset.id;
+      document.getElementById("reject-reason").value = "";
+      document.getElementById("reject-modal").classList.add("open");
+    });
+  });
+
+  document.querySelectorAll(".desc-btn[data-desc]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.getElementById("detail-title").textContent = btn.dataset.title;
+      document.getElementById("detail-body").textContent = btn.dataset.desc;
+      document.getElementById("detail-modal").classList.add("open");
+    });
+  });
+}
+
+/* ── Reject Modal ─────────────────────────────────────────────────────────── */
+document.getElementById("cancel-reject").addEventListener("click", () => {
+  document.getElementById("reject-modal").classList.remove("open");
+});
+
+document.getElementById("confirm-reject").addEventListener("click", async () => {
+  const reason = document.getElementById("reject-reason").value.trim();
+  if (!reason) { alert("Please provide a rejection reason."); return; }
+
+  const btn = document.getElementById("confirm-reject");
+  btn.disabled = true; btn.textContent = "Sending…";
+
+  try {
+    const formData = new FormData();
+    formData.append("reason", reason);
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies/${pendingRejectId}/reject`, {
+      method: "POST",
+      headers: { "Authorization": "Basic " + btoa(`${adminUser}:${adminPass}`), "Content-Type": "application/x-www-form-urlencoded" },
+      body: `reason=${encodeURIComponent(reason)}`,
+    });
+    if (!res.ok) throw new Error("Failed");
+    document.getElementById("reject-modal").classList.remove("open");
+    loadVacancies(currentFilter);
+    loadStats();
+  } catch (err) {
+    alert("Error: " + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Reject & Notify";
+  }
+});
+
+/* ── Detail Modal close ───────────────────────────────────────────────────── */
+document.getElementById("close-detail").addEventListener("click", () => {
+  document.getElementById("detail-modal").classList.remove("open");
+});
+
+[document.getElementById("reject-modal"), document.getElementById("detail-modal")].forEach(m => {
+  m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); });
+});
+
+/* ── Responsive sidebar toggle ────────────────────────────────────────────── */
+const sidebarToggle = document.getElementById("sidebar-toggle");
+const sidebar = document.getElementById("sidebar");
+if (window.innerWidth <= 768) sidebarToggle.style.display = "block";
+sidebarToggle.addEventListener("click", () => sidebar.classList.toggle("open"));
+window.addEventListener("resize", () => {
+  sidebarToggle.style.display = window.innerWidth <= 768 ? "block" : "none";
+  if (window.innerWidth > 768) sidebar.classList.remove("open");
+});
+</script>
 </body>
 </html>

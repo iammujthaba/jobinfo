@@ -60,11 +60,11 @@
       <nav id="navmenu" class="navmenu">
         <ul>
           <li><a href="#hero" class="active">Home</a></li>
-          <!-- <li><a href="#how-it-works">How It Works</a></li> -->
           <li><a href="#featured-services">Services</a></li>
           <li><a href="#recruiter-benefits">Benefits</a></li>
           <li><a href="#recruiter-guidelines">Guidelines</a></li>
           <li><a href="#join-now">Network</a></li>
+          <li><a href="jobs.html">Browse Jobs</a></li>
           <li><a href="#faq">FaQ</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
@@ -86,7 +86,7 @@
             <h1>We Make your Hiring Simple and Fast</h1>
             <p>Say goodbye to delays and portals. Connect with active job seekers directly through WhatsApp – hiring is now just a message away!</p>
             <div class="d-flex">
-              <a href="https://chat.whatsapp.com/LB8rI0BPgBTIMIhJAWAeMd" class="btn-get-started btn-primary" style="width: 50%;"><i class="bi bi-whatsapp icon whats"></i><span>Join Now</span></a>
+              <a href="https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z" class="btn-get-started btn-primary" style="width: 50%;"><i class="bi bi-whatsapp icon whats"></i><span>Follow Channel</span></a>
               <a href="#submit-job" class="glightbox btn-watch-video d-flex align-items-center" data-gallery="vacancy-form"><i class="bi bi-person-add btn-outline-primary2"></i><span style="padding-top: 5px;">Post Vacancy</span></a>
             </div>
           </div>
@@ -296,8 +296,37 @@
 			<h2>Share Vacancy</h2>
 			<p>Share your job vacancy with us to reach a wider pool of candidates through JobInfo.</p>
 		</div><!-- End Section Title -->
-		
-		<form name="job-form" class="job-form bg-white p-4 rounded shadow">
+
+    <!-- ── Step 1: WhatsApp number ──────────────────────────── -->
+    <div id="otp-step1" class="bg-white p-4 rounded shadow mb-4" style="max-width:480px;margin:0 auto 24px">
+      <h5 class="mb-3"><i class="bi bi-whatsapp text-success me-2"></i>Verify Your WhatsApp Number</h5>
+      <p class="text-muted small mb-3">We'll send a one-time password to your WhatsApp to verify your identity before posting.</p>
+      <div class="input-group">
+        <span class="input-group-text">+91</span>
+        <input type="tel" id="wa-number-input" class="form-control" placeholder="Your WhatsApp number" maxlength="10" pattern="[0-9]{10}">
+      </div>
+      <button type="button" id="send-otp-btn" class="btn btn-success w-100 mt-3 fw-bold"><i class="bi bi-send me-1"></i>Send OTP</button>
+    </div>
+
+    <!-- ── Step 2: Enter OTP ─────────────────────────────────── -->
+    <div id="otp-step2" class="bg-white p-4 rounded shadow mb-4" style="display:none;max-width:480px;margin:0 auto 24px">
+      <h5 class="mb-2"><i class="bi bi-shield-check text-success me-2"></i>Enter OTP</h5>
+      <p class="text-muted small mb-3">A 6-digit OTP was sent to your WhatsApp. Enter it below.</p>
+      <input type="text" id="otp-input" class="form-control text-center fw-bold" maxlength="6" placeholder="_ _ _ _ _ _" style="font-size:1.5rem;letter-spacing:.5rem">
+      <button type="button" id="verify-otp-btn" class="btn btn-success w-100 mt-3 fw-bold">Verify OTP</button>
+      <div class="text-center mt-2">
+        <button type="button" id="resend-otp-btn" class="btn btn-link btn-sm text-muted" disabled>Resend OTP</button>
+      </div>
+    </div>
+
+    <!-- ── Step 3: Vacancy form (hidden until OTP verified) ─── -->
+    <div id="otp-step3" style="display:none">
+      <div class="alert alert-success text-center fw-semibold">
+        <i class="bi bi-check-circle-fill me-2"></i>WhatsApp verified! Now fill in your vacancy details.
+      </div>
+    </div>
+
+		<form name="job-form" class="job-form bg-white p-4 rounded shadow" style="display:none">
 			<div class="row gy-3">
 			<div class="col-md-6">
 				<input type="text" name="job-post" class="form-control" placeholder="Job Title / Position" required>
@@ -387,6 +416,9 @@
         <textarea name="additional-info" class="form-control" rows="3" placeholder="eg: Job Responsibilities, Age Limit, Other Benefits, etc.."></textarea>
       </div>
 
+      <!-- Hidden verified WA number field (set by recruiter.js after OTP) -->
+      <input type="hidden" id="form-wa-number" name="form-wa-number">
+
       <div class="col-12 text-center mt-4">
         <button type="submit" class="btn btn-primary">Submit Job</button>
       </div>      
@@ -413,14 +445,13 @@
         <small>No spam, no pressure—feel free to mute notifications. Just join once and reach out when you're ready to post a vacancy.</small>
       </p>
   
-      <!-- NEW BUTTON WRAPPER -->
       <div class="d-flex flex-wrap justify-content-center gap-3">
-        <a href="https://t.me/your_channel_link" class="btn btn-outline-primary btn-lg flex-fill" style="min-width: 140px;">
-          Join WhatsApp Channel
+        <a href="https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z" target="_blank" rel="noopener" class="btn btn-success btn-lg flex-fill" style="min-width: 140px;">
+          <i class="bi bi-broadcast me-1"></i> Join WA Channel
         </a>
-        <a href="https://chat.whatsapp.com/your_group_link" class="btn btn-outline-primary btn-lg flex-fill" style="min-width: 140px;">
-          Join WhatsApp Community
-        </a>  
+        <a href="https://chat.whatsapp.com/LB8rI0BPgBTIMIhJAWAeMd" target="_blank" rel="noopener" class="btn btn-outline-success btn-lg flex-fill" style="min-width: 140px;">
+          <i class="bi bi-people me-1"></i> Join WA Community
+        </a>
       </div>
   
     </div>
@@ -605,11 +636,12 @@
   <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
-  <!-- Main JS File -->
-  <script src="assets/js/recruiter.js"></script>
+  <!-- Main JS -->
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/jobseeker.js"></script> <!-- Question Submission javascrit for both page -->
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/recruiter.js"></script>
+  <script src="assets/js/jobseeker.js"></script>
 
 </body>
 

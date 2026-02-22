@@ -28,6 +28,7 @@
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
+
   <!-- =======================================================
   * Template Name: eNno
   * Template URL: https://bootstrapmade.com/enno-free-simple-bootstrap-template/
@@ -56,7 +57,7 @@
           <li><a href="#featured-services">Services</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#stats">Features</a></li>
-          <!-- <li><a href="#testimonials">Testimonials</a></li> -->
+          <li><a href="jobs.html">Browse Jobs</a></li>
           <li><a href="#call-to-action">Join Now</a></li>
           <li><a href="#faq">FaQ</a></li>
         </ul>
@@ -79,8 +80,8 @@
             <h1>Find Your Dream Job on WhatsApp</h1>
             <p>Get daily job updates directly in your WhatsApp! Say goodbye to endless job searches and spam! – Discover your dream job at your fingertips!</p>
             <div class="d-flex flex-column flex-sm-row gap-3">
-              <a href="https://chat.whatsapp.com/LB8rI0BPgBTIMIhJAWAeMd" class="btn-get-started"><i class="bi bi-whatsapp icon whats"></i><span>Join Community</span></a>
-              <a href="https://chat.whatsapp.com/LB8rI0BPgBTIMIhJAWAeMd" class="btn-get-started"><i class="bi bi-whatsapp icon whats"></i><span>Follow Channel</span></a>
+              <a href="https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z" class="btn-get-started"><i class="bi bi-whatsapp icon whats"></i><span>Follow Channel</span></a>
+              <a href="jobs.html" class="glightbox btn-watch-video d-flex align-items-center"><i class="bi bi-briefcase"></i><span>Browse Jobs</span></a>
             </div>
           </div>
           <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="100">
@@ -220,8 +221,29 @@
       </div>
 
     </section><!-- /Stats Section -->
-    
-    <!-- Call To Action Section -->
+
+    <!-- Latest Jobs Section -->
+    <section id="latest-jobs" class="section" style="background:#f8f9ff;padding:60px 0">
+      <div class="container section-title" data-aos="fade-up">
+        <span>LIVE VACANCIES</span>
+        <h2>Latest Jobs</h2>
+        <p>Verified job openings — apply directly via WhatsApp, no registration required.</p>
+      </div>
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4" id="latest-jobs-grid">
+          <!-- Populated by latest-jobs.js -->
+          <div class="col-12 text-center py-4">
+            <div class="spinner-border text-success" role="status"></div>
+            <p class="mt-2 text-muted small">Loading latest jobs…</p>
+          </div>
+        </div>
+        <div class="text-center mt-4" data-aos="fade-up">
+          <a href="jobs.html" class="btn btn-outline-success px-4 py-2 fw-bold">
+            <i class="bi bi-grid me-1"></i>View All Jobs
+          </a>
+        </div>
+      </div>
+    </section><!-- /Latest Jobs Section -->
     <section id="call-to-action">
       <div class="call-to-action section accent-background">
         <div class="container">
@@ -422,8 +444,32 @@
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/jobseeker.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/jobseeker.js"></script>
+  <script>
+  /* ─ Latest Jobs teaser (index.html only) ─────────────────────────── */
+  (async function loadLatestJobs() {
+    const grid = document.getElementById("latest-jobs-grid");
+    if (!grid) return;
+    try {
+      const res = await fetch(JOBINFO_CONFIG.API_URL + "/api/vacancies?page_size=3");
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      grid.innerHTML = "";
+      if (!data.results || data.results.length === 0) {
+        grid.innerHTML = '<div class="col-12 text-center text-muted">No vacancies yet. Check back soon!</div>';
+        return;
+      }
+      data.results.forEach(function(job) {
+        var applyUrl = "https://wa.me/" + JOBINFO_CONFIG.BUSINESS_WA + "?text=Apply%20" + encodeURIComponent(job.job_code);
+        grid.insertAdjacentHTML("beforeend", '<div class="col-lg-4 col-md-6"><div class="service-item position-relative shadow-sm h-100 d-flex flex-column" style="border-radius:12px;padding:24px"><div class="d-flex align-items-center gap-2 mb-2"><span style="background:#e8f5e9;color:#1e8449;border-radius:20px;padding:2px 12px;font-size:.72rem;font-weight:700">' + job.job_code + '</span></div><h5 style="font-weight:700;margin-bottom:4px">' + job.title + '</h5><p class="text-muted small mb-1"><i class="bi bi-building me-1"></i>' + (job.company || '—') + '</p><p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>' + job.location + '</p><a href="' + applyUrl + '" target="_blank" class="btn btn-success btn-sm mt-auto" style="font-weight:600"><i class="bi bi-whatsapp me-1"></i>Apply via WhatsApp</a></div></div>');
+      });
+    } catch(e) {
+      grid.innerHTML = '<div class="col-12 text-center text-muted">Could not load jobs right now.</div>';
+    }
+  })();
+  </script>
 
 
 </body>
