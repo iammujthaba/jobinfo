@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard – JobInfo Recruiter</title>
+  <meta name="description" content="Recruiter dashboard – manage vacancies and applications on JobInfo.">
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Raleway:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <style>
+    :root { --ji-green:#25d366; --ji-dark:#1a1a2e; --ji-bg:#f4f6fb; }
+    body { background:var(--ji-bg); font-family:Roboto,sans-serif; }
+
+    /* ── Auth ─────────────────────────────────────── */
+    #auth-screen { min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px; }
+    .auth-card { background:#fff;border-radius:16px;padding:40px 36px;width:420px;max-width:100%;box-shadow:0 12px 40px rgba(0,0,0,.1); }
+    .auth-card h2 { font-size:1.4rem;font-weight:700; }
+    .step-dots { display:flex;gap:8px;margin-bottom:22px; }
+    .step-dot { width:32px;height:6px;border-radius:4px;background:#e0e0e0;transition:background .3s; }
+    .step-dot.active { background:var(--ji-green); }
+    .field-label { font-size:.78rem;font-weight:600;color:#555;margin-bottom:5px;display:block; }
+    .wa-wrap { display:flex;border:1px solid #dde1e7;border-radius:10px;overflow:hidden; }
+    .wa-wrap .prefix { background:#f5f5f5;padding:11px 14px;font-size:.9rem;color:#555;border-right:1px solid #dde1e7;white-space:nowrap; }
+    .wa-wrap input { border:none;border-radius:0;padding:11px 14px;width:100%;font-size:.95rem;outline:none; }
+    .btn-ji { width:100%;padding:12px;border:none;border-radius:10px;background:var(--ji-green);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s; }
+    .btn-ji:hover { background:#1ebe5d; }
+    .btn-ji:disabled { background:#aaa;cursor:not-allowed; }
+    .otp-field { font-size:2rem;letter-spacing:.6rem;text-align:center;font-weight:700;width:100%;padding:11px;border:1px solid #dde1e7;border-radius:10px;outline:none; }
+    .otp-field:focus { border-color:var(--ji-green);box-shadow:0 0 0 3px rgba(37,211,102,.15); }
+    .auth-err { color:#e74c3c;font-size:.82rem;margin-top:6px;display:none; }
+    .resend-row { text-align:center;margin-top:10px; }
+    .btn-resend { background:none;border:none;color:#888;font-size:.82rem;cursor:pointer; }
+    .btn-resend:disabled { color:#ccc;cursor:default; }
+
+    /* ── Dashboard shell ──────────────────────────── */
+    #dashboard { display:none; }
+    .top-bar { background:var(--ji-dark);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between; }
+    .top-bar .brand { font-size:1.1rem;font-weight:700; }
+    .top-bar .brand span { color:var(--ji-green); }
+    .sub-label { font-size:.8rem;color:#cdd5f3; }
+    .btn-logout { background:none;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:5px 14px;font-size:.78rem;cursor:pointer;transition:all .2s; }
+    .btn-logout:hover { background:rgba(255,255,255,.1); }
+
+    /* ── Profile ──────────────────────────────────── */
+    .profile-card { background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap; }
+    .avatar { width:58px;height:58px;border-radius:50%;background:var(--ji-green);color:#fff;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .profile-info h4 { font-size:1.05rem;font-weight:700;margin-bottom:2px; }
+    .profile-info p { font-size:.82rem;color:#666;margin:0;line-height:1.7; }
+
+    /* ── Stat cards ───────────────────────────────── */
+    .stat-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin-bottom:22px; }
+    .stat-card { background:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s; }
+    .stat-card:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1); }
+    .stat-card .val { font-size:2rem;font-weight:700;line-height:1; }
+    .stat-card .lbl { font-size:.68rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:4px; }
+    .stat-card.approved .val { color:#27ae60; }
+    .stat-card.pending  .val { color:#f39c12; }
+    .stat-card.rejected .val { color:#e74c3c; }
+    .stat-card.apps     .val { color:#2980b9; }
+
+    /* ── Filter / action bar ──────────────────────── */
+    .top-actions { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center; }
+    .tab-btn { padding:7px 18px;border-radius:20px;border:2px solid #dde1e7;background:#fff;font-size:.82rem;font-weight:600;color:#555;cursor:pointer;transition:all .2s; }
+    .tab-btn.active,.tab-btn:hover { border-color:var(--ji-green);background:var(--ji-green);color:#fff; }
+    .btn-post { background:var(--ji-green);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-weight:700;font-size:.88rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .2s; }
+    .btn-post:hover { background:#1ebe5d;color:#fff; }
+
+    /* ── Vacancy table ────────────────────────────── */
+    .table-card { background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    .table-card table { width:100%;border-collapse:collapse; }
+    .table-card th { background:#f8f9fc;font-size:.69rem;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.05em;padding:12px 16px;text-align:left;border-bottom:2px solid #eef0f4;white-space:nowrap; }
+    .table-card td { padding:13px 16px;border-bottom:1px solid #f0f2f5;font-size:.87rem;vertical-align:middle; }
+    .table-card tr:last-child td { border-bottom:none; }
+    .table-card tr:hover td { background:#f9fafb; }
+    code.jc { background:#e8f5e9;color:#1e8449;padding:2px 9px;border-radius:12px;font-size:.78rem;font-weight:700; }
+    .badge-appr { background:#d5f5e3;color:#1e8449;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
+    .badge-pend { background:#fef9e7;color:#b7770d;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
+    .badge-reje { background:#fadbd8;color:#922b21;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
+    .badge-shrt { background:#d6eaf8;color:#1a5276;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
+    .badge-appl { background:#eaf4fb;color:#2471a3;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
+    .app-count  { background:#ebf5fb;color:#2980b9;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
+    .rejpill { background:#fadbd8;color:#922b21;border-radius:8px;padding:3px 10px;font-size:.73rem;cursor:help;display:inline-block;margin-top:4px; }
+    .btn-apps { background:var(--ji-dark);color:#fff;border:none;border-radius:8px;padding:5px 14px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s; }
+    .btn-apps:hover { background:#2c2c54; }
+
+    /* ── Applications slide-panel ─────────────────── */
+    .panel-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900; }
+    .panel-overlay.open { display:block; }
+    .apps-panel {
+      position:fixed;top:0;right:-100%;width:min(680px,100vw);height:100vh;
+      background:#fff;box-shadow:-8px 0 40px rgba(0,0,0,.18);z-index:901;
+      display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1);
+      overflow:hidden;
+    }
+    .apps-panel.open { right:0; }
+    .panel-head { padding:18px 22px;border-bottom:1px solid #f0f2f5;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;background:#fff; }
+    .panel-head h3 { font-size:1rem;font-weight:700;margin:0 0 2px; }
+    .panel-head p  { font-size:.78rem;color:#888;margin:0; }
+    .btn-close-panel { background:none;border:none;font-size:1.3rem;cursor:pointer;color:#888;line-height:1;padding:0; }
+
+    .panel-toolbar {
+      padding:12px 22px;border-bottom:1px solid #f0f2f5;
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-shrink:0;background:#fafbfd;
+    }
+    .panel-search { flex:1;min-width:160px;border:1px solid #dde1e7;border-radius:8px;padding:8px 12px;font-size:.85rem;outline:none; }
+    .panel-search:focus { border-color:var(--ji-green);box-shadow:0 0 0 2px rgba(37,211,102,.15); }
+    .filter-sel { border:1px solid #dde1e7;border-radius:8px;padding:8px 12px;font-size:.82rem;outline:none;background:#fff;cursor:pointer; }
+    .btn-export { background:var(--ji-dark);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.8rem;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px; }
+    .btn-export:hover { background:#2c2c54; }
+
+    .panel-body { flex:1;overflow-y:auto;padding:16px 22px; }
+
+    /* ── Candidate cards ──────────────────────────── */
+    .candidate-card {
+      border:1px solid #eef0f4;border-radius:12px;padding:16px;margin-bottom:12px;
+      background:#fff;transition:box-shadow .15s;
+    }
+    .candidate-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08); }
+    .cand-top { display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px; }
+    .cand-avatar { width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-weight:700;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .cand-name { font-weight:700;font-size:.95rem;margin-bottom:2px; }
+    .cand-meta { font-size:.78rem;color:#666;line-height:1.6; }
+    .cand-actions { display:flex;gap:8px;flex-wrap:wrap;align-items:center; }
+    .btn-wa { background:#25d366;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px; }
+    .btn-wa:hover { background:#1ebe5d;color:#fff; }
+    .btn-cv { background:#f8f9fa;color:var(--ji-dark);border:1px solid #dde1e7;border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px; }
+    .btn-cv:hover { background:#eef0f4;color:var(--ji-dark); }
+    .btn-cv.disabled { opacity:.4;cursor:not-allowed;pointer-events:none; }
+    .btn-shortlist { background:#1a5276;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:600;cursor:pointer; }
+    .btn-shortlist:hover { background:#154360; }
+    .btn-reject-app { background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:600;cursor:pointer; }
+    .btn-reject-app:hover { background:#c0392b; }
+    .btn-reset-app { background:#7f8c8d;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:600;cursor:pointer; }
+    .btn-reset-app:hover { background:#626567; }
+    .skills-wrap { margin-top:8px;display:flex;flex-wrap:wrap;gap:6px; }
+    .skill-tag { background:#f0f2f5;color:#444;border-radius:20px;padding:2px 10px;font-size:.72rem;font-weight:500; }
+    .app-no-items { padding:40px;text-align:center;color:#aaa; }
+    .app-no-items i { font-size:2rem;display:block;margin-bottom:10px; }
+
+    /* ── Spinner / empty / loading ────────────────── */
+    .spinner-wrap { padding:40px;text-align:center; }
+    .empty-state { padding:46px;text-align:center;color:#aaa; }
+    .empty-state i { font-size:2.5rem;display:block;margin-bottom:10px; }
+
+    /* ── Responsive ───────────────────────────────── */
+    @media(max-width:640px) {
+      .auth-card { padding:28px 18px; }
+      .profile-card { flex-direction:column;gap:10px; }
+      .stat-grid { grid-template-columns:repeat(2,1fr); }
+      .top-actions { flex-direction:column;align-items:flex-start; }
+      .cand-top { flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════ AUTH SCREEN ════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div style="text-align:center;margin-bottom:20px">
+      <span style="font-size:1.6rem;font-weight:800">
+        <span style="color:#e74c3c">Job</span><span style="color:#1a1a2e">info</span>
+      </span>
+      <p style="margin:4px 0 0;color:#888;font-size:.82rem">Recruiter Dashboard</p>
+    </div>
+    <div class="step-dots">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="auth-step1">
+      <h2>Verify your WhatsApp</h2>
+      <p class="text-muted mb-4" style="font-size:.88rem">Enter the number you registered with.</p>
+      <div class="mb-3">
+        <label class="field-label">WhatsApp Number</label>
+        <div class="wa-wrap">
+          <span class="prefix"><i class="bi bi-whatsapp" style="color:#25d366"></i> +91</span>
+          <input type="tel" id="wa-input" placeholder="10-digit number" maxlength="10">
+        </div>
+      </div>
+      <button class="btn-ji" id="send-otp-btn"><i class="bi bi-send me-2"></i>Send OTP</button>
+      <div class="auth-err" id="err1"></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="auth-step2" style="display:none">
+      <h2>Enter OTP</h2>
+      <p class="text-muted mb-4" style="font-size:.88rem">A 6-digit code was sent to your WhatsApp.</p>
+      <div class="mb-3">
+        <label class="field-label">One-Time Password</label>
+        <input type="text" id="otp-input" class="otp-field" maxlength="6" placeholder="••••••" autocomplete="one-time-code">
+      </div>
+      <button class="btn-ji" id="verify-btn">Verify &amp; Open Dashboard</button>
+      <div class="resend-row">
+        <button class="btn-resend" id="resend-btn" disabled>Resend in <span id="cd">60</span>s</button>
+      </div>
+      <div class="auth-err" id="err2"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ DASHBOARD ════════════════════ -->
+<div id="dashboard">
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div>
+      <div class="brand"><span>Job</span>info – Recruiter Dashboard</div>
+      <div class="sub-label" id="topbar-name"></div>
+    </div>
+    <button class="btn-logout" id="logout-btn"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+  </div>
+
+  <div class="container py-4">
+
+    <!-- Profile card -->
+    <div class="profile-card" id="profile-card">
+      <div class="avatar" id="avatar-letter">?</div>
+      <div class="profile-info">
+        <h4 id="p-name">—</h4>
+        <p id="p-company"></p>
+        <p id="p-details"></p>
+      </div>
+      <a href="recruiter.html" class="btn-post ms-auto">
+        <i class="bi bi-plus-circle"></i> Post New Vacancy
+      </a>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card" data-filter="all">
+        <div class="val" id="s-total">—</div><div class="lbl">Total Vacancies</div>
+      </div>
+      <div class="stat-card approved" data-filter="approved">
+        <div class="val" id="s-approved">—</div><div class="lbl">✅ Approved</div>
+      </div>
+      <div class="stat-card pending" data-filter="pending">
+        <div class="val" id="s-pending">—</div><div class="lbl">⏳ Pending</div>
+      </div>
+      <div class="stat-card rejected" data-filter="rejected">
+        <div class="val" id="s-rejected">—</div><div class="lbl">❌ Rejected</div>
+      </div>
+      <div class="stat-card apps" data-filter="__apps">
+        <div class="val" id="s-apps">—</div><div class="lbl">📩 Applications</div>
+      </div>
+    </div>
+
+    <!-- Filter tabs + action bar -->
+    <div class="top-actions">
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="filter-tabs">
+        <button class="tab-btn active" data-filter="all">All Vacancies</button>
+        <button class="tab-btn" data-filter="approved">Approved</button>
+        <button class="tab-btn" data-filter="pending">Pending</button>
+        <button class="tab-btn" data-filter="rejected">Rejected</button>
+      </div>
+    </div>
+
+    <!-- Vacancy table -->
+    <div class="table-card" id="table-card">
+      <div class="spinner-wrap" id="tbl-loading">
+        <div class="spinner-border text-success"></div>
+        <p class="mt-3 text-muted small">Loading vacancies…</p>
+      </div>
+      <table id="vac-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Job Code</th>
+            <th>Title &amp; Details</th>
+            <th>Location</th>
+            <th>Stage</th>
+            <th>Applications</th>
+            <th>Posted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="vac-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="vac-empty" style="display:none">
+        <i class="bi bi-inbox"></i>
+        No vacancies in this category.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════ APPLICATIONS PANEL ════════════════════ -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<div class="apps-panel" id="apps-panel">
+
+  <!-- Panel header -->
+  <div class="panel-head">
+    <div>
+      <h3 id="panel-title">Applications</h3>
+      <p id="panel-subtitle"></p>
+    </div>
+    <button class="btn-close-panel" id="close-panel">&#x2715;</button>
+  </div>
+
+  <!-- Toolbar: search + filter + export -->
+  <div class="panel-toolbar">
+    <input type="text" class="panel-search" id="app-search" placeholder="🔍  Search name or skill…">
+    <select class="filter-sel" id="app-status-filter">
+      <option value="all">All Applicants</option>
+      <option value="applied">📩 Applied</option>
+      <option value="shortlisted">⭐ Shortlisted</option>
+      <option value="rejected">❌ Rejected</option>
+    </select>
+    <button class="btn-export" id="export-csv-btn">
+      <i class="bi bi-download"></i> Export CSV
+    </button>
+  </div>
+
+  <!-- Applications list -->
+  <div class="panel-body" id="panel-body">
+    <div class="spinner-wrap" id="apps-loading">
+      <div class="spinner-border text-success"></div>
+      <p class="mt-3 text-muted small">Loading applications…</p>
+    </div>
+    <div id="apps-list"></div>
+    <div class="app-no-items" id="apps-empty" style="display:none">
+      <i class="bi bi-people"></i>
+      No applicants match this filter.
+    </div>
+  </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/config.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════
+   JobInfo – Recruiter Dashboard
+   ══════════════════════════════════════════════════════ */
+
+let verifiedWa = null, sessionToken = null;
+let allVacancies = [], currentVacFilter = "all";
+let panelVacancyId = null, allApps = [], currentAppFilter = "all", appSearch = "";
+
+/* Restore session */
+(function() {
+  const t = sessionStorage.getItem("ji_r_token"), w = sessionStorage.getItem("ji_r_wa");
+  if (t && w) { sessionToken = t; verifiedWa = w; loadDashboard(); }
+})();
+
+/* ══════════════════ AUTH ══════════════════ */
+
+const sendOtpBtn = document.getElementById("send-otp-btn");
+sendOtpBtn.addEventListener("click", async () => {
+  const raw = document.getElementById("wa-input").value.replace(/\D/g, "");
+  if (raw.length < 10) { showErr("err1", "Enter a valid 10-digit number."); return; }
+  verifiedWa = raw.startsWith("91") ? raw : "91" + raw;
+  sendOtpBtn.disabled = true; sendOtpBtn.textContent = "Sending…"; hideErr("err1");
+  try {
+    const r = await post("/api/otp/send", { wa_number: verifiedWa });
+    if (!r.ok) throw new Error();
+    toStep(2); startCd();
+  } catch { showErr("err1", "Could not send OTP. Please try again."); }
+  finally { sendOtpBtn.disabled = false; sendOtpBtn.innerHTML = '<i class="bi bi-send me-2"></i>Send OTP'; }
+});
+document.getElementById("wa-input").addEventListener("keydown", e => { if (e.key === "Enter") sendOtpBtn.click(); });
+
+const verifyBtn = document.getElementById("verify-btn");
+verifyBtn.addEventListener("click", async () => {
+  const code = document.getElementById("otp-input").value.trim();
+  if (code.length !== 6) { showErr("err2", "Enter the 6-digit OTP."); return; }
+  verifyBtn.disabled = true; verifyBtn.textContent = "Verifying…"; hideErr("err2");
+  try {
+    const r = await post("/api/otp/verify", { wa_number: verifiedWa, otp_code: code });
+    if (!r.ok) { showErr("err2", "Incorrect OTP. Try again."); return; }
+    const d = await r.json();
+    sessionToken = d.session_token;
+    sessionStorage.setItem("ji_r_token", sessionToken);
+    sessionStorage.setItem("ji_r_wa", verifiedWa);
+    loadDashboard();
+  } catch { showErr("err2", "Verification failed. Please try again."); }
+  finally { verifyBtn.disabled = false; verifyBtn.textContent = "Verify & Open Dashboard"; }
+});
+document.getElementById("otp-input").addEventListener("keydown", e => { if (e.key === "Enter") verifyBtn.click(); });
+
+function startCd() {
+  let s = 60;
+  const btn = document.getElementById("resend-btn"), cd = document.getElementById("cd");
+  btn.disabled = true; cd.textContent = s;
+  const t = setInterval(() => {
+    if (--s <= 0) { clearInterval(t); btn.disabled = false; btn.textContent = "Resend OTP"; }
+    else cd.textContent = s;
+  }, 1000);
+}
+document.getElementById("resend-btn").addEventListener("click", async () => {
+  document.getElementById("resend-btn").disabled = true;
+  await post("/api/otp/send", { wa_number: verifiedWa }).catch(() => {});
+  startCd();
+});
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+  sessionStorage.removeItem("ji_r_token"); sessionStorage.removeItem("ji_r_wa");
+  sessionToken = verifiedWa = null; allVacancies = [];
+  document.getElementById("dashboard").style.display = "none";
+  document.getElementById("auth-screen").style.display = "flex";
+  document.getElementById("auth-step1").style.display = "block";
+  document.getElementById("auth-step2").style.display = "none";
+  document.getElementById("wa-input").value = "";
+  document.getElementById("otp-input").value = "";
+  toStep(1);
+  sendOtpBtn.disabled = false;
+  sendOtpBtn.innerHTML = '<i class="bi bi-send me-2"></i>Send OTP';
+});
+
+/* ══════════════════ DASHBOARD ══════════════════ */
+
+async function loadDashboard() {
+  document.getElementById("auth-screen").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+  try {
+    const r = await post("/api/recruiters/dashboard", { wa_number: verifiedWa, session_token: sessionToken });
+    if (r.status === 401) { alert("Session expired. Please login again."); doLogout(); return; }
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    renderDashboard(d);
+  } catch(e) {
+    console.error(e);
+    document.getElementById("tbl-loading").innerHTML =
+      '<div class="empty-state"><i class="bi bi-exclamation-triangle text-danger"></i><p>Could not load dashboard. Is the backend running?</p></div>';
+  }
+}
+
+function renderDashboard(d) {
+  const rc = d.recruiter, s = d.summary;
+  document.getElementById("topbar-name").textContent = rc.name;
+  document.getElementById("avatar-letter").textContent = rc.name.charAt(0).toUpperCase();
+  document.getElementById("p-name").textContent = rc.name;
+  document.getElementById("p-company").textContent = rc.company ? "🏢 " + rc.company : "";
+  document.getElementById("p-details").innerHTML =
+    (rc.location ? "📍 " + rc.location + "&nbsp;&nbsp;" : "") +
+    (rc.email ? "✉️ " + rc.email + "&nbsp;&nbsp;" : "") +
+    '<i class="bi bi-whatsapp" style="color:#25d366"></i> +' + rc.wa_number;
+  document.getElementById("s-total").textContent    = s.total;
+  document.getElementById("s-approved").textContent = s.approved;
+  document.getElementById("s-pending").textContent  = s.pending;
+  document.getElementById("s-rejected").textContent = s.rejected;
+  document.getElementById("s-apps").textContent     = s.total_applications;
+  allVacancies = d.vacancies;
+  renderVacancyTable("all");
+}
+
+function renderVacancyTable(filter) {
+  currentVacFilter = filter;
+  const rows = filter === "all" ? allVacancies : allVacancies.filter(v => v.status === filter);
+  const tbody = document.getElementById("vac-tbody");
+  const table = document.getElementById("vac-table");
+  const empty = document.getElementById("vac-empty");
+  document.getElementById("tbl-loading").style.display = "none";
+  tbody.innerHTML = "";
+  if (!rows.length) { table.style.display = "none"; empty.style.display = "block"; return; }
+  empty.style.display = "none"; table.style.display = "table";
+
+  rows.forEach(v => {
+    const sb = { approved:"badge-appr ✅ Approved", pending:"badge-pend ⏳ Pending", rejected:"badge-reje ❌ Rejected" }[v.status] || v.status;
+    const parts = sb.split(" "), cls = parts[0], label = parts.slice(1).join(" ");
+    const posted = v.created_at ? new Date(v.created_at).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}) : "—";
+    const rejNote = v.status === "rejected" && v.rejection_reason
+      ? `<div class="rejpill" title="${esc(v.rejection_reason)}">Reason: ${esc(v.rejection_reason.substring(0,40))}${v.rejection_reason.length>40?"…":""}</div>` : "";
+    tbody.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td><code class="jc">${esc(v.job_code)}</code></td>
+        <td>
+          <strong>${esc(v.title)}</strong>
+          ${v.company ? `<br><span class="text-muted" style="font-size:.78rem">🏢 ${esc(v.company)}</span>` : ""}
+          ${v.salary_range ? `<br><span class="text-muted" style="font-size:.78rem">💰 ${esc(v.salary_range)}</span>` : ""}
+          ${v.experience_required ? `<br><span class="text-muted" style="font-size:.78rem">🎓 ${esc(v.experience_required)}</span>` : ""}
+        </td>
+        <td><i class="bi bi-geo-alt text-muted"></i> ${esc(v.location)}</td>
+        <td><span class="${cls}">${label}</span>${rejNote}</td>
+        <td><span class="app-count"><i class="bi bi-people me-1"></i>${v.application_count}</span></td>
+        <td style="font-size:.78rem;color:#888;white-space:nowrap">${posted}</td>
+        <td>
+          <button class="btn-apps" onclick="openAppsPanel(${v.id},'${esc(v.job_code)}','${esc(v.title)}',${v.application_count})">
+            <i class="bi bi-people me-1"></i>View Apps
+          </button>
+        </td>
+      </tr>
+    `);
+  });
+}
+
+/* Filter tabs */
+document.getElementById("filter-tabs").addEventListener("click", e => {
+  const btn = e.target.closest(".tab-btn"); if (!btn) return;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderVacancyTable(btn.dataset.filter);
+});
+
+/* Stat card clicks */
+document.querySelectorAll(".stat-card[data-filter]").forEach(card => {
+  card.addEventListener("click", () => {
+    const f = card.dataset.filter;
+    if (f === "__apps") return;
+    document.querySelectorAll(".tab-btn").forEach(b => {
+      b.classList.toggle("active", b.dataset.filter === f);
+    });
+    renderVacancyTable(f);
+  });
+});
+
+/* ══════════════════ APPLICATIONS PANEL ══════════════════ */
+
+async function openAppsPanel(vacId, jobCode, title, count) {
+  panelVacancyId = vacId;
+  document.getElementById("panel-title").textContent = title;
+  document.getElementById("panel-subtitle").textContent = `${jobCode} · ${count} application${count!==1?"s":""}`;
+  document.getElementById("app-search").value = "";
+  document.getElementById("app-status-filter").value = "all";
+  appSearch = ""; currentAppFilter = "all";
+
+  document.getElementById("panel-overlay").classList.add("open");
+  document.getElementById("apps-panel").classList.add("open");
+  document.getElementById("apps-loading").style.display = "block";
+  document.getElementById("apps-list").innerHTML = "";
+  document.getElementById("apps-empty").style.display = "none";
+
+  try {
+    const r = await post("/api/recruiters/vacancy-applications", {
+      wa_number: verifiedWa, session_token: sessionToken, vacancy_id: vacId
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    allApps = d.applications;
+  } catch(e) {
+    console.error(e);
+    allApps = [];
+    document.getElementById("apps-list").innerHTML =
+      '<div class="app-no-items"><i class="bi bi-exclamation-triangle text-danger"></i><p>Could not load applications.</p></div>';
+  } finally {
+    document.getElementById("apps-loading").style.display = "none";
+  }
+  renderApps();
+}
+
+function renderApps() {
+  const list = document.getElementById("apps-list");
+  const empty = document.getElementById("apps-empty");
+  let rows = allApps;
+  if (currentAppFilter !== "all") rows = rows.filter(a => a.status === currentAppFilter);
+  if (appSearch) {
+    const q = appSearch.toLowerCase();
+    rows = rows.filter(a =>
+      a.candidate.name.toLowerCase().includes(q) ||
+      (a.candidate.skills || "").toLowerCase().includes(q) ||
+      (a.candidate.location || "").toLowerCase().includes(q)
+    );
+  }
+  list.innerHTML = "";
+  if (!rows.length) { empty.style.display = "block"; return; }
+  empty.style.display = "none";
+
+  rows.forEach((app, idx) => {
+    const c = app.candidate;
+    const statusMap = {
+      applied:     ["badge-appl", "📩 Applied"],
+      shortlisted: ["badge-shrt", "⭐ Shortlisted"],
+      rejected:    ["badge-reje", "❌ Rejected"],
+    };
+    const [sc, sl] = statusMap[app.status] || ["badge-appl", app.status];
+    const waLink = `https://wa.me/${c.wa_number}?text=Hi%20${encodeURIComponent(c.name)}%2C%20regarding%20your%20application%20on%20JobInfo.`;
+    const initials = c.name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+    const skillTags = (c.skills || "").split(/[,;]/).filter(s=>s.trim()).map(s =>
+      `<span class="skill-tag">${esc(s.trim())}</span>`
+    ).join("");
+    const applied = app.applied_at ? new Date(app.applied_at).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}) : "—";
+
+    list.insertAdjacentHTML("beforeend", `
+      <div class="candidate-card" id="ccard-${app.application_id}">
+        <div class="cand-top">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div class="cand-avatar" style="background:${avatarColor(idx)}">${initials}</div>
+            <div>
+              <div class="cand-name">${esc(c.name)}</div>
+              <div class="cand-meta">
+                ${c.location ? "📍 " + esc(c.location) + "<br>" : ""}
+                📅 Applied ${applied}
+              </div>
+            </div>
+          </div>
+          <span class="${sc}" style="white-space:nowrap">${sl}</span>
+        </div>
+
+        ${skillTags ? `<div class="skills-wrap">${skillTags}</div>` : ""}
+
+        <div class="cand-actions mt-3">
+          <a href="${waLink}" target="_blank" class="btn-wa">
+            <i class="bi bi-whatsapp"></i> Contact
+          </a>
+          ${c.has_cv
+            ? `<a href="${JOBINFO_CONFIG.API_URL}/files/cv/${encodeURIComponent(c.cv_path)}" target="_blank" class="btn-cv">
+                <i class="bi bi-file-earmark-person"></i> Download CV
+               </a>`
+            : `<span class="btn-cv disabled"><i class="bi bi-file-earmark-x"></i> No CV</span>`}
+          ${app.status !== "shortlisted"
+            ? `<button class="btn-shortlist" onclick="updateStatus(${app.application_id},'shortlisted')"><i class="bi bi-star me-1"></i>Shortlist</button>`
+            : ""}
+          ${app.status !== "rejected"
+            ? `<button class="btn-reject-app" onclick="updateStatus(${app.application_id},'rejected')"><i class="bi bi-x me-1"></i>Reject</button>`
+            : ""}
+          ${app.status !== "applied"
+            ? `<button class="btn-reset-app" onclick="updateStatus(${app.application_id},'applied')"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>`
+            : ""}
+        </div>
+      </div>
+    `);
+  });
+}
+
+async function updateStatus(appId, newStatus) {
+  try {
+    const r = await post("/api/recruiters/application/update-status", {
+      wa_number: verifiedWa, session_token: sessionToken,
+      application_id: appId, status: newStatus
+    });
+    if (!r.ok) throw new Error();
+    // Update local data
+    const app = allApps.find(a => a.application_id === appId);
+    if (app) app.status = newStatus;
+    renderApps();
+    // Refresh application counts in vacancy table
+    const vac = allVacancies.find(v => v.id === panelVacancyId);
+    // No count change, just status — no table refresh needed
+  } catch { alert("Failed to update status. Please try again."); }
+}
+
+/* Close panel */
+function closePanel() {
+  document.getElementById("panel-overlay").classList.remove("open");
+  document.getElementById("apps-panel").classList.remove("open");
+}
+document.getElementById("close-panel").addEventListener("click", closePanel);
+document.getElementById("panel-overlay").addEventListener("click", closePanel);
+
+/* Panel search & filter */
+document.getElementById("app-search").addEventListener("input", e => {
+  appSearch = e.target.value.trim();
+  renderApps();
+});
+document.getElementById("app-status-filter").addEventListener("change", e => {
+  currentAppFilter = e.target.value;
+  renderApps();
+});
+
+/* Export CSV */
+document.getElementById("export-csv-btn").addEventListener("click", async () => {
+  if (!panelVacancyId) return;
+  const btn = document.getElementById("export-csv-btn");
+  btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating…';
+  try {
+    const r = await post("/api/recruiters/vacancy-applications/export-csv", {
+      wa_number: verifiedWa, session_token: sessionToken, vacancy_id: panelVacancyId
+    });
+    if (!r.ok) throw new Error();
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const cd = r.headers.get("Content-Disposition") || "";
+    const fn = cd.match(/filename="([^"]+)"/)?.[1] || "applications.csv";
+    a.download = fn; a.click(); URL.revokeObjectURL(url);
+  } catch { alert("Could not export CSV. Please try again."); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="bi bi-download"></i> Export CSV'; }
+});
+
+/* ══════════════════ HELPERS ══════════════════ */
+function post(path, body) {
+  return fetch(JOBINFO_CONFIG.API_URL + path, {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(body)
+  });
+}
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function showErr(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.style.display="block"; }
+function hideErr(id) { document.getElementById(id).style.display="none"; }
+function toStep(n) {
+  document.getElementById("auth-step1").style.display = n===1 ? "block" : "none";
+  document.getElementById("auth-step2").style.display = n===2 ? "block" : "none";
+  document.getElementById("dot1").classList.toggle("active", n>=1);
+  document.getElementById("dot2").classList.toggle("active", n>=2);
+}
+const AVATAR_COLORS = ["#667eea","#f093fb","#4facfe","#43e97b","#fa709a","#a18cd1","#fccb90","#e0c3fc"];
+function avatarColor(i) { return AVATAR_COLORS[i % AVATAR_COLORS.length]; }
+</script>
+</body>
+</html>
