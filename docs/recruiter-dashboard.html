@@ -391,7 +391,8 @@
 
 let verifiedWa = null, sessionToken = null;
 let allVacancies = [], currentVacFilter = "all";
-let panelVacancyId = null, allApps = [], currentAppFilter = "all", appSearch = "";
+let panelVacancyId = null, panelJobCode = null, allApps = [], currentAppFilter = "all", appSearch = "";
+
 
 /* Restore session */
 (function() {
@@ -568,6 +569,8 @@ document.querySelectorAll(".stat-card[data-filter]").forEach(card => {
 
 async function openAppsPanel(vacId, jobCode, title, count) {
   panelVacancyId = vacId;
+  panelJobCode = jobCode;
+
   document.getElementById("panel-title").textContent = title;
   document.getElementById("panel-subtitle").textContent = `${jobCode} · ${count} application${count!==1?"s":""}`;
   document.getElementById("app-search").value = "";
@@ -653,7 +656,7 @@ function renderApps() {
             <i class="bi bi-whatsapp"></i> Contact
           </a>
           ${c.has_cv
-            ? `<a href="${JOBINFO_CONFIG.API_URL}/files/cv/${encodeURIComponent(c.cv_path)}" target="_blank" class="btn-cv">
+            ? `<a href="${JOBINFO_CONFIG.API_URL}/files/cv/${encodeURIComponent(c.cv_path)}?candidate_name=${encodeURIComponent(c.name)}&job_code=${encodeURIComponent(panelJobCode || '')}" target="_blank" class="btn-cv">
                 <i class="bi bi-file-earmark-person"></i> Download CV
                </a>`
             : `<span class="btn-cv disabled"><i class="bi bi-file-earmark-x"></i> No CV</span>`}
