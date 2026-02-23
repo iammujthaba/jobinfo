@@ -86,6 +86,24 @@
     .rejpill { background:#fadbd8;color:#922b21;border-radius:8px;padding:3px 10px;font-size:.73rem;cursor:help;display:inline-block;margin-top:4px; }
     .btn-apps { background:var(--ji-dark);color:#fff;border:none;border-radius:8px;padding:5px 14px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s; }
     .btn-apps:hover { background:#2c2c54; }
+    .btn-edit-vac { background:#7b2d8b;color:#fff;border:none;border-radius:8px;padding:5px 14px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s;margin-left:6px; }
+    .btn-edit-vac:hover { background:#6a2578; }
+
+    /* ── Edit modal ───────────────────────────────── */
+    .edit-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:950;align-items:center;justify-content:center; }
+    .edit-overlay.open { display:flex; }
+    .edit-modal { background:#fff;border-radius:16px;padding:28px 30px;width:540px;max-width:96%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2); }
+    .edit-modal h3 { font-size:1.1rem;font-weight:700;margin-bottom:16px; }
+    .edit-modal label { font-size:.78rem;font-weight:600;color:#555;display:block;margin-bottom:4px;margin-top:14px; }
+    .edit-modal input, .edit-modal textarea { width:100%;padding:10px 13px;border:1px solid #dde1e7;border-radius:9px;font-size:.9rem;outline:none;font-family:inherit;resize:vertical; }
+    .edit-modal input:focus, .edit-modal textarea:focus { border-color:#7b2d8b;box-shadow:0 0 0 3px rgba(123,45,139,.12); }
+    .edit-modal .required { color:#e74c3c; }
+    .edit-modal-actions { display:flex;gap:10px;justify-content:flex-end;margin-top:20px; }
+    .btn-cancel-edit { background:#ecf0f1;color:#555;border:none;border-radius:9px;padding:10px 20px;font-weight:600;cursor:pointer; }
+    .btn-submit-edit { background:#7b2d8b;color:#fff;border:none;border-radius:9px;padding:10px 22px;font-weight:700;cursor:pointer;transition:background .2s; }
+    .btn-submit-edit:hover { background:#6a2578; }
+    .btn-submit-edit:disabled { background:#aaa;cursor:not-allowed; }
+    .edit-note { background:#f0ebff;border:1px solid #d4b8f0;border-radius:9px;padding:10px 14px;font-size:.82rem;color:#5b21b6;margin-bottom:4px; }
 
     /* ── Applications slide-panel ─────────────────── */
     .panel-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900; }
@@ -331,6 +349,38 @@
 
 </div>
 
+<!-- ════════════════════ EDIT VACANCY MODAL ════════════════════ -->
+<div class="edit-overlay" id="edit-overlay">
+  <div class="edit-modal">
+    <h3>✏️ Edit Rejected Vacancy</h3>
+    <div class="edit-note">
+      <i class="bi bi-info-circle me-1"></i>
+      Editing will <strong>reset your vacancy to Pending</strong> for admin review.
+      The admin will see it marked as "Edited".
+    </div>
+    <input type="hidden" id="edit-vac-id">
+    <label>Job Code</label>
+    <input type="text" id="edit-job-code" disabled style="background:#f5f5f5;color:#888">
+    <label>Job Title <span class="required">*</span></label>
+    <input type="text" id="edit-title" placeholder="e.g. Senior Accountant" maxlength="200">
+    <label>Company Name</label>
+    <input type="text" id="edit-company" placeholder="e.g. ABC Pvt Ltd" maxlength="200">
+    <label>Location <span class="required">*</span></label>
+    <input type="text" id="edit-location" placeholder="e.g. Kochi, Kerala" maxlength="200">
+    <label>Salary Range</label>
+    <input type="text" id="edit-salary" placeholder="e.g. ₹20,000 – ₹30,000/month" maxlength="100">
+    <label>Experience Required</label>
+    <input type="text" id="edit-experience" placeholder="e.g. 2+ years" maxlength="100">
+    <label>Job Description</label>
+    <textarea id="edit-description" rows="5" placeholder="Describe the role, responsibilities, and requirements…"></textarea>
+    <div id="edit-err" style="color:#e74c3c;font-size:.82rem;margin-top:8px;display:none"></div>
+    <div class="edit-modal-actions">
+      <button class="btn-cancel-edit" id="cancel-edit-btn">Cancel</button>
+      <button class="btn-submit-edit" id="submit-edit-btn"><i class="bi bi-send me-1"></i>Submit for Review</button>
+    </div>
+  </div>
+</div>
+
 <!-- Scripts -->
 <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/config.js"></script>
@@ -481,9 +531,13 @@ function renderVacancyTable(filter) {
         <td><span class="app-count"><i class="bi bi-people me-1"></i>${v.application_count}</span></td>
         <td style="font-size:.78rem;color:#888;white-space:nowrap">${posted}</td>
         <td>
-          <button class="btn-apps" onclick="openAppsPanel(${v.id},'${esc(v.job_code)}','${esc(v.title)}',${v.application_count})">
-            <i class="bi bi-people me-1"></i>View Apps
-          </button>
+          ${v.status === 'rejected'
+            ? `<button class="btn-edit-vac" onclick="openEditModal(${JSON.stringify(v).replace(/"/g,'&quot;')})">
+                 <i class="bi bi-pencil me-1"></i>Edit
+               </button>`
+            : `<button class="btn-apps" onclick="openAppsPanel(${v.id},'${esc(v.job_code)}','${esc(v.title)}',${v.application_count})">
+                 <i class="bi bi-people me-1"></i>View Apps
+               </button>`}
         </td>
       </tr>
     `);
@@ -692,6 +746,82 @@ function toStep(n) {
 }
 const AVATAR_COLORS = ["#667eea","#f093fb","#4facfe","#43e97b","#fa709a","#a18cd1","#fccb90","#e0c3fc"];
 function avatarColor(i) { return AVATAR_COLORS[i % AVATAR_COLORS.length]; }
+
+/* ══════════════════ EDIT VACANCY ══════════════════ */
+
+function openEditModal(v) {
+  // v can be an object (when called programmatically) or come from onclick as
+  // a stringified object via data-attribute — handle both cases.
+  if (typeof v === "string") { try { v = JSON.parse(v); } catch { return; } }
+  document.getElementById("edit-vac-id").value      = v.id;
+  document.getElementById("edit-job-code").value     = v.job_code || "";
+  document.getElementById("edit-title").value        = v.title || "";
+  document.getElementById("edit-company").value      = v.company || "";
+  document.getElementById("edit-location").value     = v.location || "";
+  document.getElementById("edit-salary").value       = v.salary_range || "";
+  document.getElementById("edit-experience").value   = v.experience_required || "";
+  document.getElementById("edit-description").value  = v.description || "";
+  document.getElementById("edit-err").style.display  = "none";
+  document.getElementById("submit-edit-btn").disabled = false;
+  document.getElementById("submit-edit-btn").innerHTML = '<i class="bi bi-send me-1"></i>Submit for Review';
+  document.getElementById("edit-overlay").classList.add("open");
+}
+
+function closeEditModal() {
+  document.getElementById("edit-overlay").classList.remove("open");
+}
+
+document.getElementById("cancel-edit-btn").addEventListener("click", closeEditModal);
+document.getElementById("edit-overlay").addEventListener("click", e => {
+  if (e.target === document.getElementById("edit-overlay")) closeEditModal();
+});
+
+document.getElementById("submit-edit-btn").addEventListener("click", async () => {
+  const title    = document.getElementById("edit-title").value.trim();
+  const location = document.getElementById("edit-location").value.trim();
+  const errEl    = document.getElementById("edit-err");
+
+  if (!title)    { errEl.textContent = "Job title is required.";    errEl.style.display = "block"; return; }
+  if (!location) { errEl.textContent = "Location is required.";     errEl.style.display = "block"; return; }
+  errEl.style.display = "none";
+
+  const btn = document.getElementById("submit-edit-btn");
+  btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Submitting…';
+
+  try {
+    const r = await post("/api/recruiters/vacancy/edit", {
+      wa_number:           verifiedWa,
+      session_token:       sessionToken,
+      vacancy_id:          parseInt(document.getElementById("edit-vac-id").value),
+      title,
+      company:             document.getElementById("edit-company").value.trim() || null,
+      location,
+      description:         document.getElementById("edit-description").value.trim() || null,
+      salary_range:        document.getElementById("edit-salary").value.trim() || null,
+      experience_required: document.getElementById("edit-experience").value.trim() || null,
+    });
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.detail || "Submission failed."; errEl.style.display = "block"; return; }
+
+    closeEditModal();
+    // Reload dashboard to reflect status change (rejected → pending)
+    await loadDashboard();
+    // Snap to pending filter so recruiter sees the resubmitted vacancy
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.filter === "pending"));
+    renderVacancyTable("pending");
+
+    // Show brief success toast
+    const toast = document.createElement("div");
+    toast.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25d366;color:#fff;padding:12px 24px;border-radius:12px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);font-size:.9rem;";
+    toast.textContent = "✅ Vacancy resubmitted for review!";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  } catch(e) {
+    errEl.textContent = "Network error. Please try again."; errEl.style.display = "block";
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-send me-1"></i>Submit for Review';
+  }
+});
 </script>
 </body>
 </html>

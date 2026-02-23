@@ -110,6 +110,7 @@
     .badge-pending  { background: #fff3cd; color: #856404; padding: 3px 10px; border-radius: 20px; font-size: .74rem; font-weight: 600; }
     .badge-approved { background: #d1f2eb; color: #1e8449; padding: 3px 10px; border-radius: 20px; font-size: .74rem; font-weight: 600; }
     .badge-rejected { background: #fadbd8; color: #922b21; padding: 3px 10px; border-radius: 20px; font-size: .74rem; font-weight: 600; }
+    .badge-edited   { background: #e8def8; color: #5b21b6; padding: 2px 8px; border-radius: 20px; font-size: .7rem; font-weight: 700; margin-left: 5px; vertical-align: middle; }
 
     /* ── Action buttons ──────────────────────────── */
     .btn-approve { background: var(--ji-green); color: #fff; border: none; border-radius: 7px; padding: 5px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .2s; }
@@ -587,10 +588,14 @@ function buildRow(v, filter) {
   const recruiterName = v.recruiter?.name || v.recruiter_name || "—";
   const recruiterWa   = v.recruiter?.wa_number || v.recruiter_wa || "";
 
+  const editedBadge = v.is_edited
+    ? `<span class="badge-edited" title="Re-submitted by recruiter on ${fmtDate(v.edited_at)}">✏️ Edited</span>`
+    : "";
+
   return `<tr>
     <td><code class="jc">${escHtml(v.job_code)}</code></td>
     <td>
-      <strong>${escHtml(v.title)}</strong>
+      <strong>${escHtml(v.title)}</strong>${editedBadge}
       ${v.description ? `<br><button class="desc-btn" data-title="${escHtml(v.title)}" data-desc="${escHtml(v.description)}">View details</button>` : ""}
     </td>
     <td>${escHtml(v.company)}</td>
