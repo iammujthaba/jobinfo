@@ -40,7 +40,7 @@ if (sendOtpBtn) {
     verifiedWaNumber = number.startsWith("91") ? number : "91" + number;
 
     sendOtpBtn.disabled = true;
-    sendOtpBtn.textContent = "Sending…";
+    sendOtpBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Sending…';
 
     try {
       const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/otp/send`, {
@@ -49,15 +49,17 @@ if (sendOtpBtn) {
         body: JSON.stringify({ wa_number: verifiedWaNumber }),
       });
       if (!res.ok) throw new Error(await res.text());
+      // Show success feedback briefly before moving to step 2
+      sendOtpBtn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>OTP Sent!';
+      await new Promise(r => setTimeout(r, 800));
       showStep(2);
       // Show countdown for resend
       startResendCountdown();
     } catch (err) {
       swal("Error", "Could not send OTP. Please try again.", "error");
       console.error(err);
-    } finally {
       sendOtpBtn.disabled = false;
-      sendOtpBtn.textContent = "Send OTP";
+      sendOtpBtn.innerHTML = '<i class="bi bi-send me-1"></i>Send OTP';
     }
   });
 }
