@@ -36,6 +36,68 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+  <style>
+    /* ── Hero button pair: green theme ─────────────────────────────────── */
+    /* Follow Channel – solid green pill */
+    .hero .btn-get-started,
+    a.btn-get-started {
+      font-size: 15px !important;
+      border: 2px solid transparent !important;
+    }
+    .hero .btn-get-started:hover,
+    a.btn-get-started:hover {
+      background: transparent !important;
+      color: #1a1a1a !important;
+      border: 2px solid #10bc69 !important;
+      box-shadow: none !important;
+    }
+    .hero .btn-get-started:hover i,
+    a.btn-get-started:hover i {
+      color: #10bc69 !important;
+    }
+
+    /* Browse Jobs – outlined green pill (mirrors Post Vacancy style) */
+    .hero .btn-watch-video,
+    a.glightbox.btn-watch-video {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      padding: 12px 28px !important;
+      border-radius: 50px !important;
+      border: 2px solid #10bc69 !important;
+      color: #1a1a1a !important;
+      background: transparent !important;
+      font-size: 15px !important;
+      font-weight: 400 !important;
+      letter-spacing: 1px !important;
+      text-decoration: none !important;
+      transition: background 0.4s, color 0.4s !important;
+      margin-left: 12px;
+      white-space: nowrap;
+    }
+    .hero .btn-watch-video i,
+    a.glightbox.btn-watch-video i {
+      font-size: 18px !important;
+      color: #10bc69 !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+    }
+    .hero .btn-watch-video:hover,
+    a.glightbox.btn-watch-video:hover {
+      background: #10bc69 !important;
+      color: #fff !important;
+    }
+    .hero .btn-watch-video:hover i,
+    a.glightbox.btn-watch-video:hover i {
+      color: #fff !important;
+    }
+    @media (max-width: 640px) {
+      .hero .btn-get-started { width: 48% !important; padding: 12px 0 !important; }
+      a.glightbox.btn-watch-video { width: 48% !important; padding: 12px 0 !important; margin-left: 0 !important; }
+    }
+  </style>
+
 </head>
 
 <body class="index-page">
@@ -79,9 +141,9 @@
           <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="fade-up">
             <h1>Find Your Dream Job on WhatsApp</h1>
             <p>Get daily job updates directly in your WhatsApp! Say goodbye to endless job searches and spam! – Discover your dream job at your fingertips!</p>
-            <div class="d-flex flex-column flex-sm-row gap-3">
+            <div class="d-flex flex-wrap gap-2">
               <a href="https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z" class="btn-get-started"><i class="bi bi-whatsapp icon whats"></i><span>Follow Channel</span></a>
-              <a href="jobs.html" class="glightbox btn-watch-video d-flex align-items-center"><i class="bi bi-briefcase"></i><span>Browse Jobs</span></a>
+              <a href="jobs.html" class="glightbox btn-watch-video"><i class="bi bi-briefcase"></i><span>Browse Jobs</span></a>
             </div>
           </div>
           <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="100">
