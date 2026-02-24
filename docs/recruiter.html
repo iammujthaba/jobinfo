@@ -28,17 +28,82 @@
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
   <style>
-    /* Nav Menu Colors - The following color variables are used specifically for the navigation menu. They are separate from the global colors to allow for more customization options */
+    /* Nav Menu Colors */
   :root {
-    --nav-color: #5f687b;  /* The default color of the main navmenu links */
-    --nav-hover-color: #007bff; /* Applied to main navmenu links when they are hovered over or active */
-    --nav-mobile-background-color: #ffffff; /* Used as the background color for mobile navigation menu */
-    --nav-dropdown-background-color: #ffffff; /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
-    --nav-dropdown-color: #5f687b; /* Used for navigation links of the dropdown items in the navigation menu. */
-    --nav-dropdown-hover-color: #007bff; /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
+    --nav-color: #5f687b;
+    --nav-hover-color: #007bff;
+    --nav-mobile-background-color: #ffffff;
+    --nav-dropdown-background-color: #ffffff;
+    --nav-dropdown-color: #5f687b;
+    --nav-dropdown-hover-color: #007bff;
   }
   .section-title{
     margin-bottom: 10px;
+  }
+
+  /* Follow Channel button – outlined style on hover */
+  .hero .btn-get-started,
+  a.btn-get-started.btn-primary {
+    font-size: 15px !important;
+  }
+  .hero .btn-get-started:hover,
+  a.btn-get-started.btn-primary:hover {
+    background: transparent !important;
+    color: #1a1a1a !important;
+    border: 2px solid #107bbc !important;
+    box-shadow: none !important;
+  }
+  .hero .btn-get-started:hover i,
+  a.btn-get-started.btn-primary:hover i {
+    color: #107bbc !important;
+  }
+
+  /* Post Vacancy pill button – overrides glightbox resets */
+  .hero .btn-watch-video,
+  a.glightbox.btn-watch-video {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 12px 28px !important;
+    border-radius: 50px !important;
+    border: 2px solid #107bbc !important;
+    color: #1a1a1a !important;
+    background: transparent !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    letter-spacing: 1px !important;
+    text-decoration: none !important;
+    transition: background 0.4s, color 0.4s !important;
+    margin-left: 12px;
+    white-space: nowrap;
+  }
+  .hero .btn-watch-video i,
+  a.glightbox.btn-watch-video i {
+    font-size: 18px !important;
+    color: #107bbc !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+  }
+  .hero .btn-watch-video:hover,
+  a.glightbox.btn-watch-video:hover {
+    background: #107bbc !important;
+    color: #fff !important;
+  }
+  .hero .btn-watch-video:hover i,
+  a.glightbox.btn-watch-video:hover i {
+    color: #fff !important;
+  }
+  @media (max-width: 640px) {
+    a.glightbox.btn-watch-video {
+      margin-left: 0 !important;
+      width: 48% !important;
+      padding: 12px 0 !important;
+    }
+    .hero .btn-get-started {
+      width: 48% !important;
+      padding: 12px 0 !important;
+    }
   }
   </style>
 
@@ -86,9 +151,9 @@
           <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="fade-up">
             <h1>We Make your Hiring Simple and Fast</h1>
             <p>Say goodbye to delays and portals. Connect with active job seekers directly through WhatsApp – hiring is now just a message away!</p>
-            <div class="d-flex">
+            <div class="d-flex flex-wrap gap-2">
               <a href="https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z" class="btn-get-started btn-primary" style="width: 50%;"><i class="bi bi-whatsapp icon whats"></i><span>Follow Channel</span></a>
-              <a href="#submit-job" class="glightbox btn-watch-video d-flex align-items-center" data-gallery="vacancy-form"><i class="bi bi-person-add btn-outline-primary2"></i><span style="padding-top: 5px;">Post Vacancy</span></a>
+              <a href="#submit-job" class="glightbox btn-watch-video" data-gallery="vacancy-form"><i class="bi bi-person-add"></i><span>Post Vacancy</span></a>
             </div>
           </div>
           <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="100">
