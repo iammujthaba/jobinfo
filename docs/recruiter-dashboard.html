@@ -394,9 +394,22 @@ let allVacancies = [], currentVacFilter = "all";
 let panelVacancyId = null, panelJobCode = null, allApps = [], currentAppFilter = "all", appSearch = "";
 
 
-/* Restore session */
+/* Restore session – accept both dashboard token and vacancy-form OTP token */
 (function() {
-  const t = sessionStorage.getItem("ji_r_token"), w = sessionStorage.getItem("ji_r_wa");
+  let t = sessionStorage.getItem("ji_r_token");
+  let w = sessionStorage.getItem("ji_r_wa");
+
+  // Fall back to the vacancy-form OTP session (ji_token / ji_wa)
+  if (!t || !w) {
+    t = sessionStorage.getItem("ji_token");
+    w = sessionStorage.getItem("ji_wa");
+    if (t && w) {
+      // Promote to dashboard keys so all pages share the same session
+      sessionStorage.setItem("ji_r_token", t);
+      sessionStorage.setItem("ji_r_wa", w);
+    }
+  }
+
   if (t && w) { sessionToken = t; verifiedWa = w; loadDashboard(); }
 })();
 
@@ -427,8 +440,11 @@ verifyBtn.addEventListener("click", async () => {
     if (!r.ok) { showErr("err2", "Incorrect OTP. Try again."); return; }
     const d = await r.json();
     sessionToken = d.session_token;
+    // Write both key pairs so either login path grants full access everywhere
     sessionStorage.setItem("ji_r_token", sessionToken);
-    sessionStorage.setItem("ji_r_wa", verifiedWa);
+    sessionStorage.setItem("ji_r_wa",    verifiedWa);
+    sessionStorage.setItem("ji_token",   sessionToken);
+    sessionStorage.setItem("ji_wa",      verifiedWa);
     loadDashboard();
   } catch { showErr("err2", "Verification failed. Please try again."); }
   finally { verifyBtn.disabled = false; verifyBtn.textContent = "Verify & Open Dashboard"; }
@@ -453,6 +469,8 @@ document.getElementById("resend-btn").addEventListener("click", async () => {
 document.getElementById("logout-btn").addEventListener("click", () => {
   sessionStorage.removeItem("ji_r_token");
   sessionStorage.removeItem("ji_r_wa");
+  sessionStorage.removeItem("ji_token");
+  sessionStorage.removeItem("ji_wa");
   window.location.href = "recruiter.html";
 });
 

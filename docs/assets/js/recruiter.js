@@ -90,8 +90,16 @@ if (verifyOtpBtn) {
       }
       const data = await res.json();
       sessionToken = data.session_token;
-      sessionStorage.setItem("ji_token", sessionToken);
-      sessionStorage.setItem("ji_wa", verifiedWaNumber);
+      // Write both key pairs so either login path grants full access everywhere
+      sessionStorage.setItem("ji_token",   sessionToken);
+      sessionStorage.setItem("ji_wa",      verifiedWaNumber);
+      sessionStorage.setItem("ji_r_token", sessionToken);
+      sessionStorage.setItem("ji_r_wa",    verifiedWaNumber);
+      // Instantly update the nav Login button without a page reload
+      const loginNavBtn = document.getElementById("login-nav-btn");
+      if (loginNavBtn) {
+        loginNavBtn.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
+      }
       showStep(3);
       // Pre-fill hidden WA field in the job form
       const hiddenWa = document.getElementById("form-wa-number");
@@ -237,3 +245,35 @@ document.querySelectorAll(".accordion-header").forEach((header) => {
     }
   });
 });
+
+/* ── Auto-skip OTP if recruiter is already logged in via dashboard ──────────
+   This MUST stay at the very bottom so it runs AFTER the form init block
+   that sets jobForm.style.display = "none".                                   */
+(function restoreDashboardSession() {
+  // Check dashboard session first, then fall back to direct OTP session
+  const rToken = sessionStorage.getItem("ji_r_token") || sessionStorage.getItem("ji_token");
+  const rWa    = sessionStorage.getItem("ji_r_wa")    || sessionStorage.getItem("ji_wa");
+  if (!rToken || !rWa) return;          // not logged in — use normal OTP flow
+
+  sessionToken     = rToken;
+  verifiedWaNumber = rWa;
+
+  // Pre-fill hidden WA field used by form submission
+  const hiddenWa = document.getElementById("form-wa-number");
+  if (hiddenWa) hiddenWa.value = rWa;
+
+  // Hide OTP step boxes, show logged-in banner
+  if (step1) step1.style.display = "none";
+  if (step2) step2.style.display = "none";
+  if (step3) {
+    step3.style.display = "block";
+    step3.innerHTML = `
+      <div class="alert alert-success text-center fw-semibold mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        You're logged in as <strong>+${rWa}</strong>. Fill in your vacancy details below.
+      </div>`;
+  }
+
+  // Show the form — overrides the display:none set by the form init block above
+  if (jobForm) jobForm.style.display = "block";
+})();
