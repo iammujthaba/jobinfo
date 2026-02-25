@@ -451,17 +451,9 @@ document.getElementById("resend-btn").addEventListener("click", async () => {
 });
 
 document.getElementById("logout-btn").addEventListener("click", () => {
-  sessionStorage.removeItem("ji_r_token"); sessionStorage.removeItem("ji_r_wa");
-  sessionToken = verifiedWa = null; allVacancies = [];
-  document.getElementById("dashboard").style.display = "none";
-  document.getElementById("auth-screen").style.display = "flex";
-  document.getElementById("auth-step1").style.display = "block";
-  document.getElementById("auth-step2").style.display = "none";
-  document.getElementById("wa-input").value = "";
-  document.getElementById("otp-input").value = "";
-  toStep(1);
-  sendOtpBtn.disabled = false;
-  sendOtpBtn.innerHTML = '<i class="bi bi-send me-2"></i>Send OTP';
+  sessionStorage.removeItem("ji_r_token");
+  sessionStorage.removeItem("ji_r_wa");
+  window.location.href = "recruiter.html";
 });
 
 /* ══════════════════ DASHBOARD ══════════════════ */

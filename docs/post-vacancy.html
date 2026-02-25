@@ -26,7 +26,7 @@
   <link href="assets/css/main.css" rel="stylesheet">
 
   <style>
-    /* Nav colours (same as recruiter.html) */
+    /* Nav colours */
     :root {
       --nav-color: #5f687b;
       --nav-hover-color: #007bff;
@@ -34,6 +34,41 @@
       --nav-dropdown-background-color: #ffffff;
       --nav-dropdown-color: #5f687b;
       --nav-dropdown-hover-color: #007bff;
+    }
+
+    /* Outlined pill button for navbar end */
+    .btn-nav-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: 2px solid #107bbc;
+      color: #107bbc;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+      white-space: nowrap;
+    }
+    .btn-nav-outline:hover { background: #107bbc; color: #fff; }
+
+    /* Browse Jobs button hover – outlined on hover */
+    .header-nav-btns .btn-getstarted {
+      font-size: 14px !important;
+      border: 2px solid transparent !important;
+    }
+    .header-nav-btns .btn-getstarted:hover {
+      background: transparent !important;
+      color: #1a1a1a !important;
+      border: 2px solid #107bbc !important;
+      box-shadow: none !important;
+    }
+    .header-nav-btns .btn-getstarted:hover i { color: #107bbc !important; }
+
+    @media (max-width: 1199px) {
+      .header-nav-btns { display: none !important; }
     }
 
     /* Page header gradient banner */
@@ -72,13 +107,14 @@
           <li><a href="recruiter.html#recruiter-guidelines">Guidelines</a></li>
           <li><a href="recruiter.html#join-now">Network</a></li>
           <li><a href="post-vacancy.html" class="active">Post Vacancy</a></li>
-          <li><a href="recruiter-dashboard.html">My Dashboard</a></li>
-          <li><a href="recruiter.html#faq">FaQ</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
-      <a class="btn-getstarted btn-primary" href="index.html">Browse Jobs</a>
+      <div class="header-nav-btns d-xl-flex align-items-center gap-2">
+        <a class="btn-getstarted btn-primary" href="index.html" style="padding:8px 18px;font-size:14px;"><i class="bi bi-briefcase me-1"></i>Browse Jobs</a>
+        <a class="btn-nav-outline" id="login-nav-btn" href="recruiter-dashboard.html"><i class="bi bi-box-arrow-in-right"></i>Login</a>
+      </div>
 
     </div>
   </header>
@@ -272,6 +308,16 @@
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/recruiter.js"></script>
+  <script>
+    (function () {
+      const token = sessionStorage.getItem("ji_r_token");
+      const wa    = sessionStorage.getItem("ji_r_wa");
+      if (token && wa) {
+        const btn = document.getElementById("login-nav-btn");
+        if (btn) btn.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
+      }
+    })();
+  </script>
 
 </body>
 
