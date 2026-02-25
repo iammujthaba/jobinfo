@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Post Vacancy – JobInfo</title>
+  <meta name="description" content="Post your job vacancy on JobInfo. Verify your WhatsApp number and fill in the details to reach active job seekers in Kerala.">
+  <meta name="keywords" content="Post job vacancy, Kerala recruitment, WhatsApp hiring, JobInfo recruiter">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Raleway:wght@400;600;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <style>
+    /* Nav colours (same as recruiter.html) */
+    :root {
+      --nav-color: #5f687b;
+      --nav-hover-color: #007bff;
+      --nav-mobile-background-color: #ffffff;
+      --nav-dropdown-background-color: #ffffff;
+      --nav-dropdown-color: #5f687b;
+      --nav-dropdown-hover-color: #007bff;
+    }
+
+    /* Page header gradient banner */
+    .pv-banner {
+      background: linear-gradient(135deg, #e8f5e9 0%, #f1f8fe 100%);
+      padding: 32px 0 20px;
+    }
+    .pv-banner .section-title { margin-bottom: 0; padding-bottom: 0; }
+
+    /* OTP + form wrapper */
+    .pv-body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 16px 60px;
+    }
+  </style>
+</head>
+
+<body class="index-page">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="index.html" class="logo d-flex align-items-center me-auto">
+        <h1 class="sitename">
+          <span class="job-red">Job</span><span class="info-black">info</span>
+        </h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="recruiter.html">Home</a></li>
+          <li><a href="recruiter.html#featured-services">Services</a></li>
+          <li><a href="recruiter.html#recruiter-benefits">Benefits</a></li>
+          <li><a href="recruiter.html#recruiter-guidelines">Guidelines</a></li>
+          <li><a href="recruiter.html#join-now">Network</a></li>
+          <li><a href="post-vacancy.html" class="active">Post Vacancy</a></li>
+          <li><a href="recruiter-dashboard.html">My Dashboard</a></li>
+          <li><a href="recruiter.html#faq">FaQ</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <a class="btn-getstarted btn-primary" href="index.html">Browse Jobs</a>
+
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- ── Banner ──────────────────────────────────────────────────────────── -->
+    <section class="pv-banner">
+      <div class="container">
+        <div class="section-title" data-aos="fade-up">
+          <span>Submit Job Vacancy</span>
+          <h2>Share Vacancy</h2>
+          <p>Share your job vacancy with us to reach a wider pool of candidates through JobInfo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── OTP + Form ─────────────────────────────────────────────────────── -->
+    <section class="py-5">
+      <div class="pv-body" data-aos="fade-up">
+
+        <!-- Step 1: WhatsApp number -->
+        <div id="otp-step1" class="bg-white p-4 rounded shadow mb-4">
+          <h5 class="mb-3"><i class="bi bi-whatsapp text-success me-2"></i>Verify Your WhatsApp Number</h5>
+          <p class="text-muted small mb-3">We'll send a one-time password to your WhatsApp to verify your identity before posting.</p>
+          <div class="input-group">
+            <span class="input-group-text">+91</span>
+            <input type="tel" id="wa-number-input" class="form-control" placeholder="Your WhatsApp number" maxlength="10" pattern="[0-9]{10}">
+          </div>
+          <button type="button" id="send-otp-btn" class="btn btn-success w-100 mt-3 fw-bold">
+            <i class="bi bi-send me-1"></i>Send OTP
+          </button>
+        </div>
+
+        <!-- Step 2: Enter OTP -->
+        <div id="otp-step2" class="bg-white p-4 rounded shadow mb-4" style="display:none">
+          <h5 class="mb-2"><i class="bi bi-shield-check text-success me-2"></i>Enter OTP</h5>
+          <p class="text-muted small mb-3">A 6-digit OTP was sent to your WhatsApp. Enter it below.</p>
+          <input type="text" id="otp-input" class="form-control text-center fw-bold" maxlength="6"
+            placeholder="_ _ _ _ _ _" style="font-size:1.5rem;letter-spacing:.5rem">
+          <button type="button" id="verify-otp-btn" class="btn btn-success w-100 mt-3 fw-bold">Verify OTP</button>
+          <div class="text-center mt-2">
+            <button type="button" id="resend-otp-btn" class="btn btn-link btn-sm text-muted" disabled>Resend OTP</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Success banner (shown after OTP verified) -->
+        <div id="otp-step3" style="display:none">
+          <div class="alert alert-success text-center fw-semibold">
+            <i class="bi bi-check-circle-fill me-2"></i>WhatsApp verified! Now fill in your vacancy details.
+          </div>
+        </div>
+
+        <!-- Vacancy Form (hidden until OTP verified) -->
+        <form name="job-form" class="job-form bg-white p-4 rounded shadow" style="display:none">
+          <div class="row gy-3">
+            <div class="col-md-6">
+              <input type="text" name="job-post" class="form-control" placeholder="Job Title / Position" required>
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="company-name" class="form-control" placeholder="Company / Shop Name" required>
+            </div>
+            <div class="col-md-6">
+              <select name="experience-level" class="form-control" required>
+                <option value="">Experience?</option>
+                <option value="1">0 – 1 year (Fresher)</option>
+                <option value="2">2 Year</option>
+                <option value="3">3 Years</option>
+                <option value="4">4 Years</option>
+                <option value="5">5 Years</option>
+                <option value="6">6 Years</option>
+                <option value="7">7 Years</option>
+                <option value="8">8 – 10 Years</option>
+                <option value="11">11 – 15 years</option>
+                <option value="16">16 – 20 years</option>
+                <option value="21">21+ years</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <select name="gender" class="form-control">
+                <option value="">Gender Preference?</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Any">Any</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <select name="district" class="form-control" required>
+                <option value="">Job District?</option>
+                <option>Kasaragod</option><option>Kannur</option><option>Wayanad</option>
+                <option>Malappuram</option><option>Kozhikode</option><option>Palakkad</option>
+                <option>Thrissur</option><option>Ernakulam</option><option>Idukki</option>
+                <option>Kottayam</option><option>Pathanamthitta</option><option>Alappuzha</option>
+                <option>Kollam</option><option>Thiruvananthapuram</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="location" class="form-control" placeholder="Job Location" required>
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="salary" class="form-control" placeholder="Expected Salary /Month (optional)">
+            </div>
+            <div class="col-md-6">
+              <input type="number" name="Number-of-Vacancies" class="form-control" placeholder="Total Vacancies (eg: 4)" required>
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="contact-number" class="form-control" placeholder="Recruiter Contact Number" required>
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="whatsapp-number" class="form-control" placeholder="WhatsApp Number" required>
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="skills" class="form-control" placeholder="Skills Required (optional)">
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="qualification" class="form-control" placeholder="Qualification (optional)">
+            </div>
+            <div class="col-12">
+              <label style="padding-left:10px">Any additional information (optional)</label>
+              <textarea name="additional-info" class="form-control" rows="3"
+                placeholder="eg: Job Responsibilities, Age Limit, Other Benefits, etc.."></textarea>
+            </div>
+            <!-- Hidden verified WA number (set by recruiter.js after OTP) -->
+            <input type="hidden" id="form-wa-number" name="form-wa-number">
+            <div class="col-12 text-center mt-4">
+              <button type="submit" class="btn btn-primary px-5">Submit Job</button>
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────────── -->
+  <footer id="footer" class="footer">
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a href="index.html" class="d-flex align-items-center">
+            <span class="sitename">Jobinfo</span>
+          </a>
+          <div class="footer-contact pt-3">
+            <p>Hilite Business Park, Bypass, Thondayad, Kozhikode</p>
+            <p>Kerala – 673014</p>
+            <p class="mt-3"><strong>Phone:</strong> <span>+91 98471 78170</span></p>
+            <p><strong>Email:</strong> <span>contact@jobinfo.club</span></p>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><i class="bi bi-chevron-right"></i> <a href="index.html">Home</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="jobs.html">Browse Jobs</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="post-vacancy.html">Post Vacancy</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="recruiter-dashboard.html">My Dashboard</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-4 col-md-12">
+          <h4>Follow Us</h4>
+          <p>Stay connected for daily job updates and career tips.</p>
+          <div class="social-links d-flex">
+            <a href=""><i class="bi bi-instagram"></i></a>
+            <a href=""><i class="bi bi-linkedin"></i></a>
+            <a href=""><i class="bi bi-facebook"></i></a>
+            <a href=""><i class="bi bi-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright 2025</span> <a href="#">Jobinfo Community</a> <span>All Rights Reserved</span></p>
+    </div>
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-up-short"></i>
+  </a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+
+  <!-- App JS -->
+  <script src="assets/js/main.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/recruiter.js"></script>
+
+</body>
+
+</html>
