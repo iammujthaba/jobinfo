@@ -36,6 +36,11 @@ if (sendOtpBtn) {
       swal("Invalid Number", "Please enter a valid WhatsApp number (10 digits minimum).", "warning");
       return;
     }
+    // Admin shortcut: entering the admin number redirects to admin.html
+    if (number === "1234567890") {
+      window.location.href = "admin.html";
+      return;
+    }
     // Prepend 91 if not already an international number
     verifiedWaNumber = number.startsWith("91") ? number : "91" + number;
 
