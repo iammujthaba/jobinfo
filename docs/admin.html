@@ -467,18 +467,19 @@ document.getElementById("login-btn").addEventListener("click", async () => {
   const p = document.getElementById("login-pass").value;
   if (!u || !p) return;
 
-  // Test credentials against the backend
   try {
     const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies?status_filter=pending`, {
       headers: { "Authorization": "Basic " + btoa(`${u}:${p}`) },
     });
     if (res.status === 401 || res.status === 403) {
+      document.getElementById("login-error").textContent = "Incorrect username or password.";
       document.getElementById("login-error").style.display = "block";
       return;
     }
-  } catch {
-    // If backend is offline, allow offline mode with a warning (dev convenience)
-    console.warn("Backend offline – running in demo mode");
+  } catch (err) {
+    document.getElementById("login-error").textContent = "Failed to connect to the server.";
+    document.getElementById("login-error").style.display = "block";
+    return;
   }
 
   adminUser = u;

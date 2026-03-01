@@ -37,7 +37,7 @@ if (sendOtpBtn) {
       return;
     }
     // Admin shortcut: entering the admin number redirects to admin.html
-    if (number === "1234567890") {
+    if (number === "7025962175") {
       window.location.href = "admin.html";
       return;
     }

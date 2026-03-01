@@ -420,7 +420,7 @@ sendOtpBtn.addEventListener("click", async () => {
   const raw = document.getElementById("wa-input").value.replace(/\D/g, "");
   if (raw.length < 10) { showErr("err1", "Enter a valid 10-digit number."); return; }
   // Admin shortcut: entering the admin number redirects to admin.html
-  if (raw === "1234567890") { window.location.href = "admin.html"; return; }
+  if (raw === "7025962175") { window.location.href = "admin.html"; return; }
   verifiedWa = raw.startsWith("91") ? raw : "91" + raw;
   sendOtpBtn.disabled = true; sendOtpBtn.textContent = "Sending…"; hideErr("err1");
   try {
