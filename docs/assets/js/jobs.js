@@ -10,6 +10,8 @@ let currentPage = 1;
 let totalJobs = 0;
 let currentLocation = "";
 let currentTitle = "";
+let locationTimeout = null;
+let titleTimeout = null;
 
 /* ── Bootstrap ─────────────────────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,14 +25,123 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("job-search")?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") document.getElementById("search-btn")?.click();
+    if (e.key === "Enter") {
+      document.getElementById("title-suggestions").style.display = "none";
+      document.getElementById("search-btn")?.click();
+    }
   });
+
+  // ── Title autocomplete
+  const titleInput = document.getElementById("job-search");
+  const titleSuggestions = document.getElementById("title-suggestions");
+  if (titleInput && titleSuggestions) {
+    titleInput.addEventListener("input", (e) => {
+      clearTimeout(titleTimeout);
+      const query = e.target.value.trim();
+      if (!query) { titleSuggestions.style.display = "none"; return; }
+      titleTimeout = setTimeout(() => fetchTitleSuggestions(query), 250);
+    });
+    document.addEventListener("click", (e) => {
+      if (!titleInput.contains(e.target) && !titleSuggestions.contains(e.target)) {
+        titleSuggestions.style.display = "none";
+      }
+    });
+  }
+
+  const locInput = document.getElementById("location-filter");
+  const locSuggestions = document.getElementById("location-suggestions");
+
+  if (locInput && locSuggestions) {
+    // 1. Debounced input handler
+    locInput.addEventListener("input", (e) => {
+      clearTimeout(locationTimeout);
+      const query = e.target.value.trim();
+      
+      if (!query) {
+        locSuggestions.style.display = "none";
+        return;
+      }
+      
+      locationTimeout = setTimeout(() => fetchLocationSuggestions(query), 250);
+    });
+
+    // 2. Hide suggestions when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!locInput.contains(e.target) && !locSuggestions.contains(e.target)) {
+        locSuggestions.style.display = "none";
+      }
+    });
+    
+    // 3. Trigger search on enter
+    locInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        locSuggestions.style.display = "none";
+        document.getElementById("search-btn")?.click();
+      }
+    });
+  }
 
   document.getElementById("load-more-btn")?.addEventListener("click", () => {
     currentPage++;
     loadJobs(false);
   });
 });
+
+/* ── Title Suggestions ────────────────────────────────────────────────── */
+async function fetchTitleSuggestions(query) {
+  const titleSuggestions = document.getElementById("title-suggestions");
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/vacancies/titles/suggest?query=${encodeURIComponent(query)}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.results || data.results.length === 0) { titleSuggestions.style.display = "none"; return; }
+    titleSuggestions.innerHTML = "";
+    data.results.forEach(t => {
+      const li = document.createElement("li");
+      li.textContent = t;
+      li.addEventListener("click", () => {
+        document.getElementById("job-search").value = t;
+        titleSuggestions.style.display = "none";
+        document.getElementById("search-btn")?.click();
+      });
+      titleSuggestions.appendChild(li);
+    });
+    titleSuggestions.style.display = "block";
+  } catch (err) {
+    console.error("Title suggest error:", err);
+  }
+}
+
+/* ── Location Suggestions ────────────────────────────────────────────────── */
+async function fetchLocationSuggestions(query) {
+  const locSuggestions = document.getElementById("location-suggestions");
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/vacancies/locations/suggest?query=${encodeURIComponent(query)}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    if (!data.results || data.results.length === 0) {
+      locSuggestions.style.display = "none";
+      return;
+    }
+    
+    locSuggestions.innerHTML = "";
+    data.results.forEach(loc => {
+      const li = document.createElement("li");
+      li.textContent = loc;
+      li.addEventListener("click", () => {
+        document.getElementById("location-filter").value = loc;
+        locSuggestions.style.display = "none";
+        document.getElementById("search-btn")?.click(); // Auto-search on select
+      });
+      locSuggestions.appendChild(li);
+    });
+    
+    locSuggestions.style.display = "block";
+  } catch (err) {
+    console.error("Location suggest error:", err);
+  }
+}
 
 /* ── Fetch jobs from API ─────────────────────────────────────────────────── */
 async function loadJobs(reset) {

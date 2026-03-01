@@ -30,6 +30,9 @@
     .jobs-search-bar {
       background: linear-gradient(135deg, #e8f5e9 0%, #f1f8fe 100%);
       padding: 32px 0 24px;
+      position: relative;
+      z-index: 10;
+      overflow: visible;
     }
     .search-input-group {
       display: flex;
@@ -102,6 +105,45 @@
     }
     #load-more-btn:hover { background: #25d366; color: #fff; }
 
+    /* ── Autocomplete Dropdown ───────────────────────── */
+    .location-wrapper, .title-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+    }
+    .location-wrapper input, .title-wrapper input {
+      width: 100%;
+    }
+    #location-suggestions, #title-suggestions {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #dde1e7;
+      border-radius: 8px;
+      margin-top: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1000;
+      max-height: 200px;
+      overflow-y: auto;
+      list-style: none;
+      padding: 0;
+    }
+    #location-suggestions li, #title-suggestions li {
+      padding: 10px 16px;
+      font-size: .95rem;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    #location-suggestions li:last-child, #title-suggestions li:last-child {
+      border-bottom: none;
+    }
+    #location-suggestions li:hover, #title-suggestions li:hover {
+      background: #e8f5e9;
+    }
+
     /* ── Count label ──────────────────── */
     #jobs-count { font-size:.85rem; color:#888; }
   </style>
@@ -148,8 +190,14 @@
           <p>All listings are verified. Apply instantly via WhatsApp — zero forms, zero downloads.</p>
         </div>
         <div class="search-input-group" data-aos="fade-up" data-aos-delay="100">
-          <input type="text" id="job-search" placeholder="🔍  Job title or keyword…" autocomplete="off">
-          <input type="text" id="location-filter" placeholder="📍  Location or district…" autocomplete="off">
+          <div class="title-wrapper">
+            <input type="text" id="job-search" placeholder="🔍  Job title or keyword…" autocomplete="off">
+            <ul id="title-suggestions"></ul>
+          </div>
+          <div class="location-wrapper">
+            <input type="text" id="location-filter" placeholder="📍  Location or district…" autocomplete="off">
+            <ul id="location-suggestions"></ul>
+          </div>
           <button id="search-btn"><i class="bi bi-search me-1"></i>Search</button>
         </div>
         <div class="mt-2"><span id="jobs-count" class="text-muted small"></span></div>
