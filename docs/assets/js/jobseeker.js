@@ -19,14 +19,25 @@ document.addEventListener("DOMContentLoaded", function() {
     submitBtn.disabled = true;
 
     const formData = new FormData(questionForm);
-
-    const scriptURL = questionForm.action; // <-- fetch the form action dynamically
+    const data = Object.fromEntries(formData.entries());
+    if (data.whatsapp) {
+      data.wa_number = data.whatsapp;
+      delete data.whatsapp;
+    }
+    const scriptURL = (typeof JOBINFO_CONFIG !== 'undefined' ? JOBINFO_CONFIG.API_URL : '') + '/api/questions';
 
     fetch(scriptURL, {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
     })
     .then(response => {
+      if (!response.ok) throw new Error('API Request Failed');
+      return response.json();
+    })
+    .then(data => {
       swal("Success!", "Your question has been submitted! We will reach out to you via WhatsApp. Thank you!", "success");
       questionForm.reset();
       questionFormWrapper.style.display = 'none';

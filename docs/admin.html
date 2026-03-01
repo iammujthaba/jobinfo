@@ -243,6 +243,10 @@
     <li><a href="#" data-view="analytics" id="nav-analytics">
       <i class="bi bi-bar-chart-line"></i> Analytics
     </a></li>
+    <li><a href="#" data-view="user-questions" id="nav-questions">
+      <i class="bi bi-question-circle"></i> User Questions
+      <span class="sidebar-badge" id="badge-questions" style="display:none; background:#e74c3c;">0</span>
+    </a></li>
     <li><a href="index.html" target="_blank">
       <i class="bi bi-globe"></i> View Website
     </a></li>
@@ -316,6 +320,34 @@
     </div>
 
     </div><!-- /vacancies-section -->
+
+    <!-- ── Questions section ── -->
+    <div id="questions-section" style="display:none">
+      <div class="table-card">
+        <div class="empty-state" id="loading-questions">
+          <div class="spinner-border text-success" role="status" style="width:2rem;height:2rem"></div>
+          <p class="mt-3">Loading questions…</p>
+        </div>
+        <table id="questions-table" style="display:none; width:100%; text-align:left;">
+          <thead>
+            <tr>
+              <th style="padding:12px; border-bottom:2px solid #eef0f4;">Date</th>
+              <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
+              <th style="padding:12px; border-bottom:2px solid #eef0f4;">Source</th>
+              <th style="padding:12px; border-bottom:2px solid #eef0f4;">WhatsApp</th>
+              <th style="padding:12px; border-bottom:2px solid #eef0f4;">Question</th>
+              <th style="padding:12px; border-bottom:2px solid #eef0f4;">Status</th>
+              <th style="padding:12px; border-bottom:2px solid #eef0f4;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="questions-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="empty-questions" style="display:none">
+          <i class="bi bi-inbox"></i>
+          <p>No questions submitted.</p>
+        </div>
+      </div>
+    </div><!-- /questions-section -->
 
     <!-- ── Analytics section ── -->
     <div id="analytics-section">
@@ -475,11 +507,19 @@ document.querySelectorAll(".sidebar-nav a[data-view]").forEach(link => {
     const view = link.dataset.view;
     if (view === "analytics") {
       document.getElementById("vacancies-section").style.display = "none";
+      if(document.getElementById("questions-section")) document.getElementById("questions-section").style.display = "none";
       document.getElementById("analytics-section").style.display = "block";
       document.getElementById("page-heading").textContent = "Analytics & Insights";
       loadAnalytics();
+    } else if (view === "user-questions") {
+      document.getElementById("vacancies-section").style.display = "none";
+      document.getElementById("analytics-section").style.display = "none";
+      if(document.getElementById("questions-section")) document.getElementById("questions-section").style.display = "block";
+      document.getElementById("page-heading").textContent = "User Questions";
+      loadQuestions();
     } else {
       document.getElementById("analytics-section").style.display = "none";
+      if(document.getElementById("questions-section")) document.getElementById("questions-section").style.display = "none";
       document.getElementById("vacancies-section").style.display = "block";
       currentFilter = link.dataset.filter;
       const headings = { pending: "Pending Vacancies", approved: "Approved Vacancies", rejected: "Rejected Vacancies" };
@@ -510,6 +550,27 @@ async function loadStats() {
     loadStatusCount("pending",  "stat-pending",  "badge-pending");
     loadStatusCount("approved", "stat-approved", null);
     loadStatusCount("rejected", "stat-rejected", null);
+
+    // Load User Questions pending count
+    try {
+      const qRes = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/questions`, { headers: authHeaders() });
+      if (qRes.ok) {
+        const qData = await qRes.json();
+        const pendingQ = (qData.results || []).filter(q => !q.is_resolved).length;
+        const qBadge = document.getElementById("badge-questions");
+        if (qBadge) {
+          if (pendingQ > 0) {
+            qBadge.textContent = pendingQ;
+            qBadge.style.display = "inline-block";
+          } else {
+            qBadge.style.display = "none";
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load questions count", e);
+    }
+
   } catch (err) { console.error(err); }
 }
 
@@ -871,6 +932,86 @@ function renderAnalytics(d) {
     const canvas = document.getElementById(id);
     if (canvas) canvas.style.opacity = "1";
   });
+}
+/* ══════════════════════════════════════════════════════════════════════════════
+   USER QUESTIONS
+   ══════════════════════════════════════════════════════════════════════════════ */
+async function loadQuestions() {
+  const tbody = document.getElementById("questions-tbody");
+  const table = document.getElementById("questions-table");
+  const loading = document.getElementById("loading-questions");
+  const empty = document.getElementById("empty-questions");
+
+  table.style.display = "none";
+  empty.style.display = "none";
+  loading.style.display = "block";
+  tbody.innerHTML = "";
+
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/questions`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("API error");
+    const data = await res.json();
+    loading.style.display = "none";
+
+    if (!data.results || data.results.length === 0) {
+      empty.style.display = "block";
+      return;
+    }
+
+    data.results.forEach(q => {
+      const statusBadge = q.is_resolved 
+        ? '<span class="badge-approved">✅ Resolved</span>' 
+        : '<span class="badge-pending">⏳ Pending</span>';
+      
+      let waReplyBtn = "";
+      if (q.wa_number) {
+        waReplyBtn = `<a href="https://wa.me/${q.wa_number.replace(/\D/g,'')}" target="_blank" class="btn btn-sm" style="background-color:#25d366;color:#fff;font-size:0.8rem;padding:4px 8px;border-radius:6px;margin-right:4px;text-decoration:none;"><i class="bi bi-whatsapp"></i> Reply</a>`;
+      }
+      
+      const actionBtn = q.is_resolved 
+        ? waReplyBtn 
+        : `${waReplyBtn}<button class="btn-approve btn-sm resolve-btn" data-id="${q.id}">Mark Resolved</button>`;
+        
+      const nameTxt = escHtml(q.name) || "—";
+      const waTxt = escHtml(q.wa_number) || "—";
+      const sourceTxt = escHtml(q.source) || "—";
+
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(q.created_at)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${nameTxt}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${sourceTxt}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${waTxt}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5; max-width: 300px; white-space: pre-wrap;">${escHtml(q.question)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${statusBadge}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${actionBtn}</td>
+        </tr>
+      `);
+    });
+    table.style.display = "table";
+
+    // Attach listeners
+    document.querySelectorAll(".resolve-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        btn.disabled = true; btn.textContent = "Saving...";
+        try {
+          const r = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/questions/${btn.dataset.id}/resolve`, {
+            method: "POST", headers: authHeaders()
+          });
+          if (!r.ok) throw new Error("Failed");
+          loadQuestions();
+          loadStats();
+        } catch (err) {
+          alert("Error resolving question");
+          btn.disabled = false; btn.textContent = "Mark Resolved";
+        }
+      });
+    });
+  } catch (err) {
+    loading.style.display = "none";
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load</td></tr>';
+    table.style.display = "table";
+  }
 }
 </script>
 </body>

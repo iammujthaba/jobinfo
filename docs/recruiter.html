@@ -615,7 +615,9 @@
     <!-- Question Submission Form (Initially Hidden) -->
     <div id="question-form-wrapper" class="accordion" style="display: none; margin-top: 20px;">
       <!-- <form id="submit-question-form" class="php-email-form shadow p-4 rounded" style="background: #fff;"> -->
-      <form id="submit-question-form" class="php-email-form shadow p-4 rounded" style="background: #fff;" action="https://script.google.com/macros/s/AKfycbwOZfQMNz2rHlDAf2Cxh4DQmsuRUwqnD1GwK8o406Eb8cgvbTwMcS_inERubUNCenBIJA/exec" method="POST">
+      <form id="submit-question-form" class="php-email-form shadow p-4 rounded" style="background: #fff;">
+        <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="hidden" name="source" value="Recruiter">
         <div class="form-group mb-3">
           <input type="text" name="name" class="form-control" placeholder="Your Name" required>
         </div>
@@ -730,8 +732,8 @@
   <script src="assets/js/main.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/recruiter.js"></script>
-  <script src="assets/js/jobseeker.js"></script>
+  <script src="assets/js/recruiter.js?v=2"></script>
+  <script src="assets/js/jobseeker.js?v=2"></script>
   <script>
     (function () {
       const token = sessionStorage.getItem("ji_r_token");

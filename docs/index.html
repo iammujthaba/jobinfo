@@ -252,7 +252,7 @@
 
           <div class="col-lg-3 col-md-6">
             <div class="stats-item single-counter text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="234" data-purecounter-duration="1" class="purecounter"></span>
+              <span data-purecounter-start="0" data-purecounter-end="134" data-purecounter-duration="1" class="purecounter"></span>
               <p>Recruiters</p>
             </div>
           </div><!-- End Stats Item -->
@@ -314,7 +314,7 @@
               <div class="text-center">
                 <h3>Join our WhatsApp channel to stay updated!</h3>
                 <p>Get instant job alerts, updates, and career tips delivered directly to your WhatsApp! Whether you're actively searching or just staying informed, our channel helps you stay ahead with verified job openings across various sectors—no app installs, no spam, just pure opportunity.</p>
-                <a class="cta-btn" href="https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z">Join Now</a>
+                <a class="cta-btn" href="https://whatsapp.com/channel/0029VbBrkDB8fewxd9QIMA2k">Join Now</a>
               </div>
             </div>
           </div>
@@ -391,7 +391,9 @@
       <!-- Question Submission Form (Initially Hidden) -->
       <div id="question-form-wrapper" class="accordion" style="display: none; margin-top: 20px;">
         <!-- <form id="submit-question-form" class="php-email-form shadow p-4 rounded" style="background: #fff;"> -->
-        <form id="submit-question-form"  class="php-email-form shadow p-4 rounded" style="background: #fff;" action="https://script.google.com/macros/s/AKfycbwOZfQMNz2rHlDAf2Cxh4DQmsuRUwqnD1GwK8o406Eb8cgvbTwMcS_inERubUNCenBIJA/exec" method="POST">
+        <form id="submit-question-form" class="php-email-form shadow p-4 rounded" style="background: #fff;">
+          <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+          <input type="hidden" name="source" value="Job Seeker">
           <div class="form-group mb-3">
             <input type="text" name="name" class="form-control" placeholder="Your Name" required>
           </div>
@@ -508,7 +510,7 @@
   <script src="assets/js/main.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/jobseeker.js"></script>
+  <script src="assets/js/jobseeker.js?v=2"></script>
   <script>
   /* ─ Latest Jobs teaser (index.html only) ─────────────────────────── */
   (async function loadLatestJobs() {
