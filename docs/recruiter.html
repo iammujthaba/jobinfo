@@ -128,9 +128,10 @@
       padding: 12px 0 !important;
     }
   }
-  /* iPhone SE and smaller (≤375px): hide 'Follow ' — shows just 'Channel' */
+  /* iPhone SE and smaller (≤375px): swap "Follow Channel" for "Follow us" */
   @media (max-width: 375px) {
-    .hide-xs { display: none; }
+    .hide-xs { display: none !important; }
+    .show-xs { display: inline !important; }
   }
   </style>
 
@@ -184,7 +185,7 @@
             <h1>We Make your Hiring Simple and Fast</h1>
             <p>Say goodbye to delays and portals. Connect with active job seekers directly through WhatsApp – hiring is now just a message away!</p>
             <div class="d-flex flex-nowrap gap-2">
-              <a href="https://whatsapp.com/channel/0029VbBrkDB8fewxd9QIMA2k" class="btn-get-started btn-primary flex-fill text-center justify-content-center"><i class="bi bi-whatsapp icon whats"></i><span><span class="hide-xs">Follow </span> Channel</span></a>
+              <a href="https://whatsapp.com/channel/0029VbBrkDB8fewxd9QIMA2k" class="btn-get-started btn-primary flex-fill text-center justify-content-center"><i class="bi bi-whatsapp icon whats"></i><span><span class="hide-xs">Follow Channel</span><span class="show-xs" style="display:none;">Jobinfo</span></span></a>
               <a href="post-vacancy.html" class="btn-watch-video flex-fill text-center justify-content-center"><i class="bi bi-person-add"></i><span>Post Vacancy</span></a>
             </div>
           </div>
