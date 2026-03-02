@@ -128,6 +128,10 @@
       padding: 12px 0 !important;
     }
   }
+  /* iPhone SE and smaller (≤375px): hide 'Follow ' — shows just 'Channel' */
+  @media (max-width: 375px) {
+    .hide-xs { display: none; }
+  }
   </style>
 
 </head>
@@ -148,14 +152,18 @@
       <nav id="navmenu" class="navmenu">
         <ul>
           <li><a href="#hero" class="active">Home</a></li>
+          <li><a href="#submit-job">Post Vacancy</a></li>
           <li><a href="#featured-services">Services</a></li>
           <li><a href="#recruiter-benefits">Benefits</a></li>
           <li><a href="#recruiter-guidelines">Guidelines</a></li>
           <li><a href="#join-now">Network</a></li>
-          <li><a href="post-vacancy.html" class="active">Post Vacancy</a></li>
+          <li><a href="jobs.html">Browse Jobs</a></li>
+          <li><a href="#faq">FAQ</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
+
+      <a class="btn-nav-outline d-xl-none" id="login-nav-btn-mobile" href="recruiter-dashboard.html" style="order: 2; margin: 0 15px 0 0; padding: 6px 15px; font-size: 14px;"><i class="bi bi-box-arrow-in-right"></i>Login</a>
 
       <div class="header-nav-btns d-xl-flex align-items-center gap-2">
         <a class="btn-getstarted btn-primary" href="index.html" style="padding:8px 18px;font-size:14px;"><i class="bi bi-briefcase me-1"></i>Browse Jobs</a>
@@ -175,9 +183,9 @@
           <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="fade-up">
             <h1>We Make your Hiring Simple and Fast</h1>
             <p>Say goodbye to delays and portals. Connect with active job seekers directly through WhatsApp – hiring is now just a message away!</p>
-            <div class="d-flex flex-wrap gap-2">
-              <a href="https://whatsapp.com/channel/0029VbBrkDB8fewxd9QIMA2k" class="btn-get-started btn-primary" style="width: 50%;"><i class="bi bi-whatsapp icon whats"></i><span>Follow Channel</span></a>
-              <a href="post-vacancy.html" class="btn-watch-video"><i class="bi bi-person-add"></i><span>Post Vacancy</span></a>
+            <div class="d-flex flex-nowrap gap-2">
+              <a href="https://whatsapp.com/channel/0029VbBrkDB8fewxd9QIMA2k" class="btn-get-started btn-primary flex-fill text-center justify-content-center"><i class="bi bi-whatsapp icon whats"></i><span><span class="hide-xs">Follow </span> Channel</span></a>
+              <a href="post-vacancy.html" class="btn-watch-video flex-fill text-center justify-content-center"><i class="bi bi-person-add"></i><span>Post Vacancy</span></a>
             </div>
           </div>
           <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="100">
@@ -742,6 +750,10 @@
         const btn = document.getElementById("login-nav-btn");
         if (btn) {
           btn.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
+        }
+        const btnMobile = document.getElementById("login-nav-btn-mobile");
+        if (btnMobile) {
+          btnMobile.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
         }
       }
     })();

@@ -105,6 +105,10 @@ if (verifyOtpBtn) {
       if (loginNavBtn) {
         loginNavBtn.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
       }
+      const loginNavBtnMobile = document.getElementById("login-nav-btn-mobile");
+      if (loginNavBtnMobile) {
+        loginNavBtnMobile.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
+      }
       showStep(3);
       // Pre-fill hidden WA field in the job form
       const hiddenWa = document.getElementById("form-wa-number");

@@ -96,6 +96,10 @@
       .hero .btn-get-started { width: 48% !important; padding: 12px 0 !important; }
       a.glightbox.btn-watch-video { width: 48% !important; padding: 12px 0 !important; margin-left: 0 !important; }
     }
+    /* iPhone SE and smaller (≤375px): hide 'Follow ' — shows just 'Channel' */
+    @media (max-width: 375px) {
+      .hide-xs { display: none; }
+    }
   </style>
 
 </head>
@@ -116,12 +120,13 @@
       <nav id="navmenu" class="navmenu">
         <ul>
           <li><a href="#hero" class="active">Home</a></li>
+          <li><a href="#latest-jobs">Live Jobs</a></li>
+          <li><a href="jobs.html">Browse Jobs</a></li>
           <li><a href="#featured-services">Services</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#stats">Features</a></li>
-          <li><a href="jobs.html">Browse Jobs</a></li>
           <li><a href="#call-to-action">Join Now</a></li>
-          <li><a href="#faq">FaQ</a></li>
+          <li><a href="#faq">FAQ</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
@@ -141,9 +146,9 @@
           <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="fade-up">
             <h1>Find Your Dream Job on WhatsApp</h1>
             <p>Get daily job updates directly in your WhatsApp! Say goodbye to endless job searches and spam! – Discover your dream job at your fingertips!</p>
-            <div class="d-flex flex-wrap gap-2">
-              <a href="https://whatsapp.com/channel/0029VbBrkDB8fewxd9QIMA2k" class="btn-get-started"><i class="bi bi-whatsapp icon whats"></i><span>Follow Channel</span></a>
-              <a href="jobs.html" class="btn-watch-video"><i class="bi bi-briefcase"></i><span>Browse Jobs</span></a>
+            <div class="d-flex flex-nowrap gap-2">
+              <a href="https://whatsapp.com/channel/0029VbBrkDB8fewxd9QIMA2k" class="btn-get-started flex-fill text-center justify-content-center"><i class="bi bi-whatsapp icon whats"></i><span><span class="hide-xs">Follow </span> Channel</span></a>
+              <a href="jobs.html" class="btn-watch-video flex-fill text-center justify-content-center"><i class="bi bi-briefcase"></i><span>Browse Jobs</span></a>
             </div>
           </div>
           <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="100">
