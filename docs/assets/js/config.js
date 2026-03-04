@@ -8,7 +8,7 @@ const JOBINFO_CONFIG = {
   API_URL: "http://127.0.0.1:8000",  
   
   // Your Meta Dev Test Number (with country code, no +)
-  BUSINESS_WA: "917025962176", 
+  BUSINESS_WA: "15556392992", 
   
   WA_CHANNEL: "https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z",
   WA_COMMUNITY: "https://chat.whatsapp.com/LB8rI0BPgBTIMIhJAWAeMd",
