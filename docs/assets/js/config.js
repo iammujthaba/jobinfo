@@ -4,8 +4,12 @@
  * During local development use: http://localhost:8000
  */
 const JOBINFO_CONFIG = {
-  API_URL: "https://api.jobinfo.club",          // ← change to https://api.jobinfo.club in production
-  BUSINESS_WA: "917025962176",              // WhatsApp Business API number (with country code, no +)
+  // Local testing URL (Don't forget to change back before pushing to GitHub!)
+  API_URL: "http://127.0.0.1:8000",  
+  
+  // Your Meta Dev Test Number (with country code, no +)
+  BUSINESS_WA: "917025962176", 
+  
   WA_CHANNEL: "https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z",
   WA_COMMUNITY: "https://chat.whatsapp.com/LB8rI0BPgBTIMIhJAWAeMd",
 };
