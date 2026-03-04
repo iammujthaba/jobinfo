@@ -61,6 +61,7 @@
     .stat-card.pending  .val { color:#f39c12; }
     .stat-card.rejected .val { color:#e74c3c; }
     .stat-card.apps     .val { color:#2980b9; }
+    .stat-card.shortlisted .val { color:#1a5276; }
 
     /* ── Filter / action bar ──────────────────────── */
     .top-actions { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center; }
@@ -266,6 +267,9 @@
       <div class="stat-card apps" data-filter="__apps">
         <div class="val" id="s-apps">—</div><div class="lbl">📩 Applications</div>
       </div>
+      <div class="stat-card shortlisted" data-filter="__shortlisted">
+        <div class="val" id="s-shortlisted">—</div><div class="lbl">⭐ Shortlisted</div>
+      </div>
     </div>
 
     <!-- Filter tabs + action bar -->
@@ -290,7 +294,7 @@
             <th>Job Code</th>
             <th>Title &amp; Details</th>
             <th>Location</th>
-            <th>Stage</th>
+            <th>Status</th>
             <th>Applications</th>
             <th>Posted</th>
             <th>Action</th>
@@ -509,6 +513,7 @@ function renderDashboard(d) {
   document.getElementById("s-pending").textContent  = s.pending;
   document.getElementById("s-rejected").textContent = s.rejected;
   document.getElementById("s-apps").textContent     = s.total_applications;
+  document.getElementById("s-shortlisted").textContent = s.total_shortlisted;
   allVacancies = d.vacancies;
   renderVacancyTable("all");
 }
