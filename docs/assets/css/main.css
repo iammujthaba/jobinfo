@@ -1046,6 +1046,7 @@ section,
 @media (max-width: 640px) {
   .hero .btn-get-started {
     font-size: 14px;
+    /* padding: 12px 0; */
   }
 
   .hero .btn-watch-video {
@@ -1058,8 +1059,17 @@ section,
   .hero .btn-get-started span,
   .hero .btn-watch-video span {
     display: inline-block;
+    white-space: nowrap;
   }
+}
 
+/* Ultra-small devices (iPhone SE, etc.) */
+@media (max-width: 425px) {
+  .hero .btn-get-started .hide-xs,
+  .hero .btn-watch-video .hide-xs {
+    display: none !important;
+  }
+}
 
 @keyframes up-down {
   0% {
