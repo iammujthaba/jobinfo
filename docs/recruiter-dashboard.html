@@ -61,12 +61,14 @@
     .stat-card.pending  .val { color:#f39c12; }
     .stat-card.rejected .val { color:#e74c3c; }
     .stat-card.apps     .val { color:#2980b9; }
+    .stat-card.apps, .stat-card.shortlisted { cursor: default; }
+    .stat-card.apps:hover, .stat-card.shortlisted:hover { transform: translateY(0); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
     .stat-card.shortlisted .val { color:#1a5276; }
+    
+    .stat-card.active { border: 2px solid var(--ji-green); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
 
     /* ── Filter / action bar ──────────────────────── */
     .top-actions { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center; }
-    .tab-btn { padding:7px 18px;border-radius:20px;border:2px solid #dde1e7;background:#fff;font-size:.82rem;font-weight:600;color:#555;cursor:pointer;transition:all .2s; }
-    .tab-btn.active,.tab-btn:hover { border-color:var(--ji-green);background:var(--ji-green);color:#fff; }
     .btn-post { background:var(--ji-green);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-weight:700;font-size:.88rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .2s; }
     .btn-post:hover { background:#1ebe5d;color:#fff; }
 
@@ -166,11 +168,58 @@
     .empty-state i { font-size:2.5rem;display:block;margin-bottom:10px; }
 
     /* ── Responsive ───────────────────────────────── */
+    @media(max-width:768px) {
+      /* Convert table to cards */
+      .table-card table, .table-card thead, .table-card tbody, .table-card th, .table-card td, .table-card tr {
+        display: block;
+      }
+      .table-card thead tr {
+        position: absolute; top: -9999px; left: -9999px; /* Hide headers */
+      }
+      .table-card tr {
+        border-bottom: 2px solid #eef0f4;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        padding-top: 8px;
+        background: #fff;
+      }
+      .table-card tr:last-child { margin-bottom: 0; border-bottom: none; }
+      .table-card td {
+        border: none;
+        position: relative;
+        padding-left: 120px;
+        padding-top: 8px; padding-bottom: 8px;
+        font-size: .88rem;
+      }
+      .table-card td::before {
+        content: attr(data-label);
+        position: absolute; left: 16px; top: 8px;
+        width: 90px;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: 700;
+        color: #888;
+        font-size: .75rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+      }
+      /* Ensure actions don't overlap inside the mobile card */
+      .table-card td:last-child {
+        text-align: right;
+        padding-left: 16px;
+      }
+      .table-card td:last-child::before { display: none; } /* Hide label for actions */
+
+      .panel-toolbar { flex-direction:column; align-items:stretch; }
+    }
+
     @media(max-width:640px) {
       .auth-card { padding:28px 18px; }
-      .profile-card { flex-direction:column;gap:10px; }
-      .stat-grid { grid-template-columns:repeat(2,1fr); }
-      .top-actions { flex-direction:column;align-items:flex-start; }
+      .profile-card { flex-direction:column;gap:10px; text-align: center; }
+      .profile-card .ms-auto { margin-left: auto !important; margin-right: auto !important; width: 100%; justify-content: center; }
+      .stat-grid { grid-template-columns:repeat(2,1fr); gap: 10px; }
+      .stat-card { padding: 14px 10px; }
+      .stat-card .val { font-size: 1.6rem; }
       .cand-top { flex-direction:column; }
     }
   </style>
@@ -229,7 +278,7 @@
   <!-- Top bar -->
   <div class="top-bar">
     <div>
-      <div class="brand"><span>Job</span>info – Recruiter Dashboard</div>
+      <div class="brand"><span>Job</span>info – Dashboard</div>
       <div class="sub-label" id="topbar-name"></div>
     </div>
     <button class="btn-logout" id="logout-btn"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
@@ -252,7 +301,7 @@
 
     <!-- Stat cards -->
     <div class="stat-grid">
-      <div class="stat-card" data-filter="all">
+      <div class="stat-card active" data-filter="all">
         <div class="val" id="s-total">—</div><div class="lbl">Total Vacancies</div>
       </div>
       <div class="stat-card approved" data-filter="approved">
@@ -269,16 +318,6 @@
       </div>
       <div class="stat-card shortlisted" data-filter="__shortlisted">
         <div class="val" id="s-shortlisted">—</div><div class="lbl">⭐ Shortlisted</div>
-      </div>
-    </div>
-
-    <!-- Filter tabs + action bar -->
-    <div class="top-actions">
-      <div style="display:flex;gap:8px;flex-wrap:wrap" id="filter-tabs">
-        <button class="tab-btn active" data-filter="all">All Vacancies</button>
-        <button class="tab-btn" data-filter="approved">Approved</button>
-        <button class="tab-btn" data-filter="pending">Pending</button>
-        <button class="tab-btn" data-filter="rejected">Rejected</button>
       </div>
     </div>
 
@@ -537,18 +576,18 @@ function renderVacancyTable(filter) {
       ? `<div class="rejpill" title="${esc(v.rejection_reason)}">Reason: ${esc(v.rejection_reason.substring(0,40))}${v.rejection_reason.length>40?"…":""}</div>` : "";
     tbody.insertAdjacentHTML("beforeend", `
       <tr>
-        <td><code class="jc">${esc(v.job_code)}</code></td>
-        <td>
+        <td data-label="Job Code"><code class="jc">${esc(v.job_code)}</code></td>
+        <td data-label="Title">
           <strong>${esc(v.title)}</strong>
           ${v.company ? `<br><span class="text-muted" style="font-size:.78rem">🏢 ${esc(v.company)}</span>` : ""}
           ${v.salary_range ? `<br><span class="text-muted" style="font-size:.78rem">💰 ${esc(v.salary_range)}</span>` : ""}
           ${v.experience_required ? `<br><span class="text-muted" style="font-size:.78rem">🎓 ${esc(v.experience_required)}</span>` : ""}
         </td>
-        <td><i class="bi bi-geo-alt text-muted"></i> ${esc(v.location)}</td>
-        <td><span class="${cls}">${label}</span>${rejNote}</td>
-        <td><span class="app-count"><i class="bi bi-people me-1"></i>${v.application_count}</span></td>
-        <td style="font-size:.78rem;color:#888;white-space:nowrap">${posted}</td>
-        <td>
+        <td data-label="Location"><i class="bi bi-geo-alt text-muted"></i> ${esc(v.location)}</td>
+        <td data-label="Status"><span class="${cls}">${label}</span>${rejNote}</td>
+        <td data-label="Applications"><span class="app-count"><i class="bi bi-people me-1"></i>${v.application_count}</span></td>
+        <td data-label="Posted" style="font-size:.78rem;color:#888;white-space:nowrap">${posted}</td>
+        <td data-label="Action">
           ${v.status === 'rejected'
             ? `<button class="btn-edit-vac" onclick="openEditModal(${JSON.stringify(v).replace(/"/g,'&quot;')})">
                  <i class="bi bi-pencil me-1"></i>Edit
@@ -562,22 +601,15 @@ function renderVacancyTable(filter) {
   });
 }
 
-/* Filter tabs */
-document.getElementById("filter-tabs").addEventListener("click", e => {
-  const btn = e.target.closest(".tab-btn"); if (!btn) return;
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  renderVacancyTable(btn.dataset.filter);
-});
-
 /* Stat card clicks */
 document.querySelectorAll(".stat-card[data-filter]").forEach(card => {
   card.addEventListener("click", () => {
     const f = card.dataset.filter;
-    if (f === "__apps") return;
-    document.querySelectorAll(".tab-btn").forEach(b => {
-      b.classList.toggle("active", b.dataset.filter === f);
-    });
+    if (f === "__apps" || f === "__shortlisted") return; // These are just static info cards
+    
+    document.querySelectorAll(".stat-card[data-filter]").forEach(c => c.classList.remove("active"));
+    card.classList.add("active");
+    
     renderVacancyTable(f);
   });
 });
