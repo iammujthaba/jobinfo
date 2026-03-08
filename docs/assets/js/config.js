@@ -1,11 +1,11 @@
 /**
  * JobInfo – Frontend Configuration
  * Change JOBINFO_API_URL to your deployed backend URL before going live.
- * During local development use: http://localhost:8000
+ * During local development use: http://localhost:8080
  */
 const JOBINFO_CONFIG = {
   // Local testing URL (Don't forget to change back before pushing to GitHub!)
-  API_URL: "http://127.0.0.1:8000",  
+  API_URL: "http://127.0.0.1:8080",  
   
   // Your Meta Dev Test Number (with country code, no +)
   BUSINESS_WA: "15556392992", 
