@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Dashboard - Jobinfo</title>
+  
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  
+  <style>
+    body { background-color: #f8f9fa; }
+    .card-dashboard { border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .nav-pills .nav-link { border-radius: 50px; color: #333; font-weight: 500; padding: 10px 24px; }
+    .nav-pills .nav-link.active { background-color: #10bc69; color: white; }
+    .whatsapp-banner {
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+    }
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .status-applied { background-color: #e8f5e9; color: #1e8449; }
+    .status-shortlisted { background-color: #fff3e0; color: #e65100; }
+    .status-rejected { background-color: #ffebee; color: #c62828; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header id="header" class="header d-flex align-items-center bg-white shadow-sm sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+      <a href="index.html" class="logo d-flex align-items-center flex-shrink-0 order-1">
+        <h1 class="sitename mb-0 text-nowrap">
+          <span class="job-red">Job</span><span class="info-black">info</span>
+        </h1>
+      </a>
+      <button class="btn btn-outline-danger btn-sm rounded-pill fw-bold px-4 flex-shrink-0 order-2" onclick="logoutSeeker()">
+        <i class="bi bi-box-arrow-right me-1"></i> Logout
+      </button>
+    </div>
+  </header>
+
+  <main class="container py-4">
+
+    <!-- Dashboard Tabs -->
+    <ul class="nav nav-pills mb-4" id="dashboardTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile-pnl" type="button" role="tab">My Profile</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="applications-tab" data-bs-toggle="pill" data-bs-target="#applications-pnl" type="button" role="tab">My Applications</button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="dashboardTabsContent">
+      
+      <!-- Profile Tab -->
+      <div class="tab-pane fade show active" id="profile-pnl" role="tabpanel">
+        <div class="card card-dashboard p-4">
+          <h4 class="fw-bold mb-4">Edit Profile</h4>
+          <form id="profileForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="profileName" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control" id="profileAge">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Post Office / Location</label>
+                <input type="text" class="form-control" id="profilePostOffice">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">PIN Code</label>
+                <input type="text" class="form-control" id="profilePinCode" maxlength="6">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Job Category</label>
+                <input type="text" class="form-control" id="profileCategory" placeholder="e.g. Retail, IT, Healthcare">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Alternate Phone</label>
+                <input type="tel" class="form-control" id="profileAltPhone">
+              </div>
+              <div class="col-12 mt-4 text-end">
+                <button type="button" class="btn btn-success rounded-pill px-4 fw-bold" id="btnSaveProfile" onclick="updateProfile()">Save Changes</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Applications Tab -->
+      <div class="tab-pane fade" id="applications-pnl" role="tabpanel">
+        <div class="card card-dashboard p-4">
+          <h4 class="fw-bold mb-4">Application History</h4>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Job Title</th>
+                  <th>Company</th>
+                  <th>Location</th>
+                  <th>Date Applied</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="applicationsTableBody">
+                <tr><td colspan="5" class="text-center text-muted py-4">Loading applications...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

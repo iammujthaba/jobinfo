@@ -16,7 +16,7 @@
     body { background:var(--ji-bg); font-family:Roboto,sans-serif; }
 
     /* ── Auth ─────────────────────────────────────── */
-    #auth-screen { min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px; }
+    #auth-screen { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1050; display:flex; align-items:center; justify-content:center; padding:20px; }
     .auth-card { background:#fff;border-radius:16px;padding:40px 36px;width:420px;max-width:100%;box-shadow:0 12px 40px rgba(0,0,0,.1); }
     .auth-card h2 { font-size:1.4rem;font-weight:700; }
     .step-dots { display:flex;gap:8px;margin-bottom:22px;justify-content: center; }
@@ -37,7 +37,7 @@
     .btn-resend:disabled { color:#ccc;cursor:default; }
 
     /* ── Dashboard shell ──────────────────────────── */
-    #dashboard { display:none; }
+    #dashboard { display:block; }
     .top-bar { background:var(--ji-dark);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between; }
     .top-bar .brand { font-size:1.1rem;font-weight:700; }
     .top-bar .brand span { color:var(--ji-green); }
@@ -228,7 +228,8 @@
 
 <!-- ════════════════════ AUTH SCREEN ════════════════════ -->
 <div id="auth-screen">
-  <div class="auth-card">
+  <div class="auth-card" style="position: relative;">
+    <button type="button" class="btn-close position-absolute" aria-label="Close" style="top: 15px; right: 15px; background-color: #f5f5f5; border-radius: 50%; opacity: 0.8; padding: 10px;" onclick="handleRecruiterClose()"></button>
     <div style="text-align:center;margin-bottom:20px">
       <span style="font-size:1.6rem;font-weight:800">
         <span style="color:#e74c3c">Job</span><span style="color:#1a1a2e">info</span>
@@ -874,6 +875,10 @@ document.getElementById("submit-edit-btn").addEventListener("click", async () =>
     btn.disabled = false; btn.innerHTML = '<i class="bi bi-send me-1"></i>Submit for Review';
   }
 });
+
+function handleRecruiterClose() {
+  window.location.href = "recruiter.html";
+}
 </script>
 </body>
 </html>
