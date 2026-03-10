@@ -101,6 +101,27 @@
       .hide-xs { display: none !important; }
       .show-xs { display: inline !important; }
     }
+
+    /* Outlined pill button for navbar } */
+    .btn-nav-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: 2px solid #10bc69;
+      color: #10bc69;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+      white-space: nowrap;
+    }
+    .btn-nav-outline:hover {
+      background: #10bc69;
+      color: #fff;
+    }
   </style>
 
 </head>
@@ -128,11 +149,15 @@
           <li><a href="#stats">Features</a></li>
           <li><a href="#call-to-action">Join Now</a></li>
           <li><a href="#faq">FAQ</a></li>
+          <li class="d-xl-none text-center" style="padding: 10px 20px;">
+            <a id="login-nav-btn-mobile" class="btn-nav-outline w-100 justify-content-center" href=""><i class="bi bi-box-arrow-in-right"></i>Login</a>
+          </li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
       <a class="btn-getstarted" href="recruiter.html">Post Vacancies</a>
+      <a class="btn-nav-outline d-none d-xl-flex" id="login-nav-btn" href="" style="margin-left: 10px;"><i class="bi bi-box-arrow-in-right"></i>Login</a>
 
     </div>
   </header>
@@ -540,7 +565,22 @@
     }
   })();
   </script>
-
+  <script>
+    (function () {
+      const token = sessionStorage.getItem("ji_r_token");
+      const wa    = sessionStorage.getItem("ji_r_wa");
+      if (token && wa) {
+        const btn = document.getElementById("login-nav-btn");
+        if (btn) {
+          btn.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
+        }
+        const btnMobile = document.getElementById("login-nav-btn-mobile");
+        if (btnMobile) {
+          btnMobile.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
+        }
+      }
+    })();
+  </script>
 
 </body>
 
