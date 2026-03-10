@@ -7,12 +7,6 @@ if (!sessionToken || !waNumber) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Setup the WhatsApp bot link (from config if available)
-    const waBotLink = document.getElementById("waBotLink");
-    if (typeof JOBINFO_CONFIG !== 'undefined' && JOBINFO_CONFIG.BUSINESS_WA) {
-        waBotLink.href = `https://wa.me/${JOBINFO_CONFIG.BUSINESS_WA}`;
-    }
-
     loadProfile();
     loadApplications();
 });
@@ -108,12 +102,17 @@ async function loadApplications() {
             headers: { "Content-Type": "application/json" }
         });
 
+        if (res.status === 401 || res.status === 403) {
+            logoutSeeker();
+            return;
+        }
+
         if (res.ok) {
             const data = await res.json();
             tbody.innerHTML = "";
             
             if (!data.applications || data.applications.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">You haven't applied for any jobs yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#888;padding:20px;">You haven't applied for any jobs yet.</td></tr>`;
                 return;
             }
 
@@ -133,18 +132,22 @@ async function loadApplications() {
 
                 const row = `
                     <tr>
-                        <td class="fw-bold">${app.job_title} <span class="text-muted d-block" style="font-size:0.75rem;font-weight:normal">${app.job_code}</span></td>
+                        <td><strong style="font-size:.95rem;">${app.job_title}</strong> <span style="display:block;color:#888;font-size:0.75rem;">${app.job_code}</span></td>
                         <td>${app.company || '—'}</td>
                         <td>${app.location}</td>
-                        <td>${date}</td>
+                        <td style="color:#888;font-size:0.8rem;">${date}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     </tr>
                 `;
                 tbody.insertAdjacentHTML('beforeend', row);
             });
+        } else {
+            const errorText = await res.text();
+            console.error("API returned error:", errorText);
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#e74c3c;padding:20px;">Failed to load applications. Server returned ${res.status}</td></tr>`;
         }
     } catch (e) {
         console.error("Error loading applications", e);
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Error loading applications.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#e74c3c;padding:20px;">Error loading applications.</td></tr>`;
     }
 }
