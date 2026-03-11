@@ -6,6 +6,8 @@ if (!sessionToken || !waNumber) {
     window.location.href = "index.html";
 }
 
+let currentProfileData = {};
+
 document.addEventListener("DOMContentLoaded", () => {
     loadProfile();
     loadApplications();
@@ -36,6 +38,18 @@ async function loadProfile() {
 
         if (res.ok) {
             const data = await res.json();
+            currentProfileData = data;
+
+            // Populate View Mode
+            document.getElementById("topbar-name").textContent = data.name || "Seeker Profile";
+            document.getElementById("viewName").textContent = data.name || "—";
+            document.getElementById("viewAge").textContent = data.age || "—";
+            document.getElementById("viewPostOffice").textContent = data.post_office || "—";
+            document.getElementById("viewPinCode").textContent = data.pin_code || "—";
+            document.getElementById("viewCategory").textContent = data.category || "—";
+            document.getElementById("viewAltPhone").textContent = data.alt_phone || "—";
+
+            // Populate Edit Form
             document.getElementById("profileName").value = data.name || "";
             document.getElementById("profileAge").value = data.age || "";
             document.getElementById("profilePostOffice").value = data.post_office || "";
@@ -76,6 +90,20 @@ async function updateProfile() {
 
         if (res.ok) {
             alert("Profile updated successfully!");
+            
+            // Update local memory
+            Object.assign(currentProfileData, payload);
+            
+            // Update View Mode
+            document.getElementById("topbar-name").textContent = currentProfileData.name || "Seeker Profile";
+            document.getElementById("viewName").textContent = currentProfileData.name || "—";
+            document.getElementById("viewAge").textContent = currentProfileData.age || "—";
+            document.getElementById("viewPostOffice").textContent = currentProfileData.post_office || "—";
+            document.getElementById("viewPinCode").textContent = currentProfileData.pin_code || "—";
+            document.getElementById("viewCategory").textContent = currentProfileData.category || "—";
+            document.getElementById("viewAltPhone").textContent = currentProfileData.alt_phone || "—";
+
+            toggleProfileEdit(false);
         } else {
             const data = await res.json();
             alert("Failed to update profile: " + (data.detail || "Unknown error"));
@@ -86,6 +114,23 @@ async function updateProfile() {
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
+    }
+}
+
+function toggleProfileEdit(show) {
+    if (show) {
+        document.getElementById("profileViewSection").style.display = "none";
+        document.getElementById("profileEditSection").style.display = "block";
+    } else {
+        document.getElementById("profileViewSection").style.display = "block";
+        document.getElementById("profileEditSection").style.display = "none";
+        // Reset form inputs to originally loaded data if hiding
+        document.getElementById("profileName").value = currentProfileData.name || "";
+        document.getElementById("profileAge").value = currentProfileData.age || "";
+        document.getElementById("profilePostOffice").value = currentProfileData.post_office || "";
+        document.getElementById("profilePinCode").value = currentProfileData.pin_code || "";
+        document.getElementById("profileCategory").value = currentProfileData.category || "";
+        document.getElementById("profileAltPhone").value = currentProfileData.alt_phone || "";
     }
 }
 

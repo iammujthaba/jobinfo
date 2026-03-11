@@ -34,6 +34,7 @@ async function sendSeekerOtp(isResend = false) {
     if (res.ok) {
       if (!isResend) {
         document.getElementById("loginStepPhone").style.display = "none";
+        document.getElementById("loginStepUnregistered").style.display = "none";
         document.getElementById("loginStepOtp").style.display = "block";
         document.getElementById("s-dot1").classList.add("active");
         document.getElementById("s-dot2").classList.add("active");
@@ -41,7 +42,13 @@ async function sendSeekerOtp(isResend = false) {
       startSeekerResendTimer();
     } else {
       const data = await res.json();
-      alert("Failed to send OTP: " + data.detail);
+      if (data.detail === "not_registered") {
+        document.getElementById("loginStepPhone").style.display = "none";
+        document.getElementById("loginStepOtp").style.display = "none";
+        document.getElementById("loginStepUnregistered").style.display = "block";
+      } else {
+        alert("Failed to send OTP: " + data.detail);
+      }
       if (resendBtn && isResend) resendBtn.disabled = false;
     }
   } catch (error) {
@@ -126,6 +133,7 @@ async function verifySeekerOtp() {
 
 function changePhoneNumber() {
   document.getElementById("loginStepOtp").style.display = "none";
+  document.getElementById("loginStepUnregistered").style.display = "none";
   document.getElementById("loginStepPhone").style.display = "block";
   document.getElementById("s-dot2").classList.remove("active");
   document.getElementById("s-dot1").classList.add("active");

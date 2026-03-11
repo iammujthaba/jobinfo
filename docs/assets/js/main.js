@@ -241,3 +241,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+// Job Details Modal Logic
+window.loadedJobs = window.loadedJobs || {};
+
+window.showJobDetailsModal = function(jobCode) {
+  const job = window.loadedJobs[jobCode];
+  if (!job) return;
+
+  // Populate fields
+  document.getElementById('jd-code').textContent = job.job_code || '';
+  document.getElementById('jd-title').textContent = job.title || 'Job Title';
+  document.getElementById('jd-company').querySelector('span').textContent = job.company || '—';
+  document.getElementById('jd-location').textContent = job.location || '—';
+  
+  const salaryText = job.salary_range ? `₹${job.salary_range}` : 'Not specified';
+  document.getElementById('jd-salary').textContent = salaryText;
+  
+  const expText = job.experience_required ? `${job.experience_required}` : 'Any';
+  document.getElementById('jd-experience').textContent = expText;
+  
+  document.getElementById('jd-description').textContent = job.description || 'No detailed description available.';
+
+  // Apply button URL
+  const applyUrl = `https://wa.me/${JOBINFO_CONFIG.BUSINESS_WA}?text=Apply%20${encodeURIComponent(job.job_code)}`;
+  document.getElementById('jd-apply-btn').href = applyUrl;
+
+  // Show Modal
+  const modalEl = document.getElementById('jobDetailsModal');
+  if (modalEl) {
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
+};

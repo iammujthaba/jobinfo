@@ -188,12 +188,14 @@ async function loadJobs(reset) {
 
 /* ── Build a single job card ─────────────────────────────────────────────── */
 function buildJobCard(job) {
+  window.loadedJobs = window.loadedJobs || {};
+  window.loadedJobs[job.job_code] = job;
   const applyUrl = `https://wa.me/${JOBINFO_CONFIG.BUSINESS_WA}?text=Apply%20${encodeURIComponent(job.job_code)}`;
   const salary = job.salary_range ? `<span class="badge bg-success-subtle text-success me-1"><i class="bi bi-currency-rupee"></i>${job.salary_range}</span>` : "";
   const exp = job.experience_required ? `<span class="badge bg-info-subtle text-info"><i class="bi bi-briefcase"></i> ${job.experience_required}</span>` : "";
 
   return `
-  <div class="col-lg-4 col-md-6 job-card-col" data-aos="fade-up">
+  <div class="col-lg-4 col-md-6 job-card-col" data-aos="fade-up" style="cursor:pointer;" onclick="showJobDetailsModal('${job.job_code}')">
     <div class="job-card h-100 p-3 bg-white rounded shadow-sm d-flex flex-column">
       <div class="job-card-header mb-2">
         <span class="job-code-badge">${job.job_code}</span>
@@ -203,7 +205,7 @@ function buildJobCard(job) {
       </div>
       <div class="job-badges mb-2">${salary}${exp}</div>
       <p class="job-desc text-muted small flex-grow-1">${escHtml((job.description || "").substring(0, 120))}${job.description && job.description.length > 120 ? "…" : ""}</p>
-      <a href="${applyUrl}" target="_blank" rel="noopener" class="btn btn-success btn-sm mt-auto apply-wa-btn">
+      <a href="${applyUrl}" target="_blank" rel="noopener" class="btn btn-success btn-sm mt-auto apply-wa-btn" onclick="event.stopPropagation()">
         <i class="bi bi-whatsapp me-1"></i>Apply via WhatsApp
       </a>
     </div>

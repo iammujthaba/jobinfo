@@ -1,0 +1,130 @@
+<style>
+  /* ── Auth Modal Styles matching Recruiter ── */
+  .auth-card-modal { padding: 30px; }
+  .auth-card-modal h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+  .step-dots { display: flex; gap: 8px; margin-bottom: 22px; justify-content: center; }
+  .step-dot { width: 32px; height: 6px; border-radius: 4px; background: #e0e0e0; transition: background .3s; }
+  .step-dot.active { background: #25d366; }
+  .field-label { font-size: .78rem; font-weight: 600; color: #555; margin-bottom: 8px; display: block; }
+  .wa-wrap { display: flex; border: 1px solid #dde1e7; border-radius: 10px; overflow: hidden; }
+  .wa-wrap .prefix { background: #f5f5f5; padding: 11px 14px; font-size: .9rem; color: #555; border-right: 1px solid #dde1e7; white-space: nowrap; display:flex; align-items: center; gap: 6px; }
+  .wa-wrap input { border: none; border-radius: 0; padding: 11px 14px; width: 100%; font-size: .95rem; outline: none; }
+  .btn-ji { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #25d366; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+  .btn-ji:hover { background: #1ebe5d; }
+  .btn-ji:disabled { background: #aaa; cursor: not-allowed; }
+  .otp-field { font-size: 2rem; letter-spacing: .6rem; text-align: center; font-weight: 700; width: 100%; padding: 11px; border: 1px solid #dde1e7; border-radius: 10px; outline: none; }
+  .otp-field:focus { border-color: #25d366; box-shadow: 0 0 0 3px rgba(37,211,102,.15); }
+  .btn-resend { background: none; border: none; color: #888; font-size: .82rem; cursor: pointer; }
+  .btn-resend:disabled { color: #ccc; cursor: default; }
+</style>
+
+<!-- Seeker Login Modal -->
+<div class="modal fade" id="seekerLoginModal" tabindex="-1" aria-labelledby="seekerLoginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    <div class="modal-content border-0" style="border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.1);">
+      <div class="modal-header border-0 pb-0 justify-content-end p-3 position-absolute end-0 z-1">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color: #f5f5f5; border-radius: 50%; opacity: 0.8; padding: 10px; margin-right: 5px; margin-top: 5px;"></button>
+      </div>
+
+      <div class="modal-body auth-card-modal pt-4">
+        <div style="text-align:center;margin-bottom:20px;margin-top:20px;">
+          <span style="font-size:1.6rem;font-weight:800">
+            <span style="color:#e74c3c">Job</span><span style="color:#1a1a2e">info</span>
+          </span>
+          <p style="margin:4px 0 0;color:#888;font-size:.82rem">Candidate Dashboard</p>
+        </div>
+        
+        <div class="step-dots">
+          <div class="step-dot active" id="s-dot1"></div>
+          <div class="step-dot" id="s-dot2"></div>
+        </div>
+        
+        <!-- Step 1: Phone Entry -->
+        <div id="loginStepPhone">
+          <h2>Verify your WhatsApp</h2>
+          <p class="text-muted mb-4" style="font-size:.88rem">Enter the number you registered with.</p>
+          <div class="mb-3">
+            <label class="field-label">WhatsApp Number</label>
+            <div class="wa-wrap mb-4">
+              <span class="prefix"><i class="bi bi-whatsapp" style="color:#25d366"></i> +91</span>
+              <input type="tel" id="loginPhone" placeholder="10-digit number" maxlength="10">
+            </div>
+          </div>
+          <button class="btn-ji" id="btnSendOtp" onclick="sendSeekerOtp()"><i class="bi bi-send me-2"></i>Send OTP</button>
+        </div>
+
+        <!-- Unregistered State -->
+        <div id="loginStepUnregistered" style="display:none; text-align:center;">
+          <h2>Wait! Looks like you are new here.</h2>
+          <p class="text-muted mb-4" style="font-size:.9rem">To keep your job search secure and instant, all JobInfo profiles are created via our WhatsApp bot.</p>
+          <a href="https://wa.me/917025962176?text=Hi" target="_blank" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm mb-3">
+            <i class="bi bi-whatsapp me-2"></i>Register on WhatsApp 🚀
+          </a>
+          <p style="font-size:.8rem;color:#888;">Already registered? <a href="#" onclick="changePhoneNumber()" style="color:#25d366;">Try another number</a></p>
+        </div>
+
+        <!-- Step 2: OTP Entry -->
+        <div id="loginStepOtp" style="display:none">
+          <h2>Enter OTP</h2>
+          <p class="text-muted mb-4" style="font-size:.88rem">A 6-digit code was sent to your WhatsApp.</p>
+          <div class="mb-4">
+            <label class="field-label">One-Time Password</label>
+            <input type="text" id="loginOtp" class="otp-field" maxlength="6" placeholder="••••••" autocomplete="one-time-code">
+          </div>
+          <button class="btn-ji" id="btnVerifyOtp" onclick="verifySeekerOtp()">Verify &amp; Open Dashboard</button>
+          <div class="resend-row" style="text-align:center;margin-top:15px">
+            <button class="btn-resend" id="btnResendOtp" onclick="sendSeekerOtp(true)" disabled>Resend in <span id="s-cd">60</span>s</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Job Details Modal -->
+<div class="modal fade" id="jobDetailsModal" tabindex="-1" aria-labelledby="jobDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+      <div class="modal-header border-0 pb-0 justify-content-end">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body px-4 px-md-5 pt-0 pb-4">
+        <span class="job-code-badge mb-2" id="jd-code"></span>
+        <h3 class="fw-bold mb-1" id="jd-title"></h3>
+        <p class="text-muted mb-4" id="jd-company"><i class="bi bi-building me-1"></i><span></span></p>
+
+        <div class="row g-3 mb-4">
+          <div class="col-sm-4">
+            <div class="p-3 bg-light rounded" style="font-size:0.85rem;">
+              <div class="text-muted fw-bold text-uppercase mb-1" style="font-size:0.75rem;">Location</div>
+              <div class="fw-semibold text-dark" id="jd-location"></div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="p-3 bg-light rounded" style="font-size:0.85rem;">
+              <div class="text-muted fw-bold text-uppercase mb-1" style="font-size:0.75rem;">Salary</div>
+              <div class="fw-semibold text-success" id="jd-salary"></div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="p-3 bg-light rounded" style="font-size:0.85rem;">
+              <div class="text-muted fw-bold text-uppercase mb-1" style="font-size:0.75rem;">Experience</div>
+              <div class="fw-semibold text-info" id="jd-experience"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <h5 class="fw-bold mb-2">Job Description</h5>
+          <div class="text-muted" style="white-space:pre-wrap; font-size:0.95rem; line-height:1.6;" id="jd-description"></div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+          <a href="#" id="jd-apply-btn" target="_blank" class="btn btn-success py-3 fw-bold rounded-pill shadow-sm" style="font-size:1.05rem;">
+            <i class="bi bi-whatsapp me-2"></i> Apply via WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

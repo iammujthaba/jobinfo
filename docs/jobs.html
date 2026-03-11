@@ -193,14 +193,14 @@
           <li><a href="index.html#call-to-action">Join Now</a></li>
           <li><a href="index.html#faq">FAQ</a></li>
           <li class="d-xl-none text-center" style="padding: 10px 20px;">
-            <a id="login-nav-btn-mobile" class="btn-nav-outline w-100 justify-content-center" href=""><i class="bi bi-box-arrow-in-right"></i>Login</a>
+            <a id="login-nav-btn-mobile" class="btn-nav-outline w-100 justify-content-center" href="#" data-bs-toggle="modal" data-bs-target="#seekerLoginModal"><i class="bi bi-box-arrow-in-right"></i>Login</a>
           </li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
       <a class="btn-getstarted" href="recruiter.html">Post Vacancies</a>
-      <a class="btn-nav-outline d-none d-xl-flex" id="login-nav-btn" href="" style="margin-left: 10px;"><i class="bi bi-box-arrow-in-right"></i>Login</a>
+      <a class="btn-nav-outline d-none d-xl-flex" id="login-nav-btn" href="#" data-bs-toggle="modal" data-bs-target="#seekerLoginModal" style="margin-left: 10px;"><i class="bi bi-box-arrow-in-right"></i>Login</a>
 
     </div>
   </header>
@@ -335,6 +335,10 @@
       }
     })();
   </script>
+
+  <div id="modals-container"></div>
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/seeker-auth.js"></script>
 
 </body>
 </html>
