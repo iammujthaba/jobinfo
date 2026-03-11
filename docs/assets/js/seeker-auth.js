@@ -145,6 +145,63 @@ function changePhoneNumber() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Auto-Login Interceptor for Magic Links
+  const urlParams = new URLSearchParams(window.location.search);
+  const magicToken = urlParams.get('magic_token');
+
+  if (magicToken) {
+    // Show full-page overlay
+    const overlayHtml = `
+      <div id="magic-auth-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:#fff;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div class="spinner-border text-success mb-3" role="status" style="width:3rem;height:3rem;"></div>
+        <h5 class="text-muted fw-bold">Authenticating...</h5>
+        <p class="text-muted small">Please wait while we log you in securely.</p>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', overlayHtml);
+
+    fetch(`${JOBINFO_CONFIG.API_URL}/api/auth/magic/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: magicToken })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Invalid or expired magic link");
+      return res.json();
+    })
+    .then(data => {
+      localStorage.setItem("seeker_session_token", data.session_token);
+      localStorage.setItem("seeker_wa_number", data.wa_number);
+      
+      const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+
+      if (data.is_new_user) {
+         window.location.href = "register.html";
+      } else {
+         window.location.href = "dashboard.html"; 
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById('magic-auth-overlay').remove();
+      
+      const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+
+      swal("Authentication Failed", "This secure link has expired or is invalid. Please log in using OTP.", "warning")
+      .then(() => {
+        const seekerModal = document.getElementById('seekerLoginModal');
+        if (seekerModal) {
+          const modalInstance = new bootstrap.Modal(seekerModal);
+          modalInstance.show();
+        }
+      });
+    });
+
+    return; // Stop further initialized of DOM elements behind the overlay
+  }
+
   const seekerModal = document.getElementById('seekerLoginModal');
   if (seekerModal) {
     seekerModal.addEventListener('hidden.bs.modal', () => {
