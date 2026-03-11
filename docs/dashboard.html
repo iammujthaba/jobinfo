@@ -53,6 +53,28 @@
     .status-applied { background:#eaf4fb; color:#2471a3; }
     .status-shortlisted { background:#d6eaf8; color:#1a5276; }
     .status-rejected { background:#fadbd8; color:#922b21; }
+
+    /* Mobile Responsive Tweaks */
+    @media (max-width: 768px) {
+      body { background: #fff !important; }
+      .container { padding-left: 10px !important; padding-right: 10px !important; }
+      .card-dashboard { padding: 16px !important; margin-bottom: 12px !important; border-radius: 8px !important; box-shadow: none !important; border: 1px solid #f0f2f5 !important; }
+      .top-bar { padding: 12px 14px !important; }
+      .nav-pills { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 8px !important; margin-bottom: 16px !important; }
+      .nav-pills::-webkit-scrollbar { display: none; }
+      .card-dashboard h4 { font-size: 1.05rem !important; margin-bottom: 16px !important; }
+      .d-flex.flex-column.flex-md-row .d-flex.gap-2 { flex-wrap: wrap !important; }
+      #filterDays, #filterStatus { flex: 1; font-size: 0.85rem !important; }
+      
+      /* Mobile Table Cards */
+      .table-dashboard thead { display: none; }
+      .table-dashboard tbody tr { display: block; border: 1px solid #f0f2f5; border-radius: 8px; margin-bottom: 12px; padding: 12px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+      .table-dashboard tbody td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f9fafb; font-size: 0.85rem; }
+      .table-dashboard tbody td:last-child { border-bottom: none; }
+      .table-dashboard tbody td::before { content: attr(data-label); font-weight: 600; color: #888; text-transform: uppercase; font-size: 0.7rem; margin-right: 15px; }
+      .table-responsive { border: none !important; }
+      .table-container { border: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -66,10 +88,9 @@
     <button class="btn-logout" onclick="logoutSeeker()"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
   </div>
 
-  <main class="container py-4">
-
-    <!-- Dashboard Tabs -->
-    <ul class="nav nav-pills mb-4" id="dashboardTabs" role="tablist">
+  <!-- Dashboard Tabs -->
+  <main class="container py-3">
+    <ul class="nav nav-pills mb-4 flex-nowrap overflow-auto" id="dashboardTabs" role="tablist" style="scrollbar-width: none;">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile-pnl" type="button" role="tab">My Profile</button>
       </li>
@@ -82,8 +103,9 @@
       
       <!-- Profile Tab -->
       <div class="tab-pane fade show active" id="profile-pnl" role="tabpanel">
-        
-        <!-- View Mode -->
+        <div class="row">
+          <div class="col-lg-8">
+            <!-- View Mode -->
         <div class="card-dashboard" id="profileViewSection">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="mb-0">My Profile</h4>
@@ -91,30 +113,30 @@
               <i class="bi bi-pencil me-1"></i> Edit Profile
             </button>
           </div>
-          <div class="row g-4">
-            <div class="col-md-6">
-              <div class="form-label">Full Name</div>
-              <div class="fw-bold" id="viewName" style="font-size:.95rem; color:#333;">—</div>
+          <div class="row g-3">
+            <div class="col-6 col-md-6 mb-2">
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Full Name</div>
+              <div class="fw-bold text-dark" id="viewName" style="font-size:0.9rem;">—</div>
             </div>
-            <div class="col-md-6">
-              <div class="form-label">Age</div>
-              <div class="fw-bold" id="viewAge" style="font-size:.95rem; color:#333;">—</div>
+            <div class="col-6 col-md-6 mb-2">
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Age</div>
+              <div class="fw-bold text-dark" id="viewAge" style="font-size:0.9rem;">—</div>
             </div>
-            <div class="col-md-6">
-              <div class="form-label">Post Office / Location</div>
-              <div class="fw-bold" id="viewPostOffice" style="font-size:.95rem; color:#333;">—</div>
+            <div class="col-6 col-md-6 mb-2">
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Location</div>
+              <div class="fw-bold text-dark" id="viewPostOffice" style="font-size:0.9rem;">—</div>
             </div>
-            <div class="col-md-6">
-              <div class="form-label">PIN Code</div>
-              <div class="fw-bold" id="viewPinCode" style="font-size:.95rem; color:#333;">—</div>
+            <div class="col-6 col-md-6 mb-2">
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">PIN Code</div>
+              <div class="fw-bold text-dark" id="viewPinCode" style="font-size:0.9rem;">—</div>
             </div>
-            <div class="col-md-6">
-              <div class="form-label">Job Category</div>
-              <div class="fw-bold" id="viewCategory" style="font-size:.95rem; color:#333;">—</div>
+            <div class="col-6 col-md-6 mb-2">
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Job Category</div>
+              <div class="fw-bold text-dark" id="viewCategory" style="font-size:0.9rem;">—</div>
             </div>
-            <div class="col-md-6">
-              <div class="form-label">Alternate Phone</div>
-              <div class="fw-bold" id="viewAltPhone" style="font-size:.95rem; color:#333;">—</div>
+            <div class="col-6 col-md-6 mb-2">
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Mobile</div>
+              <div class="fw-bold text-dark" id="viewAltPhone" style="font-size:0.9rem;">—</div>
             </div>
           </div>
         </div>
@@ -159,20 +181,61 @@
                 <label class="form-label">Alternate Phone</label>
                 <input type="tel" class="form-control" id="profileAltPhone">
               </div>
-              <div class="col-12 mt-4 text-end">
-                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold me-2" style="border:1px solid #dde1e7;" onclick="toggleProfileEdit(false)">Cancel</button>
+              <div class="col-12 mt-4 d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" style="border:1px solid #dde1e7;" onclick="toggleProfileEdit(false)">Cancel</button>
                 <button type="button" class="btn-save" id="btnSaveProfile" onclick="updateProfile()">Save Changes</button>
               </div>
             </div>
           </form>
+        </div>
+          </div>
+          <div class="col-lg-4">
+            <!-- Profile Strength -->
+            <div class="card-dashboard mb-4">
+              <h5 class="mb-3">Profile Strength</h5>
+              <div class="progress mb-3" style="height: 10px;">
+                <div id="strengthProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <p class="text-muted small mb-2" id="strengthText">0% Complete</p>
+              <ul class="list-unstyled small text-muted" id="strengthChecklist">
+                 <!-- Populated by JS -->
+              </ul>
+            </div>
+
+            <!-- Application Analytics -->
+            <div class="card-dashboard">
+              <h5 class="mb-3">Analytics (Focus Areas)</h5>
+              <div id="analyticsContent">
+                 <!-- Populated by JS -->
+                 <div class="text-center text-muted small py-3">Loading analytics...</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Applications Tab -->
       <div class="tab-pane fade" id="applications-pnl" role="tabpanel">
         <div class="card-dashboard">
-          <h4>Application History</h4>
-          <div class="table-container">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <h4 class="mb-0">Application History</h4>
+            <div class="d-flex gap-2">
+              <select id="filterDays" class="form-select form-select-sm" onchange="loadApplications()" style="min-width: 120px;">
+                <option value="">All Time</option>
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+              </select>
+              <select id="filterStatus" class="form-select form-select-sm" onchange="loadApplications()" style="min-width: 120px;">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="interview_scheduled">Interview</option>
+                <option value="rejected">Rejected</option>
+                <option value="selected">Selected</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-container table-responsive">
             <table class="table-dashboard">
               <thead>
                 <tr>
