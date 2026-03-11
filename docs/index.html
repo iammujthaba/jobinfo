@@ -58,6 +58,27 @@
 
     /* Browse Jobs – outlined green pill (mirrors Post Vacancy style) */
     .hero .btn-watch-video,
+    a.btn-watch-video {
+      font-size: 15px !important;
+      border: 2px solid #10bc69 !important;
+      color: #10bc69 !important;
+      background: transparent !important;
+    }
+    .hero .btn-watch-video:hover,
+    a.btn-watch-video:hover {
+      background: #10bc69 !important;
+      color: #fff !important;
+      box-shadow: 0 8px 20px rgba(16,188,105,0.2) !important;
+    }
+
+    /* ── Job card (Latest Jobs) ──────────────────────── */
+    .job-card {
+      transition: transform .2s, box-shadow .2s;
+    }
+    .job-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.09) !important;
+    }
     a.glightbox.btn-watch-video {
       display: inline-flex !important;
       align-items: center !important;
@@ -560,7 +581,7 @@
         window.loadedJobs = window.loadedJobs || {};
         window.loadedJobs[job.job_code] = job;
         var applyUrl = "https://wa.me/" + JOBINFO_CONFIG.BUSINESS_WA + "?text=Apply%20" + encodeURIComponent(job.job_code);
-        grid.insertAdjacentHTML("beforeend", '<div class="col-lg-4 col-md-6" style="cursor:pointer;" onclick="showJobDetailsModal(\'' + job.job_code + '\')"><div class="service-item position-relative shadow-sm h-100 d-flex flex-column" style="border-radius:12px;padding:24px"><div class="d-flex align-items-center gap-2 mb-2"><span style="background:#e8f5e9;color:#1e8449;border-radius:20px;padding:2px 12px;font-size:.72rem;font-weight:700">' + job.job_code + '</span></div><h5 style="font-weight:700;margin-bottom:4px">' + job.title + '</h5><p class="text-muted small mb-1"><i class="bi bi-building me-1"></i>' + (job.company || '—') + '</p><p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>' + job.location + '</p><a href="' + applyUrl + '" target="_blank" class="btn btn-success btn-sm mt-auto" style="font-weight:600" onclick="event.stopPropagation()"><i class="bi bi-whatsapp me-1"></i>Apply via WhatsApp</a></div></div>');
+        grid.insertAdjacentHTML("beforeend", '<div class="col-lg-4 col-md-6" style="cursor:pointer;" onclick="showJobDetailsModal(\'' + job.job_code + '\')"><div class="service-item job-card position-relative shadow-sm h-100 d-flex flex-column" style="border-radius:12px;padding:24px"><div class="d-flex align-items-center gap-2 mb-2"><span style="background:#e8f5e9;color:#1e8449;border-radius:20px;padding:2px 12px;font-size:.72rem;font-weight:700">' + job.job_code + '</span></div><h5 style="font-weight:700;margin-bottom:4px">' + job.title + '</h5><p class="text-muted small mb-1"><i class="bi bi-building me-1"></i>' + (job.company || '—') + '</p><p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>' + job.location + '</p><a href="' + applyUrl + '" target="_blank" class="btn btn-success btn-sm mt-auto" style="font-weight:600" onclick="event.stopPropagation()"><i class="bi bi-whatsapp me-1"></i>Apply via WhatsApp</a></div></div>');
       });
     } catch(e) {
       grid.innerHTML = '<div class="col-12 text-center text-muted">Could not load jobs right now.</div>';
