@@ -93,75 +93,87 @@
    * Animation on scroll function and init
    */
   function aosInit() {
-    AOS.init({
-      duration: 600,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
-    });
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+        duration: 600,
+        easing: 'ease-in-out',
+        once: true,
+        mirror: false
+      });
+    }
   }
   window.addEventListener('load', aosInit);
 
   /**
    * Initiate glightbox
    */
-  const glightbox = GLightbox({
-    selector: '.glightbox'
-  });
+  if (typeof GLightbox !== 'undefined') {
+    const glightbox = GLightbox({
+      selector: '.glightbox'
+    });
+  }
 
   /**
    * Initiate Pure Counter
    */
-  new PureCounter();
+  if (typeof PureCounter !== 'undefined') {
+    new PureCounter();
+  }
 
   /**
    * Init isotope layout and filters
    */
-  document.querySelectorAll('.isotope-layout').forEach(function(isotopeItem) {
-    let layout = isotopeItem.getAttribute('data-layout') ?? 'masonry';
-    let filter = isotopeItem.getAttribute('data-default-filter') ?? '*';
-    let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
+  if (typeof Isotope !== 'undefined' && typeof imagesLoaded !== 'undefined') {
+    document.querySelectorAll('.isotope-layout').forEach(function(isotopeItem) {
+      let layout = isotopeItem.getAttribute('data-layout') ?? 'masonry';
+      let filter = isotopeItem.getAttribute('data-default-filter') ?? '*';
+      let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
 
-    let initIsotope;
-    imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
-      initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
-        itemSelector: '.isotope-item',
-        layoutMode: layout,
-        filter: filter,
-        sortBy: sort
-      });
-    });
-
-    isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
-      filters.addEventListener('click', function() {
-        isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
-        this.classList.add('filter-active');
-        initIsotope.arrange({
-          filter: this.getAttribute('data-filter')
+      let initIsotope;
+      imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
+        initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
+          itemSelector: '.isotope-item',
+          layoutMode: layout,
+          filter: filter,
+          sortBy: sort
         });
-        if (typeof aosInit === 'function') {
-          aosInit();
-        }
-      }, false);
-    });
+      });
 
-  });
+      isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
+        filters.addEventListener('click', function() {
+          isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
+          this.classList.add('filter-active');
+          initIsotope.arrange({
+            filter: this.getAttribute('data-filter')
+          });
+          if (typeof aosInit === 'function') {
+            aosInit();
+          }
+        }, false);
+      });
+
+    });
+  }
 
   /**
    * Init swiper sliders
    */
   function initSwiper() {
-    document.querySelectorAll(".init-swiper").forEach(function(swiperElement) {
-      let config = JSON.parse(
-        swiperElement.querySelector(".swiper-config").innerHTML.trim()
-      );
+    if (typeof Swiper !== 'undefined') {
+      document.querySelectorAll(".init-swiper").forEach(function(swiperElement) {
+        let config = JSON.parse(
+          swiperElement.querySelector(".swiper-config").innerHTML.trim()
+        );
 
-      if (swiperElement.classList.contains("swiper-tab")) {
-        initSwiperWithCustomPagination(swiperElement, config);
-      } else {
-        new Swiper(swiperElement, config);
-      }
-    });
+        if (swiperElement.classList.contains("swiper-tab")) {
+          if (typeof initSwiperWithCustomPagination !== 'undefined') {
+            initSwiperWithCustomPagination(swiperElement, config);
+          }
+        } else {
+          new Swiper(swiperElement, config);
+        }
+      });
+    }
   }
 
   window.addEventListener("load", initSwiper);
@@ -251,17 +263,37 @@ window.showJobDetailsModal = function(jobCode) {
 
   // Populate fields
   document.getElementById('jd-code').textContent = job.job_code || '';
-  document.getElementById('jd-title').textContent = job.title || 'Job Title';
-  document.getElementById('jd-company').querySelector('span').textContent = job.company || '—';
-  document.getElementById('jd-location').textContent = job.location || '—';
+  document.getElementById('jd-title').textContent = job.job_title || 'Job Title';
+  document.getElementById('jd-company').querySelector('span').textContent = job.company_name || '—';
+  document.getElementById('jd-location').textContent = job.district_region || '—';
   
-  const salaryText = job.salary_range ? `₹${job.salary_range}` : 'Not specified';
+  const salaryMap = {
+    "interview_based": "Based on Interview",
+    "not_mentioned": "Not Mentioned",
+    "stipend": "Stipend",
+    "below_10k": "Below ₹10,000",
+    "10k_20k": "₹10,000 - ₹20,000",
+    "20k_30k": "₹20,000 - ₹30,000",
+    "30k_40k": "₹30,000 - ₹40,000",
+    "40k_50k": "₹40,000 - ₹50,000",
+    "above_50k": "Above ₹50,000"
+  };
+
+  const expMap = {
+    "no_experience": "No Experience Required",
+    "fresher_or_exp": "Fresher or Experienced",
+    "1_2_years": "1-2 Years",
+    "3_5_years": "3-5 Years",
+    "5_plus_years": "5+ Years"
+  };
+
+  const salaryText = job.salary_range ? (salaryMap[job.salary_range] || job.salary_range) : 'Not specified';
   document.getElementById('jd-salary').textContent = salaryText;
   
-  const expText = job.experience_required ? `${job.experience_required}` : 'Any';
+  const expText = job.experience_required ? (expMap[job.experience_required] || job.experience_required) : 'Any';
   document.getElementById('jd-experience').textContent = expText;
   
-  document.getElementById('jd-description').textContent = job.description || 'No detailed description available.';
+  document.getElementById('jd-description').textContent = job.job_description || 'No detailed description available.';
 
   // Apply button URL
   const applyUrl = `https://wa.me/${JOBINFO_CONFIG.BUSINESS_WA}?text=Apply%20${encodeURIComponent(job.job_code)}`;

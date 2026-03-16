@@ -559,7 +559,7 @@
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
   <!-- Main JS File -->
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/main.js?v=2"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/jobseeker.js?v=2"></script>
@@ -581,7 +581,7 @@
         window.loadedJobs = window.loadedJobs || {};
         window.loadedJobs[job.job_code] = job;
         var applyUrl = "https://wa.me/" + JOBINFO_CONFIG.BUSINESS_WA + "?text=Apply%20" + encodeURIComponent(job.job_code);
-        grid.insertAdjacentHTML("beforeend", '<div class="col-lg-4 col-md-6" style="cursor:pointer;" onclick="showJobDetailsModal(\'' + job.job_code + '\')"><div class="service-item job-card position-relative shadow-sm h-100 d-flex flex-column" style="border-radius:12px;padding:24px"><div class="d-flex align-items-center gap-2 mb-2"><span style="background:#e8f5e9;color:#1e8449;border-radius:20px;padding:2px 12px;font-size:.72rem;font-weight:700">' + job.job_code + '</span></div><h5 style="font-weight:700;margin-bottom:4px">' + job.title + '</h5><p class="text-muted small mb-1"><i class="bi bi-building me-1"></i>' + (job.company || '—') + '</p><p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>' + job.location + '</p><a href="' + applyUrl + '" target="_blank" class="btn btn-success btn-sm mt-auto" style="font-weight:600" onclick="event.stopPropagation()"><i class="bi bi-whatsapp me-1"></i>Apply via WhatsApp</a></div></div>');
+        grid.insertAdjacentHTML("beforeend", '<div class="col-lg-4 col-md-6" style="cursor:pointer;" onclick="showJobDetailsModal(\'' + job.job_code + '\')"><div class="service-item job-card position-relative shadow-sm h-100 d-flex flex-column" style="border-radius:12px;padding:24px"><div class="d-flex align-items-center gap-2 mb-2"><span style="background:#e8f5e9;color:#1e8449;border-radius:20px;padding:2px 12px;font-size:.72rem;font-weight:700">' + job.job_code + '</span></div><h5 style="font-weight:700;margin-bottom:4px">' + job.job_title + '</h5><p class="text-muted small mb-1"><i class="bi bi-building me-1"></i>' + (job.company_name || '—') + '</p><p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>' + job.district_region + '</p><a href="' + applyUrl + '" target="_blank" class="btn btn-success btn-sm mt-auto" style="font-weight:600" onclick="event.stopPropagation()"><i class="bi bi-whatsapp me-1"></i>Apply via WhatsApp</a></div></div>');
       });
     } catch(e) {
       grid.innerHTML = '<div class="col-12 text-center text-muted">Could not load jobs right now.</div>';
@@ -606,12 +606,58 @@
   </script>
 
   <div id="modals-container"></div>
-  <script src="assets/js/components.js"></script>
-  <script src="assets/js/seeker-auth.js"></script>
+  <script src="assets/js/components.js?v=2"></script>
+  <script src="assets/js/seeker-auth.js?v=2"></script>
 
+  <!-- Job Details Modal -->
+  <div class="modal fade" id="jobDetailsModal" tabindex="-1" aria-labelledby="jobDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="border-radius:16px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+        <div class="modal-header border-0 pb-0 justify-content-end">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body px-4 px-md-5 pt-0 pb-4">
+          <span class="job-code-badge mb-2" id="jd-code"></span>
+          <h3 class="fw-bold mb-1" id="jd-title"></h3>
+          <p class="text-muted mb-4" id="jd-company"><i class="bi bi-building me-1"></i><span></span></p>
+
+          <div class="row g-3 mb-4">
+            <div class="col-sm-4">
+              <div class="p-3 bg-light rounded" style="font-size:0.85rem;">
+                <div class="text-muted fw-bold text-uppercase mb-1" style="font-size:0.75rem;">Location</div>
+                <div class="fw-semibold text-dark" id="jd-location"></div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="p-3 bg-light rounded" style="font-size:0.85rem;">
+                <div class="text-muted fw-bold text-uppercase mb-1" style="font-size:0.75rem;">Salary</div>
+                <div class="fw-semibold text-success" id="jd-salary"></div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="p-3 bg-light rounded" style="font-size:0.85rem;">
+                <div class="text-muted fw-bold text-uppercase mb-1" style="font-size:0.75rem;">Experience</div>
+                <div class="fw-semibold text-info" id="jd-experience"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="fw-bold mb-2">Job Description</h5>
+            <div class="text-muted" style="white-space:pre-wrap; font-size:0.95rem; line-height:1.6;" id="jd-description"></div>
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <a href="#" id="jd-apply-btn" target="_blank" class="btn btn-success py-3 fw-bold rounded-pill shadow-sm" style="font-size:1.05rem;">
+              <i class="bi bi-whatsapp me-2"></i> Apply via WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-</body>
+  </body>
 
 </html>
 </html>
