@@ -579,12 +579,12 @@ function renderVacancyTable(filter) {
       <tr>
         <td data-label="Job Code"><code class="jc">${esc(v.job_code)}</code></td>
         <td data-label="Title">
-          <strong>${esc(v.title)}</strong>
-          ${v.company ? `<br><span class="text-muted" style="font-size:.78rem">🏢 ${esc(v.company)}</span>` : ""}
+          <strong>${esc(v.job_title)}</strong>
+          ${v.company_name ? `<br><span class="text-muted" style="font-size:.78rem">🏢 ${esc(v.company_name)}</span>` : ""}
           ${v.salary_range ? `<br><span class="text-muted" style="font-size:.78rem">💰 ${esc(v.salary_range)}</span>` : ""}
           ${v.experience_required ? `<br><span class="text-muted" style="font-size:.78rem">🎓 ${esc(v.experience_required)}</span>` : ""}
         </td>
-        <td data-label="Location"><i class="bi bi-geo-alt text-muted"></i> ${esc(v.location)}</td>
+        <td data-label="Location"><i class="bi bi-geo-alt text-muted"></i> ${esc(v.district_region)}</td>
         <td data-label="Status"><span class="${cls}">${label}</span>${rejNote}</td>
         <td data-label="Applications"><span class="app-count"><i class="bi bi-people me-1"></i>${v.application_count}</span></td>
         <td data-label="Posted" style="font-size:.78rem;color:#888;white-space:nowrap">${posted}</td>
@@ -593,7 +593,7 @@ function renderVacancyTable(filter) {
             ? `<button class="btn-edit-vac" onclick="openEditModal(${JSON.stringify(v).replace(/"/g,'&quot;')})">
                  <i class="bi bi-pencil me-1"></i>Edit
                </button>`
-            : `<button class="btn-apps" onclick="openAppsPanel(${v.id},'${esc(v.job_code)}','${esc(v.title)}',${v.application_count})">
+            : `<button class="btn-apps" onclick="openAppsPanel(${v.id},'${esc(v.job_code)}','${esc(v.job_title)}',${v.application_count})">
                  <i class="bi bi-people me-1"></i>View Apps
                </button>`}
         </td>
@@ -808,12 +808,12 @@ function openEditModal(v) {
   if (typeof v === "string") { try { v = JSON.parse(v); } catch { return; } }
   document.getElementById("edit-vac-id").value      = v.id;
   document.getElementById("edit-job-code").value     = v.job_code || "";
-  document.getElementById("edit-title").value        = v.title || "";
-  document.getElementById("edit-company").value      = v.company || "";
-  document.getElementById("edit-location").value     = v.location || "";
+  document.getElementById("edit-title").value        = v.job_title || "";
+  document.getElementById("edit-company").value      = v.company_name || "";
+  document.getElementById("edit-location").value     = v.exact_location || v.district_region || "";
   document.getElementById("edit-salary").value       = v.salary_range || "";
   document.getElementById("edit-experience").value   = v.experience_required || "";
-  document.getElementById("edit-description").value  = v.description || "";
+  document.getElementById("edit-description").value  = v.job_description || "";
   document.getElementById("edit-err").style.display  = "none";
   document.getElementById("submit-edit-btn").disabled = false;
   document.getElementById("submit-edit-btn").innerHTML = '<i class="bi bi-send me-1"></i>Submit for Review';
@@ -846,10 +846,13 @@ document.getElementById("submit-edit-btn").addEventListener("click", async () =>
       wa_number:           verifiedWa,
       session_token:       sessionToken,
       vacancy_id:          parseInt(document.getElementById("edit-vac-id").value),
-      title,
-      company:             document.getElementById("edit-company").value.trim() || null,
-      location,
-      description:         document.getElementById("edit-description").value.trim() || null,
+      job_category:        "General", // Default when editing via old form
+      job_mode:            "Office", // Default
+      district_region:     location,
+      exact_location:      location,
+      job_title:           title,
+      company_name:        document.getElementById("edit-company").value.trim() || null,
+      job_description:     document.getElementById("edit-description").value.trim() || null,
       salary_range:        document.getElementById("edit-salary").value.trim() || null,
       experience_required: document.getElementById("edit-experience").value.trim() || null,
     });

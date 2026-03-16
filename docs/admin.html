@@ -657,11 +657,11 @@ function buildRow(v, filter) {
   return `<tr>
     <td><code class="jc">${escHtml(v.job_code)}</code></td>
     <td>
-      <strong>${escHtml(v.title)}</strong>${editedBadge}
-      ${v.description ? `<br><button class="desc-btn" data-title="${escHtml(v.title)}" data-desc="${escHtml(v.description)}">View details</button>` : ""}
+      <strong>${escHtml(v.job_title)}</strong>${editedBadge}
+      ${v.job_description ? `<br><button class="desc-btn" data-title="${escHtml(v.job_title)}" data-desc="${escHtml(v.job_description)}">View details</button>` : ""}
     </td>
-    <td>${escHtml(v.company)}</td>
-    <td>${escHtml(v.location)}</td>
+    <td>${escHtml(v.company_name)}</td>
+    <td>${escHtml(v.district_region)}</td>
     <td>
       ${escHtml(recruiterName)}
       ${recruiterWa ? `<br><a href="https://wa.me/${recruiterWa}" target="_blank" style="font-size:.78rem;color:#25d366"><i class="bi bi-whatsapp"></i> ${recruiterWa}</a>` : ""}
