@@ -166,6 +166,18 @@
     .btn-login:hover { background: #1ebe5d; }
     #login-error { color: #e74c3c; font-size: .85rem; margin-top: 8px; display: none; }
 
+    /* ── Verify modal ────────────────────────────── */
+    #verify-modal .modal-box { width: 800px; max-width: 96%; }
+    .verify-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: left; }
+    @media(max-width:640px) { .verify-grid { grid-template-columns: 1fr; gap: 16px; } }
+    .v-col { background: #f8f9fc; padding: 16px; border-radius: 12px; }
+    .v-col h4 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #444; border-bottom: 1px solid #dde1e7; padding-bottom: 8px; }
+    .v-item { margin-bottom: 10px; font-size: .88rem; }
+    .v-item strong { color: #555; display: inline-block; width: 110px; }
+    .v-warn { color: #e74c3c; font-weight: 600; font-size: .8rem; margin-left: 8px; }
+    .v-reason-box { display: none; margin-top: 16px; text-align: left; }
+    .v-reason-box select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dde1e7; margin-top: 6px; }
+
     /* ── Empty state ─────────────────────────────── */
     .empty-state { padding: 48px; text-align: center; color: #aaa; }
     .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 10px; }
@@ -408,15 +420,64 @@
   </div>
 </div>
 
-<!-- ── Reject Modal ──────────────────────────────────────────────────────────── -->
+<!-- ── Reject Modal (for Revoking Approved Jobs) ── -->
 <div class="modal-overlay" id="reject-modal">
   <div class="modal-box">
-    <h3>❌ Reject Vacancy</h3>
-    <p style="font-size:.85rem;color:#666;margin-bottom:12px">Provide a reason — it will be sent to the recruiter via WhatsApp.</p>
+    <h3>❌ Revoke Vacancy</h3>
     <textarea id="reject-reason" placeholder="e.g. Incomplete job description, missing contact info…"></textarea>
     <div class="modal-actions">
       <button class="btn-cancel" id="cancel-reject">Cancel</button>
-      <button class="btn-reject" id="confirm-reject">Reject &amp; Notify</button>
+      <button class="btn-reject" id="confirm-reject">Revoke &amp; Notify</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Verify Modal ──────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="verify-modal">
+  <div class="modal-box">
+    <h3>🔍 Verify Vacancy</h3>
+    <div class="verify-grid mt-3">
+      <div class="v-col">
+        <h4>👔 Recruiter Profile</h4>
+        <div class="v-item"><strong>Company:</strong> <span id="vm-r-company"></span></div>
+        <div class="v-item"><strong>WA Number:</strong> <span id="vm-r-wa"></span></div>
+        <div class="v-item"><strong>Contact:</strong> <span id="vm-r-contact"></span></div>
+        <div class="v-item"><strong>Type:</strong> <span id="vm-r-type"></span></div>
+        <div class="v-item"><strong>HQ Location:</strong> <span id="vm-r-loc"></span></div>
+        <div class="v-item"><strong>Joined:</strong> <span id="vm-r-joined"></span></div>
+      </div>
+      <div class="v-col">
+        <h4>📋 Job Details</h4>
+        <div class="v-item"><strong>Job Title:</strong> <span id="vm-j-title"></span></div>
+        <div class="v-item"><strong>Posted As:</strong> <span id="vm-j-company"></span></div>
+        <div class="v-item"><strong>Location:</strong> <span id="vm-j-loc"></span></div>
+        <div class="v-item"><strong>Category:</strong> <span id="vm-j-cat"></span></div>
+        <div class="v-item"><strong>Mode:</strong> <span id="vm-j-mode"></span></div>
+        <div class="v-item"><strong>Salary:</strong> <span id="vm-j-salary"></span></div>
+        <div class="v-item"><strong>Experience:</strong> <span id="vm-j-exp"></span></div>
+        <div class="v-item" style="margin-top:12px; border-top:1px solid #dde1e7; padding-top:12px">
+          <strong>Description:</strong><br>
+          <div id="vm-j-desc" style="white-space:pre-wrap; margin-top:6px; color:#555; max-height:120px; overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="v-reason-box" id="vm-reason-box">
+      <label style="font-size:.85rem;font-weight:600;color:#e74c3c">Select Rejection Reason:</label>
+      <select id="vm-reject-reason">
+        <option value="" disabled selected>-- Choose a reason --</option>
+        <option value="Incomplete or Vague Job Description">Incomplete/Vague Job Description</option>
+        <option value="Suspicious or Fraudulent Activity">Suspicious/Fraudulent Activity</option>
+        <option value="Mismatched Company Details">Mismatched Company Details</option>
+        <option value="Duplicate Posting">Duplicate Posting</option>
+        <option value="Other Policy Violation">Other Policy Violation</option>
+      </select>
+    </div>
+
+    <div class="modal-actions mt-4">
+      <button class="btn-cancel" id="vm-btn-cancel">Cancel</button>
+      <button class="btn-reject" id="vm-btn-reject">Reject</button>
+      <button class="btn-verify-flow" id="vm-btn-approve" style="background:#27ae60;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:600;cursor:pointer">Approve Job</button>
     </div>
   </div>
 </div>
@@ -639,12 +700,9 @@ function buildRow(v, filter) {
   const actions = [];
   if (filter === "approved") {
     actions.push(`<button class="btn-share me-1" data-id="${v.id}" data-jc="${escHtml(v.job_code)}"><i class="bi bi-megaphone"></i> Share</button>`);
-  }
-  if (filter !== "approved") {
-    actions.push(`<button class="btn-approve me-1" data-id="${v.id}"><i class="bi bi-check-lg"></i> Approve</button>`);
-  }
-  if (filter !== "rejected") {
-    actions.push(`<button class="btn-reject" data-id="${v.id}"><i class="bi bi-x-lg"></i> Reject</button>`);
+    actions.push(`<button class="btn-reject" data-id="${v.id}"><i class="bi bi-x-lg"></i> Revoke</button>`);
+  } else {
+    actions.push(`<button class="btn-verify-flow" style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.8rem;cursor:pointer" data-vac='${JSON.stringify(v).replace(/"/g,"&quot;")}'><i class="bi bi-shield-check"></i> Verify</button>`);
   }
 
   const recruiterName = v.recruiter?.name || v.recruiter_name || "—";
@@ -674,21 +732,9 @@ function buildRow(v, filter) {
 
 /* ── Row button listeners ─────────────────────────────────────────────────── */
 function attachRowListeners() {
-  document.querySelectorAll(".btn-approve[data-id]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      if (!confirm("Approve this vacancy? The recruiter will be notified via WhatsApp.")) return;
-      btn.disabled = true; btn.textContent = "Approving…";
-      try {
-        const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies/${btn.dataset.id}/approve`, {
-          method: "POST", headers: authHeaders(),
-        });
-        if (!res.ok) throw new Error("Failed");
-        loadVacancies(currentFilter);
-        loadStats();
-      } catch (err) {
-        alert("Error: " + err.message);
-        btn.disabled = false; btn.textContent = "Approve";
-      }
+  document.querySelectorAll(".btn-verify-flow[data-vac]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      openVerifyModal(JSON.parse(btn.dataset.vac));
     });
   });
 
@@ -730,7 +776,115 @@ function attachRowListeners() {
   });
 }
 
-/* ── Reject Modal ─────────────────────────────────────────────────────────── */
+/* ── Smart Verify Modal ───────────────────────────────────────────────────── */
+let currentVerifyVacancy = null;
+let verifyRejectMode = false;
+
+function openVerifyModal(v) {
+  currentVerifyVacancy = v;
+  verifyRejectMode = false;
+  
+  const r = v.recruiter || {};
+  
+  // Reset UI
+  document.getElementById("vm-reason-box").style.display = "none";
+  document.getElementById("vm-reject-reason").value = "";
+  document.getElementById("vm-btn-approve").style.display = "inline-block";
+  document.getElementById("vm-btn-reject").textContent = "Reject Job";
+  
+  // Fill Recruiter info
+  const wa = r.wa_number || "—";
+  const contact = r.business_contact || "—";
+  let waHtml = escHtml(wa);
+  if (wa !== "—" && contact !== "—" && wa !== contact) {
+    waHtml += ` <span class="v-warn"><i class="bi bi-exclamation-triangle"></i> != Contact</span>`;
+  }
+  
+  const rCompany = r.company_name || r.name || "—";
+  const vCompany = v.company_name || "—";
+  let compHtml = escHtml(rCompany);
+  if (rCompany !== "—" && vCompany !== "—" && rCompany.toLowerCase() !== vCompany.toLowerCase()) {
+    compHtml += ` <span class="v-warn"><i class="bi bi-exclamation-triangle"></i> Mismatch</span>`;
+  }
+  
+  document.getElementById("vm-r-company").innerHTML = compHtml;
+  document.getElementById("vm-r-wa").innerHTML = waHtml;
+  document.getElementById("vm-r-contact").textContent = contact;
+  document.getElementById("vm-r-type").textContent = r.business_type || "—";
+  document.getElementById("vm-r-loc").textContent = r.location || "—";
+  document.getElementById("vm-r-joined").textContent = r.created_at ? fmtDate(r.created_at) : "—";
+  
+  // Fill Job Info
+  document.getElementById("vm-j-title").textContent = v.job_title || "—";
+  document.getElementById("vm-j-company").textContent = vCompany;
+  document.getElementById("vm-j-loc").textContent = (v.exact_location ? v.exact_location + ", " : "") + (v.district_region || "—");
+  document.getElementById("vm-j-cat").textContent = v.job_category || "—";
+  document.getElementById("vm-j-mode").textContent = v.job_mode || "—";
+  document.getElementById("vm-j-salary").textContent = v.salary_range || "—";
+  document.getElementById("vm-j-exp").textContent = v.experience_required || "—";
+  document.getElementById("vm-j-desc").textContent = v.job_description || "—";
+  
+  document.getElementById("verify-modal").classList.add("open");
+}
+
+document.getElementById("vm-btn-cancel").addEventListener("click", () => {
+  document.getElementById("verify-modal").classList.remove("open");
+});
+
+document.getElementById("vm-btn-approve").addEventListener("click", async () => {
+  if (!currentVerifyVacancy) return;
+  const btn = document.getElementById("vm-btn-approve");
+  btn.disabled = true; btn.textContent = "Approving…";
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies/${currentVerifyVacancy.id}/approve`, {
+      method: "POST", headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed");
+    document.getElementById("verify-modal").classList.remove("open");
+    loadVacancies(currentFilter);
+    loadStats();
+  } catch (err) {
+    alert("Error: " + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Approve Job";
+  }
+});
+
+document.getElementById("vm-btn-reject").addEventListener("click", async () => {
+  if (!verifyRejectMode) {
+    verifyRejectMode = true;
+    document.getElementById("vm-btn-approve").style.display = "none";
+    document.getElementById("vm-reason-box").style.display = "block";
+    document.getElementById("vm-btn-reject").textContent = "Confirm Rejection";
+    return;
+  }
+  
+  const reason = document.getElementById("vm-reject-reason").value;
+  if (!reason) { alert("Please select a rejection reason."); return; }
+  
+  const btn = document.getElementById("vm-btn-reject");
+  btn.disabled = true; btn.textContent = "Sending…";
+  
+  try {
+    const formData = new FormData();
+    formData.append("reason", reason);
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies/${currentVerifyVacancy.id}/reject`, {
+      method: "POST",
+      headers: { "Authorization": "Basic " + btoa(`${adminUser}:${adminPass}`), "Content-Type": "application/x-www-form-urlencoded" },
+      body: `reason=${encodeURIComponent(reason)}`,
+    });
+    if (!res.ok) throw new Error("Failed");
+    document.getElementById("verify-modal").classList.remove("open");
+    loadVacancies(currentFilter);
+    loadStats();
+  } catch (err) {
+    alert("Error: " + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Confirm Rejection";
+  }
+});
+
+/* ── Revoke Reject Modal ──────────────────────────────────────────────────── */
 document.getElementById("cancel-reject").addEventListener("click", () => {
   document.getElementById("reject-modal").classList.remove("open");
 });
@@ -743,8 +897,6 @@ document.getElementById("confirm-reject").addEventListener("click", async () => 
   btn.disabled = true; btn.textContent = "Sending…";
 
   try {
-    const formData = new FormData();
-    formData.append("reason", reason);
     const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies/${pendingRejectId}/reject`, {
       method: "POST",
       headers: { "Authorization": "Basic " + btoa(`${adminUser}:${adminPass}`), "Content-Type": "application/x-www-form-urlencoded" },
@@ -757,7 +909,7 @@ document.getElementById("confirm-reject").addEventListener("click", async () => 
   } catch (err) {
     alert("Error: " + err.message);
   } finally {
-    btn.disabled = false; btn.textContent = "Reject & Notify";
+    btn.disabled = false; btn.textContent = "Revoke & Notify";
   }
 });
 
@@ -766,8 +918,8 @@ document.getElementById("close-detail").addEventListener("click", () => {
   document.getElementById("detail-modal").classList.remove("open");
 });
 
-[document.getElementById("reject-modal"), document.getElementById("detail-modal")].forEach(m => {
-  m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); });
+[document.getElementById("reject-modal"), document.getElementById("verify-modal"), document.getElementById("detail-modal")].forEach(m => {
+  if(m) m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); });
 });
 
 /* ── Responsive sidebar toggle ────────────────────────────────────────────── */
