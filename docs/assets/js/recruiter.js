@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
       window.history.replaceState({ path: newUrl }, '', newUrl);
       
-      window.location.reload();
+      window.location.href = 'recruiter-dashboard.html';
     })
     .catch(err => {
       console.error(err);

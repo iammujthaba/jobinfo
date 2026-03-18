@@ -540,13 +540,13 @@ async function loadDashboard() {
 
 function renderDashboard(d) {
   const rc = d.recruiter, s = d.summary;
-  document.getElementById("topbar-name").textContent = rc.name;
-  document.getElementById("avatar-letter").textContent = rc.name.charAt(0).toUpperCase();
-  document.getElementById("p-name").textContent = rc.name;
-  document.getElementById("p-company").textContent = rc.company ? "🏢 " + rc.company : "";
+  document.getElementById("topbar-name").textContent = rc.company_name || "Company";
+  document.getElementById("avatar-letter").textContent = (rc.company_name || "C").charAt(0).toUpperCase();
+  document.getElementById("p-name").textContent = rc.company_name || "Company Profile";
+  document.getElementById("p-company").textContent = rc.business_type ? "👔 " + rc.business_type : "";
   document.getElementById("p-details").innerHTML =
     (rc.location ? "📍 " + rc.location + "&nbsp;&nbsp;" : "") +
-    (rc.email ? "✉️ " + rc.email + "&nbsp;&nbsp;" : "") +
+    (rc.business_contact ? "📞 " + rc.business_contact + "&nbsp;&nbsp;" : "") +
     '<i class="bi bi-whatsapp" style="color:#25d366"></i> +' + rc.wa_number;
   document.getElementById("s-total").textContent    = s.total;
   document.getElementById("s-approved").textContent = s.approved;
