@@ -7,6 +7,57 @@
 
 "use strict";
 
+/* ── Magic Link Interception ─────────────────────────────────────────────── */
+document.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const magicToken = urlParams.get('token') || urlParams.get('magic_token');
+
+  if (magicToken) {
+    const overlayHtml = `
+      <div id="magic-auth-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:#fff;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div class="spinner-border text-success mb-3" role="status" style="width:3rem;height:3rem;"></div>
+        <h5 class="text-muted fw-bold">Authenticating...</h5>
+        <p class="text-muted small">Please wait while we log you in securely.</p>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', overlayHtml);
+
+    fetch(`${JOBINFO_CONFIG.API_URL}/api/auth/magic/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: magicToken })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Invalid or expired magic link");
+      return res.json();
+    })
+    .then(data => {
+      const sessionToken = data.session_token;
+      const verifiedWaNumber = data.wa_number;
+
+      sessionStorage.setItem("ji_token",   sessionToken);
+      sessionStorage.setItem("ji_wa",      verifiedWaNumber);
+      sessionStorage.setItem("ji_r_token", sessionToken);
+      sessionStorage.setItem("ji_r_wa",    verifiedWaNumber);
+      
+      const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+      
+      window.location.reload();
+    })
+    .catch(err => {
+      console.error(err);
+      const overlay = document.getElementById('magic-auth-overlay');
+      if (overlay) overlay.remove();
+      
+      const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+
+      swal("Authentication Failed", "This secure link has expired or is invalid. Please log in using OTP.", "warning");
+    });
+  }
+});
+
 /* ── State ───────────────────────────────────────────────────────────────── */
 let sessionToken = null;
 let verifiedWaNumber = null;
