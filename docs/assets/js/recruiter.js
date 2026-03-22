@@ -1,11 +1,14 @@
 /**
- * recruiter.js — Handles the 3-step OTP-authenticated vacancy submission.
- * Step 1: Enter WhatsApp number → send OTP
- * Step 2: Enter OTP → verify → get session token
- * Step 3: Vacancy form visible → submits to backend API
+ * recruiter.js — Handles the 3-step OTP authenticated vacancy submission & Registration.
  */
 
 "use strict";
+
+let sessionToken = null;
+let verifiedWaNumber = null;
+// Store whether this specific surface is in registration mode
+let surfaceRegMode = {}; 
+let registrationData = {};
 
 /* ── Magic Link Interception ─────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
@@ -58,215 +61,310 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-/* ── State ───────────────────────────────────────────────────────────────── */
-let sessionToken = null;
-let verifiedWaNumber = null;
-
-/* ── DOM References ──────────────────────────────────────────────────────── */
-const step1    = document.getElementById("otp-step1");
-const step2    = document.getElementById("otp-step2");
-const step3    = document.getElementById("otp-step3");
-const jobForm  = document.querySelector(".job-form");
-
-/* ── Helper: show a step ─────────────────────────────────────────────────── */
-function showStep(n) {
-  [step1, step2, step3].forEach((el, i) => {
-    if (!el) return;
-    el.style.display = (i + 1 === n) ? "block" : "none";
-  });
-  if (n === 3 && jobForm) jobForm.style.display = "block";
-}
-
-/* ── Step 1: Send OTP ────────────────────────────────────────────────────── */
-const sendOtpBtn = document.getElementById("send-otp-btn");
-if (sendOtpBtn) {
-  sendOtpBtn.addEventListener("click", async () => {
-    const waInput = document.getElementById("wa-number-input");
-    const number = (waInput?.value || "").replace(/\D/g, "");
-    if (number.length < 10) {
-      swal("Invalid Number", "Please enter a valid WhatsApp number (10 digits minimum).", "warning");
-      return;
-    }
-    // Admin shortcut: entering the admin number redirects to admin.html
-    if (number === "7025962176") {
-      window.location.href = "admin.html";
-      return;
-    }
-    // Prepend 91 if not already an international number
-    verifiedWaNumber = number.startsWith("91") ? number : "91" + number;
-
-    sendOtpBtn.disabled = true;
-    sendOtpBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Sending…';
-
-    try {
-      const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/otp/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wa_number: verifiedWaNumber }),
+/* ── DOM Init & Gatekeeper Logic ─────────────────────────────────────────── */
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize the inline surfaces immediately
+  initSurface('inline-', 'post-vacancy');
+  initSurface('pv-', 'post-vacancy');
+  
+  // Initialize modal surface asynchronously after components.js fetches it
+  const mc = document.getElementById("modals-container");
+  if (mc) {
+    if (document.getElementById("modal-step1")) {
+      initSurface('modal-', 'dashboard');
+    } else {
+      const observer = new MutationObserver((mutations, obs) => {
+        if (document.getElementById("modal-step1")) {
+          initSurface('modal-', 'dashboard');
+          obs.disconnect();
+        }
       });
-      if (!res.ok) throw new Error(await res.text());
-      // Show success feedback briefly before moving to step 2
-      sendOtpBtn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>OTP Sent!';
-      await new Promise(r => setTimeout(r, 800));
-      showStep(2);
-      // Show countdown for resend
-      startResendCountdown();
-    } catch (err) {
-      swal("Error", "Could not send OTP. Please try again.", "error");
-      console.error(err);
-      sendOtpBtn.disabled = false;
-      sendOtpBtn.innerHTML = '<i class="bi bi-send me-1"></i>Send OTP';
+      observer.observe(mc, { childList: true, subtree: true });
     }
-  });
-}
+  }
+  
+  // Job form submit
+  const jobForm = document.querySelector(".job-form");
+  if (jobForm) {
+    jobForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-/* ── Step 2: Verify OTP ──────────────────────────────────────────────────── */
-const verifyOtpBtn = document.getElementById("verify-otp-btn");
-if (verifyOtpBtn) {
-  verifyOtpBtn.addEventListener("click", async () => {
-    const otpInput = document.getElementById("otp-input");
-    const code = (otpInput?.value || "").trim();
-    if (code.length !== 6) {
-      swal("Invalid OTP", "Please enter the 6-digit OTP sent to your WhatsApp.", "warning");
-      return;
-    }
+      if (!sessionToken) sessionToken = sessionStorage.getItem("ji_token");
+      if (!verifiedWaNumber) verifiedWaNumber = sessionStorage.getItem("ji_wa");
 
-    verifyOtpBtn.disabled = true;
-    verifyOtpBtn.textContent = "Verifying…";
-
-    try {
-      const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/otp/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wa_number: verifiedWaNumber, otp_code: code }),
-      });
-      if (!res.ok) {
-        swal("Wrong OTP", "The OTP is incorrect or expired. Please try again.", "error");
+      if (!sessionToken || !verifiedWaNumber) {
+        swal("Session Expired", "Please verify your WhatsApp number again.", "warning");
         return;
       }
+
+      const submitBtn = jobForm.querySelector("[type=submit]");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting…";
+
+      const fd = new FormData(jobForm);
+      const payload = {
+        wa_number: verifiedWaNumber,
+        session_token: sessionToken,
+        title: fd.get("job-post"),
+        company: "", // Removed from form, backend handles finding it from recruiter record
+        location: `${fd.get("location")}, ${fd.get("district")}`,
+        description: buildDescription(fd),
+        salary_range: fd.get("salary") || null,
+        experience_required: fd.get("experience-level") || null,
+      };
+
+      try {
+        const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/recruiters/vacancy`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        swal(
+          "Vacancy Submitted! 🎉",
+          `Your vacancy (${data.job_code}) has been received and is under review. You'll get a WhatsApp notification once it's approved.`,
+          "success"
+        );
+        jobForm.reset();
+      } catch (err) {
+        swal("Submission Failed", "Something went wrong. Please try again or contact us on WhatsApp.", "error");
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Job";
+      }
+    });
+  }
+});
+
+function initSurface(prefix, intent) {
+  const isModal = (prefix === 'modal-');
+  const step1Id = isModal ? 'modal-step1' : 'otp-step1';
+  const step2Id = isModal ? 'modal-step2' : 'otp-step2';
+  const step3Id = isModal ? 'modal-step3' : 'otp-step3';
+  const step4Id = isModal ? null : 'otp-step4'; // Success banner
+
+  const waInputId = isModal ? 'modal-wa-input' : 'wa-number-input';
+  const sendBtnId = isModal ? 'modal-send-otp-btn' : 'send-otp-btn';
+  
+  const regFormId = prefix + 'reg-form';
+  const reqCompanyId = prefix + 'company';
+  const reqTypeId = prefix + 'type';
+  const reqLocId = prefix + 'location';
+  const reqContactId = prefix + 'contact';
+  
+  const otpInputId = isModal ? 'modal-otp-input' : 'otp-input';
+  const verifyBtnId = isModal ? 'modal-verify-btn' : 'verify-otp-btn';
+  const resendBtnId = isModal ? 'modal-resend-btn' : 'resend-otp-btn';
+
+  const s1 = document.getElementById(step1Id);
+  const s2 = document.getElementById(step2Id);
+  const s3 = document.getElementById(step3Id);
+  const s4 = document.getElementById(step4Id);
+  
+  if (!s1 || !s2 || !s3) return; // Surface not present on this page
+  
+  const waInput = document.getElementById(waInputId);
+  const sendBtn = document.getElementById(sendBtnId);
+  const regForm = document.getElementById(regFormId);
+  const otpInput = document.getElementById(otpInputId);
+  const verifyBtn = document.getElementById(verifyBtnId);
+  const resendBtn = document.getElementById(resendBtnId);
+
+  const setDisplay = (n) => {
+    s1.style.display = (n === 1) ? 'block' : 'none';
+    s2.style.display = (n === 2) ? 'block' : 'none';
+    s3.style.display = (n === 3) ? 'block' : 'none';
+    if (s4) s4.style.display = (n === 4) ? 'block' : 'none';
+    if (isModal) {
+      document.getElementById('modal-dot1')?.classList.toggle('active', n >= 1);
+      document.getElementById('modal-dot2')?.classList.toggle('active', n >= 2);
+      document.getElementById('modal-dot3')?.classList.toggle('active', n >= 3);
+    }
+  };
+
+  sendBtn.addEventListener('click', async () => {
+    const number = (waInput.value || "").replace(/\D/g, "");
+    if (number.length < 10) {
+      swal("Invalid Number", "Please enter a valid WhatsApp number (10 digits minimum).", "warning"); return;
+    }
+    if (number === "7025962176") { window.location.href = "admin.html"; return; }
+    
+    verifiedWaNumber = number.startsWith("91") ? number : "91" + number;
+    
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Checking...';
+    
+    try {
+      const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/auth/check-recruiter`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wa_number: verifiedWaNumber })
+      });
+      if (!res.ok) throw new Error();
       const data = await res.json();
-      sessionToken = data.session_token;
-      // Write both key pairs so either login path grants full access everywhere
-      sessionStorage.setItem("ji_token",   sessionToken);
-      sessionStorage.setItem("ji_wa",      verifiedWaNumber);
-      sessionStorage.setItem("ji_r_token", sessionToken);
-      sessionStorage.setItem("ji_r_wa",    verifiedWaNumber);
-      // Instantly update the nav Login button without a page reload
-      const loginNavBtn = document.getElementById("login-nav-btn");
-      if (loginNavBtn) {
-        loginNavBtn.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
+      
+      if (data.exists) {
+        surfaceRegMode[prefix] = false;
+        setDisplay(3);
+        startResend(resendBtn, isModal ? 'modal-cd' : null);
+      } else {
+        surfaceRegMode[prefix] = true;
+        setDisplay(2);
       }
-      const loginNavBtnMobile = document.getElementById("login-nav-btn-mobile");
-      if (loginNavBtnMobile) {
-        loginNavBtnMobile.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies';
-      }
-      showStep(3);
-      // Pre-fill hidden WA field in the job form
-      const hiddenWa = document.getElementById("form-wa-number");
-      if (hiddenWa) hiddenWa.value = verifiedWaNumber;
-    } catch (err) {
-      swal("Error", "Verification failed. Please try again.", "error");
-      console.error(err);
+    } catch(err) {
+      swal("Error", "Could not check number. Try again.", "error");
     } finally {
-      verifyOtpBtn.disabled = false;
-      verifyOtpBtn.textContent = "Verify OTP";
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = isModal ? 'Continue' : '<i class="bi bi-send me-1"></i>Send OTP';
     }
   });
+
+  if (waInput) waInput.addEventListener('keydown', e => { if(e.key==='Enter') sendBtn.click(); });
+  
+  if (regForm) {
+    regForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      registrationData[prefix] = {
+        company_name: document.getElementById(reqCompanyId).value,
+        business_type: document.getElementById(reqTypeId).value,
+        location: document.getElementById(reqLocId).value,
+        business_contact: document.getElementById(reqContactId).value
+      };
+      
+      const subBtn = document.getElementById(prefix + 'reg-submit');
+      if(subBtn) { subBtn.disabled = true; subBtn.textContent = "Sending OTP..."; }
+      
+      try {
+        const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/otp/send`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ wa_number: verifiedWaNumber })
+        });
+        if (!res.ok) throw new Error();
+        setDisplay(3);
+        startResend(resendBtn, isModal ? 'modal-cd' : null);
+      } catch(e) {
+        swal("Error", "Could not send OTP.", "error");
+      } finally {
+        if(subBtn) { subBtn.disabled = false; subBtn.innerHTML = `<i class="bi bi-person-check me-1"></i>Register & Send OTP`; }
+      }
+    });
+  }
+
+  verifyBtn.addEventListener('click', async () => {
+    const code = (otpInput.value || "").trim();
+    if (code.length !== 6) {
+      swal("Invalid OTP", "Please enter the 6-digit OTP.", "warning"); return;
+    }
+    
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = "Verifying...";
+    
+    try {
+      let url, bodyData;
+      if (surfaceRegMode[prefix]) {
+        url = `${JOBINFO_CONFIG.API_URL}/api/auth/recruiter/register`;
+        bodyData = { wa_number: verifiedWaNumber, otp_code: code, ...registrationData[prefix] };
+      } else {
+        url = `${JOBINFO_CONFIG.API_URL}/api/otp/verify`;
+        bodyData = { wa_number: verifiedWaNumber, otp_code: code };
+      }
+      
+      const res = await fetch(url, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData)
+      });
+      if (!res.ok) throw new Error("Verification failed.");
+      
+      const data = await res.json();
+      sessionToken = data.session_token;
+      sessionStorage.setItem("ji_token", sessionToken);
+      sessionStorage.setItem("ji_wa", verifiedWaNumber);
+      sessionStorage.setItem("ji_r_token", sessionToken);
+      sessionStorage.setItem("ji_r_wa", verifiedWaNumber);
+      
+      handleSuccessfulLogin(intent, setDisplay);
+    } catch(e) {
+      swal("Error", "Incorrect OTP. Try again.", "error");
+    } finally {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = "Verify OTP";
+    }
+  });
+
+  if (otpInput) otpInput.addEventListener('keydown', e => { if(e.key==='Enter') verifyBtn.click(); });
+  
+  if (resendBtn) {
+    resendBtn.addEventListener('click', async () => {
+      resendBtn.disabled = true;
+      try {
+        await fetch(`${JOBINFO_CONFIG.API_URL}/api/otp/send`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ wa_number: verifiedWaNumber })
+        });
+        startResend(resendBtn, isModal ? 'modal-cd' : null);
+        swal("OTP Sent", "A new OTP has been sent.", "success");
+      } catch {
+        resendBtn.disabled = false;
+      }
+    });
+  }
 }
 
-/* ── Resend OTP countdown ────────────────────────────────────────────────── */
-function startResendCountdown() {
-  const resendBtn = document.getElementById("resend-otp-btn");
-  if (!resendBtn) return;
+function startResend(btn, cdSpanId) {
+  if (!btn) return;
   let sec = 60;
-  resendBtn.disabled = true;
-  resendBtn.textContent = `Resend in ${sec}s`;
+  btn.disabled = true;
+  if(cdSpanId) {
+    const span = document.getElementById(cdSpanId);
+    if(span) span.textContent = sec;
+  } else {
+    btn.textContent = `Resend in ${sec}s`;
+  }
+  
   const timer = setInterval(() => {
     sec--;
     if (sec <= 0) {
       clearInterval(timer);
-      resendBtn.disabled = false;
-      resendBtn.textContent = "Resend OTP";
+      btn.disabled = false;
+      btn.textContent = "Resend OTP";
     } else {
-      resendBtn.textContent = `Resend in ${sec}s`;
+      if(cdSpanId) {
+        const span = document.getElementById(cdSpanId);
+        if(span) span.textContent = sec;
+      } else {
+        btn.textContent = `Resend in ${sec}s`;
+      }
     }
   }, 1000);
 }
 
-const resendOtpBtn = document.getElementById("resend-otp-btn");
-if (resendOtpBtn) {
-  resendOtpBtn.addEventListener("click", async () => {
-    if (!verifiedWaNumber) return;
-    resendOtpBtn.disabled = true;
-    try {
-      await fetch(`${JOBINFO_CONFIG.API_URL}/api/otp/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wa_number: verifiedWaNumber }),
-      });
-      startResendCountdown();
-      swal("OTP Sent", "A new OTP has been sent to your WhatsApp.", "success");
-    } catch {
-      resendOtpBtn.disabled = false;
+function handleSuccessfulLogin(intent, setDisplay) {
+  // Update nav buttons to point to dashboard
+  const mb = document.getElementById("login-nav-btn-mobile");
+  const db = document.getElementById("login-nav-btn");
+  if(mb) { mb.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies'; mb.href = "recruiter-dashboard.html"; mb.removeAttribute("data-bs-toggle"); mb.removeAttribute("data-bs-target"); }
+  if(db) { db.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies'; db.href = "recruiter-dashboard.html"; db.removeAttribute("data-bs-toggle"); db.removeAttribute("data-bs-target"); }
+
+  if (intent === 'dashboard') {
+    window.location.href = 'recruiter-dashboard.html';
+  } else {
+    // Hide modal if it's open
+    const modalEl = document.getElementById('recruiterLoginModal');
+    if (modalEl && window.bootstrap) {
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide();
     }
-  });
-}
+    
+    // Set display for the active flow if applicable
+    setDisplay(4);
 
-/* ── Step 3: Submit Vacancy Form ─────────────────────────────────────────── */
-if (jobForm) {
-  jobForm.style.display = "none"; // hidden until OTP verified
-
-  jobForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    // Restore session if page was refreshed
-    if (!sessionToken) sessionToken = sessionStorage.getItem("ji_token");
-    if (!verifiedWaNumber) verifiedWaNumber = sessionStorage.getItem("ji_wa");
-
-    if (!sessionToken || !verifiedWaNumber) {
-      swal("Session Expired", "Please verify your WhatsApp number again.", "warning");
-      showStep(1);
-      return;
+    const jf = document.querySelector(".job-form");
+    if(jf) {
+      jf.style.display = "block";
+      const hiddenWa = document.getElementById("form-wa-number");
+      if (hiddenWa) hiddenWa.value = verifiedWaNumber;
     }
-
-    const submitBtn = jobForm.querySelector("[type=submit]");
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Submitting…";
-
-    const fd = new FormData(jobForm);
-    const payload = {
-      wa_number: verifiedWaNumber,
-      session_token: sessionToken,
-      title: fd.get("job-post"),
-      company: fd.get("company-name"),
-      location: `${fd.get("location")}, ${fd.get("district")}`,
-      description: buildDescription(fd),
-      salary_range: fd.get("salary") || null,
-      experience_required: fd.get("experience-level") || null,
-    };
-
-    try {
-      const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/recruiters/vacancy`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      swal(
-        "Vacancy Submitted! 🎉",
-        `Your vacancy (${data.job_code}) has been received and is under review. You'll get a WhatsApp notification once it's approved.`,
-        "success"
-      );
-      jobForm.reset();
-    } catch (err) {
-      swal("Submission Failed", "Something went wrong. Please try again or contact us on WhatsApp.", "error");
-      console.error(err);
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Job";
-    }
-  });
+  }
 }
 
 /* ── Build description from extra fields ─────────────────────────────────── */
@@ -276,12 +374,11 @@ function buildDescription(fd) {
   if (fd.get("Number-of-Vacancies")) parts.push(`Total Vacancies: ${fd.get("Number-of-Vacancies")}`);
   if (fd.get("skills")) parts.push(`Skills: ${fd.get("skills")}`);
   if (fd.get("qualification")) parts.push(`Qualification: ${fd.get("qualification")}`);
-  if (fd.get("contact-number")) parts.push(`Contact: ${fd.get("contact-number")}`);
   if (fd.get("additional-info")) parts.push(`Additional Info: ${fd.get("additional-info")}`);
-  return parts.join("\n") || null;
+  return parts.join("\\n") || null;
 }
 
-/* ── FAQ toggle (preserved from original) ────────────────────────────────── */
+/* ── FAQ toggle (preserved) ──────────────────────────────────────────────── */
 const toggleBtn = document.getElementById("toggle-question-form");
 const formWrapper = document.getElementById("question-form-wrapper");
 if (toggleBtn && formWrapper) {
@@ -292,7 +389,6 @@ if (toggleBtn && formWrapper) {
   });
 }
 
-/* ── Accordion (preserved) ───────────────────────────────────────────────── */
 document.querySelectorAll(".accordion-header").forEach((header) => {
   header.addEventListener("click", () => {
     const body = header.nextElementSibling;
@@ -306,34 +402,36 @@ document.querySelectorAll(".accordion-header").forEach((header) => {
   });
 });
 
-/* ── Auto-skip OTP if recruiter is already logged in via dashboard ──────────
-   This MUST stay at the very bottom so it runs AFTER the form init block
-   that sets jobForm.style.display = "none".                                   */
+/* ── Auto-skip OTP ───────────────────────────────────────────────────────── */
 (function restoreDashboardSession() {
-  // Check dashboard session first, then fall back to direct OTP session
   const rToken = sessionStorage.getItem("ji_r_token") || sessionStorage.getItem("ji_token");
   const rWa    = sessionStorage.getItem("ji_r_wa")    || sessionStorage.getItem("ji_wa");
-  if (!rToken || !rWa) return;          // not logged in — use normal OTP flow
+  if (!rToken || !rWa) return;
 
   sessionToken     = rToken;
   verifiedWaNumber = rWa;
 
-  // Pre-fill hidden WA field used by form submission
   const hiddenWa = document.getElementById("form-wa-number");
   if (hiddenWa) hiddenWa.value = rWa;
 
-  // Hide OTP step boxes, show logged-in banner
-  if (step1) step1.style.display = "none";
-  if (step2) step2.style.display = "none";
-  if (step3) {
-    step3.style.display = "block";
-    step3.innerHTML = `
-      <div class="alert alert-success text-center fw-semibold mb-4">
+  const mb = document.getElementById("login-nav-btn-mobile");
+  const db = document.getElementById("login-nav-btn");
+  if(mb) { mb.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies'; mb.href = "recruiter-dashboard.html"; mb.removeAttribute("data-bs-toggle"); mb.removeAttribute("data-bs-target"); }
+  if(db) { db.innerHTML = '<i class="bi bi-layout-text-sidebar-reverse me-1"></i>My Vacancies'; db.href = "recruiter-dashboard.html"; db.removeAttribute("data-bs-toggle"); db.removeAttribute("data-bs-target"); }
+
+  if (document.getElementById("otp-step1")) document.getElementById("otp-step1").style.display = "none";
+  if (document.getElementById("otp-step2")) document.getElementById("otp-step2").style.display = "none";
+  if (document.getElementById("otp-step3")) document.getElementById("otp-step3").style.display = "none";
+  
+  const step4 = document.getElementById("otp-step4");
+  if (step4) {
+    step4.style.display = "block";
+    step4.innerHTML = `
+      <div class="alert alert-success text-center fw-semibold mb-4" style="max-width:800px;margin:0 auto 24px;">
         <i class="bi bi-check-circle-fill me-2"></i>
         You're logged in as <strong>+${rWa}</strong>. Fill in your vacancy details below.
       </div>`;
   }
-
-  // Show the form — overrides the display:none set by the form init block above
-  if (jobForm) jobForm.style.display = "block";
+  const jf = document.querySelector(".job-form");
+  if (jf) jf.style.display = "block";
 })();

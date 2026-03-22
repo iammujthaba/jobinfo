@@ -113,7 +113,7 @@
 
       <div class="header-nav-btns d-xl-flex align-items-center gap-2">
         <a class="btn-getstarted btn-primary" href="index.html" style="padding:8px 18px;font-size:14px;"><i class="bi bi-briefcase me-1"></i>Browse Jobs</a>
-        <a class="btn-nav-outline" id="login-nav-btn" href="recruiter-dashboard.html"><i class="bi bi-box-arrow-in-right"></i>Login</a>
+        <a class="btn-nav-outline" id="login-nav-btn" href="#" data-bs-toggle="modal" data-bs-target="#recruiterLoginModal"><i class="bi bi-box-arrow-in-right"></i>Login</a>
       </div>
 
     </div>
@@ -149,8 +149,48 @@
           </button>
         </div>
 
-        <!-- Step 2: Enter OTP -->
+        <!-- Step 2: Registration Form -->
         <div id="otp-step2" class="bg-white p-4 rounded shadow mb-4" style="display:none">
+          <h5 class="mb-3"><i class="bi bi-person-lines-fill text-success me-2"></i>Complete Profile</h5>
+          <p class="text-muted small mb-3">We need a few details before you can continue.</p>
+          <form id="pv-reg-form">
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-secondary mb-1">Company Name</label>
+              <input type="text" id="pv-company" class="form-control" placeholder="e.g. ABC Pvt Ltd" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-secondary mb-1">Business Type</label>
+              <select id="pv-type" class="form-select" required>
+                <option value="">Select Type</option>
+                <option value="Company/Pvt Ltd">Company/Pvt Ltd</option>
+                <option value="Agency">Agency</option>
+                <option value="Shop/Retail Outlet">Shop/Retail Outlet</option>
+                <option value="Startup">Startup</option>
+                <option value="Franchise">Franchise</option>
+                <option value="Partnership Firm">Partnership Firm</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-secondary mb-1">Location Region</label>
+              <select id="pv-location" class="form-select" required>
+                <option value="">Select Region</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="GCC">GCC</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="form-label small fw-bold text-secondary mb-1">Business Contact Number</label>
+              <input type="tel" id="pv-contact" class="form-control" placeholder="Phone/Mobile" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100 fw-bold" id="pv-reg-submit"><i class="bi bi-person-check me-1"></i>Register &amp; Send OTP</button>
+          </form>
+        </div>
+
+        <!-- Step 3: Enter OTP -->
+        <div id="otp-step3" class="bg-white p-4 rounded shadow mb-4" style="display:none">
           <h5 class="mb-2"><i class="bi bi-shield-check text-success me-2"></i>Enter OTP</h5>
           <p class="text-muted small mb-3">A 6-digit OTP was sent to your WhatsApp. Enter it below.</p>
           <input type="text" id="otp-input" class="form-control text-center fw-bold" maxlength="6"
@@ -161,8 +201,8 @@
           </div>
         </div>
 
-        <!-- Step 3: Success banner (shown after OTP verified) -->
-        <div id="otp-step3" style="display:none">
+        <!-- Step 4: Success banner (shown after OTP verified) -->
+        <div id="otp-step4" style="display:none">
           <div class="alert alert-success text-center fw-semibold">
             <i class="bi bi-check-circle-fill me-2"></i>WhatsApp verified! Now fill in your vacancy details.
           </div>
@@ -171,11 +211,8 @@
         <!-- Vacancy Form (hidden until OTP verified) -->
         <form name="job-form" class="job-form bg-white p-4 rounded shadow" style="display:none">
           <div class="row gy-3">
-            <div class="col-md-6">
+            <div class="col-md-12">
               <input type="text" name="job-post" class="form-control" placeholder="Job Title / Position" required>
-            </div>
-            <div class="col-md-6">
-              <input type="text" name="company-name" class="form-control" placeholder="Company / Shop Name" required>
             </div>
             <div class="col-md-6">
               <select name="experience-level" class="form-control" required>
@@ -214,17 +251,8 @@
             <div class="col-md-6">
               <input type="text" name="location" class="form-control" placeholder="Job Location" required>
             </div>
-            <div class="col-md-6">
-              <input type="text" name="salary" class="form-control" placeholder="Expected Salary /Month (optional)">
-            </div>
-            <div class="col-md-6">
+            <div class="col-md-12">
               <input type="number" name="Number-of-Vacancies" class="form-control" placeholder="Total Vacancies (eg: 4)" required>
-            </div>
-            <div class="col-md-6">
-              <input type="text" name="contact-number" class="form-control" placeholder="Recruiter Contact Number" required>
-            </div>
-            <div class="col-md-6">
-              <input type="text" name="whatsapp-number" class="form-control" placeholder="WhatsApp Number" required>
             </div>
             <div class="col-md-6">
               <input type="text" name="skills" class="form-control" placeholder="Skills Required (optional)">
@@ -298,6 +326,9 @@
 
   <!-- Preloader -->
   <div id="preloader"></div>
+
+  <div id="modals-container"></div>
+  <script src="assets/js/components.js?v=2"></script>
 
   <!-- Vendor JS -->
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
