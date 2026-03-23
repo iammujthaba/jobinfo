@@ -61,8 +61,6 @@
     .stat-card.pending  .val { color:#f39c12; }
     .stat-card.rejected .val { color:#e74c3c; }
     .stat-card.apps     .val { color:#2980b9; }
-    .stat-card.apps, .stat-card.shortlisted { cursor: default; }
-    .stat-card.apps:hover, .stat-card.shortlisted:hover { transform: translateY(0); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
     .stat-card.shortlisted .val { color:#1a5276; }
     
     .stat-card.active { border: 2px solid var(--ji-green); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
@@ -279,7 +277,7 @@
   <!-- Top bar -->
   <div class="top-bar">
     <div>
-      <div class="brand"><span>Job</span>info – Dashboard</div>
+      <a href="recruiter.html" class="brand" style="text-decoration: none; color: inherit;"><span>Job</span>info – Dashboard</a>
       <div class="sub-label" id="topbar-name"></div>
     </div>
     <button class="btn-logout" id="logout-btn"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
@@ -367,6 +365,9 @@
   <!-- Toolbar: search + filter + export -->
   <div class="panel-toolbar">
     <input type="text" class="panel-search" id="app-search" placeholder="🔍  Search name or skill…">
+    <select class="filter-sel" id="app-jobcode-filter" style="display:none;">
+      <option value="all">All Job Codes</option>
+    </select>
     <select class="filter-sel" id="app-status-filter">
       <option value="all">All Applicants</option>
       <option value="applied">📩 Applied</option>
@@ -606,7 +607,8 @@ function renderVacancyTable(filter) {
 document.querySelectorAll(".stat-card[data-filter]").forEach(card => {
   card.addEventListener("click", () => {
     const f = card.dataset.filter;
-    if (f === "__apps" || f === "__shortlisted") return; // These are just static info cards
+    if (f === "__apps") { openGlobalAppsPanel('all'); return; }
+    if (f === "__shortlisted") { openGlobalAppsPanel('shortlisted'); return; }
     
     document.querySelectorAll(".stat-card[data-filter]").forEach(c => c.classList.remove("active"));
     card.classList.add("active");
@@ -625,6 +627,10 @@ async function openAppsPanel(vacId, jobCode, title, count) {
   document.getElementById("panel-subtitle").textContent = `${jobCode} · ${count} application${count!==1?"s":""}`;
   document.getElementById("app-search").value = "";
   document.getElementById("app-status-filter").value = "all";
+  
+  const jcFilter = document.getElementById("app-jobcode-filter");
+  if(jcFilter) { jcFilter.style.display = "none"; jcFilter.value = "all"; }
+
   appSearch = ""; currentAppFilter = "all";
 
   document.getElementById("panel-overlay").classList.add("open");
@@ -651,11 +657,64 @@ async function openAppsPanel(vacId, jobCode, title, count) {
   renderApps();
 }
 
+async function openGlobalAppsPanel(defaultStatus) {
+  panelVacancyId = 'global';
+  panelJobCode = null;
+
+  document.getElementById("panel-title").textContent = "All Applications";
+  document.getElementById("panel-subtitle").textContent = "Applications across all vacancies";
+  document.getElementById("app-search").value = "";
+  document.getElementById("app-status-filter").value = defaultStatus;
+  
+  const jcFilter = document.getElementById("app-jobcode-filter");
+  if(jcFilter) {
+    jcFilter.style.display = "inline-block";
+    jcFilter.innerHTML = '<option value="all">All Job Codes</option>';
+  }
+
+  appSearch = ""; currentAppFilter = defaultStatus;
+
+  document.getElementById("panel-overlay").classList.add("open");
+  document.getElementById("apps-panel").classList.add("open");
+  document.getElementById("apps-loading").style.display = "block";
+  document.getElementById("apps-list").innerHTML = "";
+  document.getElementById("apps-empty").style.display = "none";
+
+  try {
+    const r = await post("/api/recruiters/all-applications", {
+      wa_number: verifiedWa, session_token: sessionToken
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    allApps = d.applications;
+    
+    if(jcFilter) {
+      const uniqueCodes = [...new Set(allApps.map(a => a.job_code))].filter(Boolean);
+      uniqueCodes.forEach(code => {
+        jcFilter.insertAdjacentHTML("beforeend", `<option value="${esc(code)}">${esc(code)}</option>`);
+      });
+    }
+  } catch(e) {
+    console.error(e);
+    allApps = [];
+    document.getElementById("apps-list").innerHTML =
+      '<div class="app-no-items"><i class="bi bi-exclamation-triangle text-danger"></i><p>Could not load applications.</p></div>';
+  } finally {
+    document.getElementById("apps-loading").style.display = "none";
+  }
+  renderApps();
+}
+
 function renderApps() {
   const list = document.getElementById("apps-list");
   const empty = document.getElementById("apps-empty");
+  const jcFilterEl = document.getElementById("app-jobcode-filter");
+  const jobCodeFilter = jcFilterEl ? jcFilterEl.value : "all";
+  
   let rows = allApps;
   if (currentAppFilter !== "all") rows = rows.filter(a => a.status === currentAppFilter);
+  if (jobCodeFilter !== "all") rows = rows.filter(a => a.job_code === jobCodeFilter);
+  
   if (appSearch) {
     const q = appSearch.toLowerCase();
     rows = rows.filter(a =>
@@ -759,16 +818,29 @@ document.getElementById("app-status-filter").addEventListener("change", e => {
   currentAppFilter = e.target.value;
   renderApps();
 });
+document.getElementById("app-jobcode-filter").addEventListener("change", e => {
+  renderApps();
+});
 
 /* Export CSV */
 document.getElementById("export-csv-btn").addEventListener("click", async () => {
-  if (!panelVacancyId) return;
+  if (!panelVacancyId) return; // Guard against purely uninitialized state
+  
   const btn = document.getElementById("export-csv-btn");
   btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating…';
+  
+  let apiEndpoint = "";
+  let requestBody = { wa_number: verifiedWa, session_token: sessionToken };
+
+  if (panelVacancyId === 'global') {
+      apiEndpoint = "/api/recruiters/all-applications/export-csv";
+  } else {
+      apiEndpoint = "/api/recruiters/vacancy-applications/export-csv";
+      requestBody.vacancy_id = panelVacancyId;
+  }
+
   try {
-    const r = await post("/api/recruiters/vacancy-applications/export-csv", {
-      wa_number: verifiedWa, session_token: sessionToken, vacancy_id: panelVacancyId
-    });
+    const r = await post(apiEndpoint, requestBody);
     if (!r.ok) throw new Error();
     const blob = await r.blob();
     const url = URL.createObjectURL(blob);
