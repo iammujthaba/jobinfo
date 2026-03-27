@@ -702,7 +702,7 @@ function buildRow(v, filter) {
     actions.push(`<button class="btn-share me-1" data-id="${v.id}" data-jc="${escHtml(v.job_code)}"><i class="bi bi-megaphone"></i> Share</button>`);
     actions.push(`<button class="btn-reject" data-id="${v.id}"><i class="bi bi-x-lg"></i> Revoke</button>`);
   } else {
-    actions.push(`<button class="btn-verify-flow" style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.8rem;cursor:pointer" data-vac='${JSON.stringify(v).replace(/"/g,"&quot;")}'><i class="bi bi-shield-check"></i> Verify</button>`);
+    actions.push(`<button class="btn-verify-flow" style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.8rem;cursor:pointer" data-vac="${encodeURIComponent(JSON.stringify(v))}"><i class="bi bi-shield-check"></i> Verify</button>`);
   }
 
   const recruiterName = v.recruiter?.name || v.recruiter_name || "—";
@@ -734,7 +734,7 @@ function buildRow(v, filter) {
 function attachRowListeners() {
   document.querySelectorAll(".btn-verify-flow[data-vac]").forEach(btn => {
     btn.addEventListener("click", () => {
-      openVerifyModal(JSON.parse(btn.dataset.vac));
+      openVerifyModal(JSON.parse(decodeURIComponent(btn.dataset.vac)));
     });
   });
 
