@@ -63,6 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ── DOM Init & Gatekeeper Logic ─────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize WhatsApp Banner Link
+  if (typeof JOBINFO_CONFIG !== 'undefined' && JOBINFO_CONFIG.BUSINESS_WA) {
+      const waBtn = document.getElementById('wa-post-btn');
+      if (waBtn) {
+          const triggerMessage = encodeURIComponent("Post Vacancy");
+          waBtn.href = `https://wa.me/${JOBINFO_CONFIG.BUSINESS_WA}?text=${triggerMessage}`;
+      }
+  }
   // Initialize the inline surfaces conditionally based on what is present
   if (document.getElementById('inline-reg-form')) {
     initSurface('inline-', 'post-vacancy');

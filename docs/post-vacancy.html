@@ -82,7 +82,7 @@
     .pv-body {
       max-width: 760px;
       margin: 0 auto;
-      padding: 40px 16px 60px;
+      padding: 20px 16px 10px;
     }
   </style>
 </head>
@@ -133,8 +133,10 @@
     </section>
 
     <!-- ── OTP + Form ─────────────────────────────────────────────────────── -->
-    <section class="py-5">
+    <section class="py-2">
       <div class="pv-body" data-aos="fade-up">
+
+
 
         <!-- Step 1: WhatsApp number -->
         <div id="otp-step1" class="bg-white p-4 rounded shadow mb-4">
@@ -296,6 +298,19 @@
             </div>
           </div>
         </form>
+
+        <div class="card border-0 shadow-sm mt-5 mb-4 rounded-4" style="background: linear-gradient(135deg, #e8fbf0 0%, #ffffff 100%);">
+          <div class="card-body p-4 text-center">
+            <div class="mx-auto mb-3 bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 64px; height: 64px;">
+              <i class="bi bi-whatsapp fs-1"></i>
+            </div>
+            <h5 class="fw-bold text-success mb-2">In a hurry?</h5>
+            <p class="text-muted small mb-4 px-2" style="font-size: 0.95em;">Skip the web form. Post your vacancy instantly through our automated WhatsApp assistant.</p>
+            <a id="wa-post-btn" href="#" target="_blank" class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow d-flex justify-content-center align-items-center gap-2 transition" style="padding: 14px 20px;">
+               Post via WhatsApp <i class="bi bi-arrow-right-short fs-4"></i>
+            </a>
+          </div>
+        </div>
 
       </div>
     </section>
