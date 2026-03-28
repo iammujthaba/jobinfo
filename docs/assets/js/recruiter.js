@@ -63,9 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ── DOM Init & Gatekeeper Logic ─────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize the inline surfaces immediately
-  initSurface('inline-', 'post-vacancy');
-  initSurface('pv-', 'post-vacancy');
+  // Initialize the inline surfaces conditionally based on what is present
+  if (document.getElementById('inline-reg-form')) {
+    initSurface('inline-', 'post-vacancy');
+  } else if (document.getElementById('pv-reg-form')) {
+    initSurface('pv-', 'post-vacancy');
+  }
   
   // Initialize modal surface asynchronously after components.js fetches it
   const mc = document.getElementById("modals-container");
@@ -105,12 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const payload = {
         wa_number: verifiedWaNumber,
         session_token: sessionToken,
-        title: fd.get("job-post"),
-        company: "", // Removed from form, backend handles finding it from recruiter record
-        location: `${fd.get("location")}, ${fd.get("district")}`,
-        description: buildDescription(fd),
-        salary_range: fd.get("salary") || null,
-        experience_required: fd.get("experience-level") || null,
+        job_category: fd.get("job_category"),
+        company_name: fd.get("company_name"),
+        district_region: fd.get("district_region"),
+        exact_location: fd.get("exact_location"),
+        job_title: fd.get("job_title"),
+        job_description: fd.get("job_description"),
+        job_mode: fd.get("job_mode"),
+        experience_required: fd.get("experience_required"),
+        salary_range: fd.get("salary_range")
       };
 
       try {
@@ -367,16 +373,7 @@ function handleSuccessfulLogin(intent, setDisplay) {
   }
 }
 
-/* ── Build description from extra fields ─────────────────────────────────── */
-function buildDescription(fd) {
-  const parts = [];
-  if (fd.get("gender") && fd.get("gender") !== "") parts.push(`Gender Preference: ${fd.get("gender")}`);
-  if (fd.get("Number-of-Vacancies")) parts.push(`Total Vacancies: ${fd.get("Number-of-Vacancies")}`);
-  if (fd.get("skills")) parts.push(`Skills: ${fd.get("skills")}`);
-  if (fd.get("qualification")) parts.push(`Qualification: ${fd.get("qualification")}`);
-  if (fd.get("additional-info")) parts.push(`Additional Info: ${fd.get("additional-info")}`);
-  return parts.join("\\n") || null;
-}
+// buildDescription has been removed since job_description is used directly
 
 /* ── FAQ toggle (preserved) ──────────────────────────────────────────────── */
 const toggleBtn = document.getElementById("toggle-question-form");

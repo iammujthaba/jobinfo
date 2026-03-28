@@ -153,7 +153,6 @@
       <nav id="navmenu" class="navmenu">
         <ul>
           <li><a href="#hero" class="active">Home</a></li>
-          <li><a href="#submit-job">Post Vacancy</a></li>
           <li><a href="#featured-services">Services</a></li>
           <li><a href="#recruiter-benefits">Benefits</a></li>
           <li><a href="#recruiter-guidelines">Guidelines</a></li>
@@ -466,84 +465,90 @@
 
 		<form name="job-form" class="job-form bg-white p-4 rounded shadow" style="display:none;max-width:800px;margin:0 auto 24px;">
 			<div class="row gy-3">
-			<div class="col-md-12">
-				<input type="text" name="job-post" class="form-control" placeholder="Job Title / Position" required>
-			</div>
+            <div class="col-md-6">
+              <select name="job_category" class="form-select" required>
+                <option value="">Job Category?</option>
+                <option value="retail">Retail & Showrooms</option>
+                <option value="hospitality">Hospitality & Food Service</option>
+                <option value="healthcare">Healthcare & Caretaking</option>
+                <option value="driving">Driving & Logistics</option>
+                <option value="office_admin">Office & Admin</option>
+                <option value="maintenance_technician">Maintenance & Technician</option>
+                <option value="it_professional">IT & Professional</option>
+                <option value="gulf_abroad">Gulf / Abroad Jobs</option>
+                <option value="other">Other / General</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="company_name" class="form-control" placeholder="Company / Shop Name" required>
+            </div>
+            <div class="col-md-12">
+              <input type="text" name="job_title" class="form-control" placeholder="Job Title (E.g. Sales Executive)" required>
+            </div>
+            <div class="col-md-6">
+              <select name="district_region" class="form-select" required>
+                <option value="">District / Region?</option>
+                <option value="Kasaragod">Kasaragod</option>
+                <option value="Kannur">Kannur</option>
+                <option value="Wayanad">Wayanad</option>
+                <option value="Malappuram">Malappuram</option>
+                <option value="Kozhikode">Kozhikode</option>
+                <option value="Palakkad">Palakkad</option>
+                <option value="Thrissur">Thrissur</option>
+                <option value="Ernakulam">Ernakulam</option>
+                <option value="Idukki">Idukki</option>
+                <option value="Kottayam">Kottayam</option>
+                <option value="Pathanamthitta">Pathanamthitta</option>
+                <option value="Alappuzha">Alappuzha</option>
+                <option value="Kollam">Kollam</option>
+                <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <input type="text" name="exact_location" class="form-control" placeholder="Exact Location (E.g. Vyttila)" required>
+            </div>
+            <div class="col-md-4">
+              <select name="job_mode" class="form-select" required>
+                <option value="">Job Mode?</option>
+                <option value="full_time">Full-Time</option>
+                <option value="part_time">Part-Time</option>
+                <option value="remote">Remote</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <select name="experience_required" class="form-select" required>
+                <option value="">Experience Required?</option>
+                <option value="no_experience">No Experience Required</option>
+                <option value="fresher_or_exp">Fresher or Experienced</option>
+                <option value="1_2_years">1-2 Years</option>
+                <option value="3_5_years">3-5 Years</option>
+                <option value="5_plus_years">5+ Years</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <select name="salary_range" class="form-select" required>
+                <option value="">Salary Range?</option>
+                <option value="interview_based">Based on Interview</option>
+                <option value="not_mentioned">Not Mentioned</option>
+                <option value="stipend">Stipend</option>
+                <option value="below_10k">Below ₹10,000</option>
+                <option value="10k_20k">₹10,000 - ₹20,000</option>
+                <option value="20k_30k">₹20,000 - ₹30,000</option>
+                <option value="30k_40k">₹30,000 - ₹40,000</option>
+                <option value="40k_50k">₹40,000 - ₹50,000</option>
+                <option value="above_50k">Above ₹50,000</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <textarea name="job_description" class="form-control" rows="4" placeholder="Job Description (Duties, skills, qualifications, timings, etc.)" required></textarea>
+            </div>
+            <!-- Hidden verified WA number field (set by recruiter.js after OTP) -->
+            <input type="hidden" id="form-wa-number" name="form-wa-number">
 
-      <div class="col-md-6">
-				<select name="experience-level" class="form-control" required>
-				<option value="">Experience?</option>
-				<option value="1">0 - 1 year (Fresher)</option>
-				<option value="2">2 Year</option>  
-        <option value="3">3 Years</option>
-        <option value="4">4 Years</option>
-        <option value="5">5 Years</option>
-        <option value="6">6 Years</option>
-        <option value="7">7 Years</option>
-        <option value="8">8 - 10 Years</option>
-        <option value="11">11 - 15 years</option>  
-        <option value="16">16 - 20 years</option>
-        <option value="21">21+ years</option>
-				</select>
-			</div>
-
-      <div class="col-md-6">
-				<select name="gender" class="form-control">
-				<option value="">Gender Preference?</option>
-				<option value="Male">Male</option>
-				<option value="Female">Female</option>
-				<option value="Any">Any</option>
-				</select>
-			</div>
-
-      <div class="col-md-6">
-        <select name="district" class="form-control" required>
-          <option value="">Job District?</option>
-          <option value="Kasaragod">Kasaragod</option>
-          <option value="Kannur">Kannur</option>
-          <option value="Wayanad">Wayanad</option>
-          <option value="Malappuram">Malappuram</option>
-          <option value="Kozhikode">Kozhikode</option>
-          <option value="Palakkad">Palakkad</option>
-          <option value="Thrissur">Thrissur</option>
-          <option value="Ernakulam">Ernakulam</option>
-          <option value="Idukki">Idukki</option>
-          <option value="Kottayam">Kottayam</option>
-          <option value="Pathanamthitta">Pathanamthitta</option>
-          <option value="Alappuzha">Alappuzha</option>
-          <option value="Kollam">Kollam</option>
-          <option value="Thiruvananthapuram">Thiruvananthapuram</option>
-        </select>
-      </div>
-
-      <div class="col-md-6">
-				<input type="text" name="location" class="form-control" placeholder="Job Location" required>
-			</div>
-
-			
-			<div class="col-md-12">
-				<input type="number" name="Number-of-Vacancies" class="form-control" placeholder="Total Vacancies (eg: 4)" required>
-			</div>
-
-			<div class="col-md-6">
-				<input type="text" name="skills" class="form-control" placeholder="Skills Required (optional)">
-			</div>
-
-			<div class="col-md-6">
-				<input type="text" name="qualification" class="form-control" placeholder="Qualification (optional)">
-			</div>
-
-      <div class="col-12">
-        <label for="additional-info" style="padding-left: 10px;">Any additional information (optional)</label>
-        <textarea name="additional-info" class="form-control" rows="3" placeholder="eg: Job Responsibilities, Age Limit, Other Benefits, etc.."></textarea>
-      </div>
-
-      <!-- Hidden verified WA number field (set by recruiter.js after OTP) -->
-      <input type="hidden" id="form-wa-number" name="form-wa-number">
-
-      <div class="col-12 text-center mt-4">
-        <button type="submit" class="btn btn-primary">Submit Job</button>
-      </div>      
+            <div class="col-12 text-center mt-4">
+              <button type="submit" class="btn btn-primary px-5">Submit Job</button>
+            </div>      
 
 			</div>
 		</form>
