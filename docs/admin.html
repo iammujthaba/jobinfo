@@ -565,17 +565,147 @@
    All API calls go through credentials stored in sessionStorage after login.
    ════════════════════════════════════════════════════════════════════════════ */
 
-let adminUser = null;
-let adminPass = null;
+// ── Single source of truth for admin credentials ─────────────────────────────
+// Both the password login AND the magic-link login write to this localStorage key.
+// Shape: { mode: "basic", user, pass }  OR  { mode: "token", token, label }
+const AUTH_KEY = "ji_admin_creds";
+
 let currentFilter = "pending";
 let pendingRejectId = null;
 
-/* ── Helpers ──────────────────────────────────────────────────────────────── */
-function authHeaders() {
+/* ── Persistent Session Boot-Check ───────────────────────────────────────────
+   Runs synchronously before any UI interaction.  If a saved session exists in
+   localStorage we immediately hide the login screen and load the dashboard.
+   The magic-link block below only fires if ?magic_token= is also present.
+─────────────────────────────────────────────────────────────────────────── */
+(function bootSessionCheck() {
+  const saved = _loadCreds();
+  if (!saved) return; // no saved session → show login screen normally
+
+  // Validate the saved creds are still working before fully bypassing login
+  // (We do a lightweight OPTIONS-free call; 401 = expired, clear and show login)
+  const testUrl = `${JOBINFO_CONFIG.API_URL}/admin/api/vacancies?status_filter=pending&page_size=1`;
+  fetch(testUrl, { headers: _buildAuthHeaders(saved) })
+    .then(res => {
+      if (res.status === 401 || res.status === 403) {
+        // Credentials are stale — wipe them and show login
+        localStorage.removeItem(AUTH_KEY);
+        return;
+      }
+      // Valid session — skip login screen
+      _applySession(saved);
+    })
+    .catch(() => {
+      // Network error — optimistically trust saved session (backend may be starting)
+      _applySession(saved);
+    });
+})();
+
+/* ── Magic Token Auto-Login ───────────────────────────────────────────────── */
+(function handleMagicToken() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const magicToken = urlParams.get("magic_token") || urlParams.get("token");
+  if (!magicToken) return;
+
+  // Show a full-screen loading overlay while we verify
+  document.body.insertAdjacentHTML("beforeend", `
+    <div id="magic-auth-overlay" style="
+      position:fixed;inset:0;background:#fff;z-index:999999;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="width:3rem;height:3rem;border:4px solid #eee;border-top-color:#25d366;
+        border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;"></div>
+      <p style="font-family:Roboto,sans-serif;color:#555;font-size:1rem;font-weight:600;">
+        Authenticating securely…
+      </p>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    </div>
+  `);
+
+  fetch(`${JOBINFO_CONFIG.API_URL}/api/auth/magic/verify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: magicToken }),
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Invalid or expired magic link");
+    return res.json();
+  })
+  .then(data => {
+    if (data.role !== "admin") throw new Error("Not an admin link");
+
+    // Save to localStorage under the shared key so refresh works automatically
+    const creds = { mode: "token", token: data.session_token, label: "Admin" };
+    localStorage.setItem(AUTH_KEY, JSON.stringify(creds));
+
+    // Strip the token from the URL cleanly
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.replaceState({}, "", cleanUrl);
+
+    const overlay = document.getElementById("magic-auth-overlay");
+    if (overlay) overlay.remove();
+
+    _applySession(creds);
+  })
+  .catch(err => {
+    console.error("Magic login failed:", err);
+    const overlay = document.getElementById("magic-auth-overlay");
+    if (overlay) overlay.remove();
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.replaceState({}, "", cleanUrl);
+    const loginError = document.getElementById("login-error");
+    if (loginError) {
+      loginError.textContent = "⚠️ This link has expired or is invalid. Please log in manually.";
+      loginError.style.display = "block";
+    }
+  });
+})();
+
+/* ── Shared auth utilities ────────────────────────────────────────────────── */
+
+/**
+ * Load saved credentials from localStorage.
+ * Returns the parsed object or null.
+ */
+function _loadCreds() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
+}
+
+/**
+ * Build Authorization headers from a credentials object.
+ * mode "token" → Bearer <session_token>  (magic-link session)
+ * mode "basic" → Basic base64(user:pass)  (password login)
+ */
+function _buildAuthHeaders(creds) {
+  if (!creds) return { "Content-Type": "application/json" };
+  if (creds.mode === "token") {
+    return {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + creds.token,
+    };
+  }
   return {
     "Content-Type": "application/json",
-    "Authorization": "Basic " + btoa(`${adminUser}:${adminPass}`),
+    "Authorization": "Basic " + btoa(`${creds.user}:${creds.pass}`),
   };
+}
+
+/**
+ * Apply a saved/verified session: hide login screen, update label, load data.
+ */
+function _applySession(creds) {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("admin-name-label").textContent =
+    creds.mode === "token" ? (creds.label || "Admin") : `Hi, ${creds.user}`;
+  loadStats();
+  loadVacancies(currentFilter);
+}
+
+/**
+ * Public authHeaders() — used by every API call in the file.
+ * Reads from localStorage so it always works after a refresh.
+ */
+function authHeaders() {
+  return _buildAuthHeaders(_loadCreds());
 }
 
 function escHtml(s) {
@@ -593,9 +723,11 @@ document.getElementById("login-btn").addEventListener("click", async () => {
   const p = document.getElementById("login-pass").value;
   if (!u || !p) return;
 
+  const testHeaders = _buildAuthHeaders({ mode: "basic", user: u, pass: p });
+
   try {
     const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies?status_filter=pending`, {
-      headers: { "Authorization": "Basic " + btoa(`${u}:${p}`) },
+      headers: testHeaders,
     });
     if (res.status === 401 || res.status === 403) {
       document.getElementById("login-error").textContent = "Incorrect username or password.";
@@ -608,12 +740,10 @@ document.getElementById("login-btn").addEventListener("click", async () => {
     return;
   }
 
-  adminUser = u;
-  adminPass = p;
-  document.getElementById("login-screen").style.display = "none";
-  document.getElementById("admin-name-label").textContent = `Hi, ${u}`;
-  loadStats();
-  loadVacancies(currentFilter);
+  // Credentials verified — persist to localStorage
+  const creds = { mode: "basic", user: u, pass: p };
+  localStorage.setItem(AUTH_KEY, JSON.stringify(creds));
+  _applySession(creds);
 });
 
 document.getElementById("login-user").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("login-pass").focus(); });
@@ -621,8 +751,12 @@ document.getElementById("login-pass").addEventListener("keydown", e => { if (e.k
 
 /* ── Logout ───────────────────────────────────────────────────────────────── */
 document.getElementById("logout-btn").addEventListener("click", () => {
-  adminUser = adminPass = null;
+  localStorage.removeItem(AUTH_KEY);
   document.getElementById("login-screen").style.display = "flex";
+  // Clear sensitive fields
+  document.getElementById("login-user").value = "";
+  document.getElementById("login-pass").value = "";
+  document.getElementById("login-error").style.display = "none";
 });
 
 /* ── Sidebar nav ──────────────────────────────────────────────────────────── */
