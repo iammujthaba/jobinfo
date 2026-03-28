@@ -133,6 +133,27 @@
     .hide-xs { display: none !important; }
     .show-xs { display: inline !important; }
   }
+
+  /* Outlined pill button for navbar } */
+  .btn-nav-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: 2px solid #107bbc;
+    color: #107bbc;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+    white-space: nowrap;
+  }
+  .btn-nav-outline:hover {
+    background: #107bbc;
+    color: #fff;
+  }
   </style>
 
 </head>
@@ -158,6 +179,9 @@
           <li><a href="#recruiter-guidelines">Guidelines</a></li>
           <li><a href="#join-now">Network</a></li>
           <li><a href="#faq">FAQ</a></li>
+          <li class="d-xl-none text-center" style="padding: 10px 20px;">
+            <a class="btn-nav-outline w-100 justify-content-center" href="index.html"><i class="bi bi-briefcase"></i>Browse Jobs</a>
+          </li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
