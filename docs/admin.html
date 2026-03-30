@@ -13,6 +13,8 @@
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <!-- Bootstrap JS Bundle -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 
   <style>
@@ -320,6 +322,9 @@
       <i class="bi bi-question-circle"></i> User Questions
       <span class="sidebar-badge" id="badge-questions" style="display:none; background:#e74c3c;">0</span>
     </a></li>
+    <li><a href="#" data-view="users" id="nav-users">
+      <i class="bi bi-people"></i> Users
+    </a></li>
     <li><a href="index.html" target="_blank">
       <i class="bi bi-globe"></i> View Website
     </a></li>
@@ -482,6 +487,231 @@
 
     </div><!-- /analytics-section -->
 
+    <!-- ── Users section ── -->
+    <div id="users-section" style="display:none">
+      
+      <!-- Macro View Stats -->
+      <div class="stat-cards">
+        <div class="stat-card" id="seekers-card" style="cursor:pointer; border: 2px solid transparent; transition: all 0.2s;">
+          <div class="label">🙋 Job Seekers</div>
+          <div class="value" id="user-stat-seekers" style="color: #27ae60;">...</div>
+        </div>
+        <div class="stat-card" id="recruiters-card" style="cursor:pointer; border: 2px solid transparent; transition: all 0.2s;">
+          <div class="label">👔 Recruiters</div>
+          <div class="value" id="user-stat-recruiters" style="color: #2980b9;">...</div>
+        </div>
+        <div class="stat-card" id="unregistered-card" style="cursor:pointer; border: 2px solid transparent; transition: all 0.2s;">
+          <div class="label">👻 Unregistered</div>
+          <div class="value" id="user-stat-unregistered" style="color:#e74c3c;">...</div>
+        </div>
+        <div class="stat-card" id="bots-card" style="cursor:pointer; border: 2px solid transparent; transition: all 0.2s;">
+          <div class="label">🤖 Bot Visitors</div>
+          <div class="value" id="user-stat-bots" style="color:#f39c12;">...</div>
+          <div style="font-size:0.75rem; color:#27ae60; font-weight:bold; margin-top:4px;" id="user-stat-bots-conv">...</div>
+        </div>
+        <div class="stat-card" id="dual-card" style="cursor:pointer; border: 2px solid transparent; transition: all 0.2s;">
+          <div class="label">🔄 Dual Users</div>
+          <div class="value" id="user-stat-dual" style="color: #e67e22;">...</div>
+        </div>
+      </div>
+
+      <!-- Segment View (Recruiters) -->
+      <div id="segment-recruiters" style="display:none; transition: all 0.3s; margin-top:20px;">
+        <h4 style="margin-bottom:16px; font-weight:700;">👔 Recruiters Segment</h4>
+        
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h4>📍 Vacancies by District</h4>
+            <canvas id="chart-users-district" height="220"></canvas>
+          </div>
+          <div class="chart-card">
+            <h4>📋 Vacancies by Category</h4>
+            <canvas id="chart-users-category" height="220"></canvas>
+          </div>
+        </div>
+
+        <!-- Controls & Table -->
+        <div class="table-card" style="padding: 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <input type="text" placeholder="Search WA Number or Company..." style="padding:8px 12px; border:1px solid #dde1e7; border-radius:8px; width:300px; max-width:100%;">
+            <select style="padding:8px 12px; border:1px solid #dde1e7; border-radius:8px;">
+              <option>Sort by: Most Vacancies</option>
+              <option>Sort by: Most Applications</option>
+              <option>Sort by: Newest</option>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table class="a-table" id="segment-recruiters-table" style="width:100%; text-align:left;">
+              <thead>
+                <tr>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Company / Name</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Business Type</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Location</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">WA Number</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Last Activity</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Total Vacancies</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Avg Apps/Vacancy</th>
+                </tr>
+              </thead>
+              <tbody id="users-segment-tbody">
+                <tr><td colspan="7" style="text-align:center; padding: 24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading recruiters...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Segment View (Seekers) -->
+      <div id="segment-seekers" style="display:none; transition: all 0.3s; margin-top:20px;">
+        <h4 style="margin-bottom:16px; font-weight:700;">🙋 Job Seekers Segment</h4>
+        
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h4>📍 Seekers by Location</h4>
+            <canvas id="chart-seekers-district" height="220"></canvas>
+          </div>
+          <div class="chart-card">
+            <h4>📋 Seekers by Job Category</h4>
+            <canvas id="chart-seekers-category" height="220"></canvas>
+          </div>
+        </div>
+
+        <!-- Controls & Table -->
+        <div class="table-card" style="padding: 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <input type="text" placeholder="Search WA Number or Name..." style="padding:8px 12px; border:1px solid #dde1e7; border-radius:8px; width:300px; max-width:100%;">
+          </div>
+          <div class="table-responsive">
+            <table class="a-table" id="segment-seekers-table" style="width:100%; text-align:left;">
+              <thead>
+                <tr>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">WA Number</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Location</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Category / Skills</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Joined Date</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Applications</th>
+                </tr>
+              </thead>
+              <tbody id="seekers-segment-tbody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segment View (Visitors) -->
+      <div id="segment-visitors" style="display:none; transition: all 0.3s; margin-top:20px;">
+        <h4 style="margin-bottom:16px; font-weight:700;">🤖 Bot Visitors Segment</h4>
+        
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h4>📊 User Registration Breakdown</h4>
+            <canvas id="chart-visitors-status" height="220"></canvas>
+          </div>
+          <div class="chart-card">
+            <h4>📉 Drop-off Funnel (Unregistered)</h4>
+            <canvas id="chart-visitors-funnel" height="220"></canvas>
+          </div>
+        </div>
+
+        <!-- Controls & Table -->
+        <div class="table-card" style="padding: 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <input type="text" placeholder="Search WA Number..." style="padding:8px 12px; border:1px solid #dde1e7; border-radius:8px; width:300px; max-width:100%;">
+          </div>
+          <div class="table-responsive">
+            <table class="a-table" id="segment-visitors-table" style="width:100%; text-align:left;">
+              <thead>
+                <tr>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">WA Number</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Current Bot State</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Last Active</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Registered?</th>
+                </tr>
+              </thead>
+              <tbody id="visitors-segment-tbody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segment View (Unregistered CRM) -->
+      <div id="segment-unregistered" style="display:none; transition: all 0.3s; margin-top:20px;">
+        <h4 style="margin-bottom:16px; font-weight:700;">👻 Unregistered Leads Segment</h4>
+        
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h4>🌡️ Lead Temperature (Time Since Drop-off)</h4>
+            <canvas id="chart-unregs-temp" height="220" style="max-height:260px;"></canvas>
+          </div>
+        </div>
+
+        <!-- Controls & Table -->
+        <div class="table-card" style="padding: 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <input type="text" placeholder="Search WA Number..." style="padding:8px 12px; border:1px solid #dde1e7; border-radius:8px; width:300px; max-width:100%;">
+          </div>
+          <div class="table-responsive">
+            <table class="a-table" id="segment-unregistered-table" style="width:100%; text-align:left;">
+              <thead>
+                <tr>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">WA Number</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Dropped At Step</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Last Active</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="unregistered-segment-tbody">
+              </tbody>
+            </table>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segment View (Dual Users) -->
+      <div id="segment-dual-users" style="display:none; transition: all 0.3s; margin-top:20px;">
+        <h4 style="margin-bottom:16px; font-weight:700;">🔄 Dual Users Segment</h4>
+        
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h4>🎭 Primary Persona (Activity Balance)</h4>
+            <canvas id="chart-dual-persona" height="220" style="max-height:260px;"></canvas>
+          </div>
+        </div>
+
+        <!-- Controls & Table -->
+        <div class="table-card" style="padding: 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <input type="text" placeholder="Search WA Number..." style="padding:8px 12px; border:1px solid #dde1e7; border-radius:8px; width:300px; max-width:100%;">
+          </div>
+          <div class="table-responsive">
+            <table class="a-table" id="segment-dual-users-table" style="width:100%; text-align:left;">
+              <thead>
+                <tr>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">WA Number</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Company</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Vacancies</th>
+                  <th style="padding:12px; border-bottom:2px solid #eef0f4;">Apps</th>
+                </tr>
+              </thead>
+              <tbody id="dual-users-segment-tbody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /users-section -->
+
   </div>
 </div>
 
@@ -553,6 +783,161 @@
     <h3 id="detail-title"></h3>
     <div id="detail-body" style="font-size:.88rem;line-height:1.7;white-space:pre-wrap;color:#444;max-height:340px;overflow-y:auto"></div>
     <div class="modal-actions"><button class="btn-cancel" id="close-detail">Close</button></div>
+  </div>
+</div>
+
+<!-- ── Micro View: Recruiter Details Offcanvas ── -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="recruiterOffcanvas" aria-labelledby="recruiterOffcanvasLabel" style="width: 500px; max-width: 100%; border-left: none; box-shadow: -5px 0 25px rgba(0,0,0,0.1);">
+  <div class="offcanvas-header" style="border-bottom: 1px solid #eef0f4; padding: 20px 24px;">
+    <div>
+      <h5 class="offcanvas-title" id="recoff-name" style="font-weight: 700; margin-bottom: 4px;">Recruiter Name</h5>
+      <p style="font-size:0.8rem; color:#888; margin:0;" id="recoff-dates">Joined: —, Last Info: —</p>
+    </div>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" style="padding: 24px; background: #f8f9fc;">
+    <a id="recoff-wa-btn" href="#" target="_blank" class="btn btn-success w-100 mb-4" style="font-weight:600; background:#25d366; border:none; padding:10px;">
+      <i class="bi bi-whatsapp"></i> Message on WhatsApp
+    </a>
+    
+    <h6 style="font-weight:700; color:#444; margin-bottom:12px;">📋 Job Postings</h6>
+    <div class="table-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05); background:#fff; border-radius:12px; overflow:hidden;">
+      <table class="a-table w-100" style="font-size: 0.8rem; width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Job Title</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Status</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Posted</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Apps</th>
+          </tr>
+        </thead>
+        <tbody id="recoff-tbody">
+          <tr><td colspan="4" style="text-align:center; padding: 24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading vacancies...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Micro View: Job Seeker Details Offcanvas ── -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSeeker" aria-labelledby="offcanvasSeekerLabel" style="width: 500px; max-width: 100%; border-left: none; box-shadow: -5px 0 25px rgba(0,0,0,0.1);">
+  <div class="offcanvas-header" style="border-bottom: 1px solid #eef0f4; padding: 20px 24px;">
+    <div>
+      <h5 class="offcanvas-title" id="seekoff-name" style="font-weight: 700; margin-bottom: 4px;">Seeker Name</h5>
+      <p style="font-size:0.8rem; color:#888; margin:0;" id="seekoff-dates">Joined: —, Last Info: —</p>
+    </div>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" style="padding: 24px; background: #f8f9fc;">
+    <a id="seekoff-wa-btn" href="#" target="_blank" class="btn btn-success w-100 mb-4" style="font-weight:600; background:#25d366; border:none; padding:10px;">
+      <i class="bi bi-whatsapp"></i> Message on WhatsApp
+    </a>
+    
+    <h6 style="font-weight:700; color:#444; margin-bottom:12px;">📋 Application History</h6>
+    <div class="table-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05); background:#fff; border-radius:12px; overflow:hidden;">
+      <table class="a-table w-100" style="font-size: 0.8rem; width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Job Title</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Company</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Applied</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="offcanvas-seeker-vacancies-tbody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Micro View: Visitor Details Offcanvas ── -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasVisitor" aria-labelledby="offcanvasVisitorLabel" style="width: 500px; max-width: 100%; border-left: none; box-shadow: -5px 0 25px rgba(0,0,0,0.1);">
+  <div class="offcanvas-header" style="border-bottom: 1px solid #eef0f4; padding: 20px 24px;">
+    <div>
+      <h5 class="offcanvas-title" id="visoff-wa" style="font-weight: 700; margin-bottom: 4px;">WA Number</h5>
+      <p style="font-size:0.8rem; color:#888; margin:0;" id="visoff-status">Status: —, Joined: —</p>
+    </div>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" style="padding: 24px; background: #f8f9fc;">
+    <button type="button" class="btn w-100 mb-4" style="font-weight:600; background:#f1c40f; color:#000; border:none; padding:10px;">
+      <i class="bi bi-chat-left-dots"></i> Send Re-engagement Reminder
+    </button>
+    
+    <h6 style="font-weight:700; color:#444; margin-bottom:12px;">🔍 Partial Data (Context)</h6>
+    <div class="table-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05); background:#fff; border-radius:12px; overflow:hidden; padding: 16px;" id="offcanvas-visitor-details-tbody">
+      <div class="spinner-border text-primary text-sm" role="status"></div> Loading...
+    </div>
+  </div>
+</div>
+
+<!-- ── Micro View: Unregistered Recovery Offcanvas ── -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasUnregistered" aria-labelledby="offcanvasUnregisteredLabel" style="width: 500px; max-width: 100%; border-left: none; box-shadow: -5px 0 25px rgba(0,0,0,0.1);">
+  <div class="offcanvas-header" style="border-bottom: 1px solid #eef0f4; padding: 20px 24px;">
+    <div>
+      <h5 class="offcanvas-title" id="unregoff-wa" style="font-weight: 700; margin-bottom: 4px;">WA Number</h5>
+      <p style="font-size:0.8rem; color:#888; margin:0;" id="unregoff-status">Status: —, Joined: —</p>
+    </div>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" style="padding: 24px; background: #f8f9fc;">
+    <a id="unregoff-wa-btn" href="#" target="_blank" class="btn btn-success w-100 mb-4" style="font-weight:600; background:#e74c3c; color:#fff; border:none; padding:10px;">
+      <i class="bi bi-chat-left-dots"></i> Send Recovery Message
+    </a>
+    
+    <h6 style="font-weight:700; color:#444; margin-bottom:12px;">🔍 Partial Data (Context)</h6>
+    <div class="table-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05); background:#fff; border-radius:12px; overflow:hidden; padding: 16px;" id="offcanvas-unregistered-details-tbody">
+      <div class="spinner-border text-primary text-sm" role="status"></div> Loading...
+    </div>
+  </div>
+</div>
+
+<!-- ── Micro View: Dual User Details Offcanvas ── -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasDualUser" aria-labelledby="offcanvasDualUserLabel" style="width: 500px; max-width: 100%; border-left: none; box-shadow: -5px 0 25px rgba(0,0,0,0.1);">
+  <div class="offcanvas-header" style="border-bottom: 1px solid #eef0f4; padding: 20px 24px;">
+    <div>
+      <h5 class="offcanvas-title" id="dualoff-wa" style="font-weight: 700; margin-bottom: 4px;">WA Number</h5>
+      <p style="font-size:0.8rem; color:#888; margin:0;" id="dualoff-status">Dual User Profile</p>
+    </div>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" style="padding: 24px; background: #f8f9fc; overflow-y:auto;">
+    <a id="dualoff-wa-btn" href="#" target="_blank" class="btn btn-success w-100 mb-4" style="font-weight:600; background:#e67e22; border:none; padding:10px;">
+      <i class="bi bi-whatsapp"></i> Message User
+    </a>
+    
+    <!-- Recruiter History Section -->
+    <h6 style="font-weight:700; color:#2980b9; margin-bottom:12px;">👔 Recruiter History</h6>
+    <div class="table-card mb-4" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05); background:#fff; border-radius:12px; overflow:hidden;">
+      <table class="a-table w-100" style="font-size: 0.8rem; width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Job Title</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Status</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Posted</th>
+          </tr>
+        </thead>
+        <tbody id="offcanvas-dual-recruiter-tbody">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Application History Section -->
+    <h6 style="font-weight:700; color:#27ae60; margin-bottom:12px;">📋 Application History</h6>
+    <div class="table-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05); background:#fff; border-radius:12px; overflow:hidden;">
+      <table class="a-table w-100" style="font-size: 0.8rem; width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Job Title</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Company</th>
+            <th style="padding:10px 14px; background:#f8f9fc; border-bottom:2px solid #eef0f4; text-align:left;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="offcanvas-dual-seeker-tbody">
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -768,21 +1153,26 @@ document.querySelectorAll(".sidebar-nav a[data-view]").forEach(link => {
     // Auto-close sidebar on mobile after nav selection
     if (window.innerWidth <= 768) document.getElementById("sidebar").classList.remove("open");
     const view = link.dataset.view;
-    if (view === "analytics") {
-      document.getElementById("vacancies-section").style.display = "none";
-      if(document.getElementById("questions-section")) document.getElementById("questions-section").style.display = "none";
+    
+    // Hide all main sections first
+    ["vacancies-section", "analytics-section", "questions-section", "users-section"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = "none";
+    });
+
+    if (view === "users") {
+      document.getElementById("users-section").style.display = "block";
+      document.getElementById("page-heading").textContent = "Users & Segments";
+      loadUsersSummary();
+    } else if (view === "analytics") {
       document.getElementById("analytics-section").style.display = "block";
       document.getElementById("page-heading").textContent = "Analytics & Insights";
       loadAnalytics();
     } else if (view === "user-questions") {
-      document.getElementById("vacancies-section").style.display = "none";
-      document.getElementById("analytics-section").style.display = "none";
       if(document.getElementById("questions-section")) document.getElementById("questions-section").style.display = "block";
       document.getElementById("page-heading").textContent = "User Questions";
       loadQuestions();
     } else {
-      document.getElementById("analytics-section").style.display = "none";
-      if(document.getElementById("questions-section")) document.getElementById("questions-section").style.display = "none";
       document.getElementById("vacancies-section").style.display = "block";
       currentFilter = link.dataset.filter;
       const headings = { pending: "Pending Vacancies", approved: "Approved Vacancies", rejected: "Rejected Vacancies" };
@@ -1365,6 +1755,738 @@ async function loadQuestions() {
     loading.style.display = "none";
     tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load</td></tr>';
     table.style.display = "table";
+  }
+}
+/* ══════════════════════════════════════════════════════════════════════════════
+   USERS SECTION (Phase 2 Logic)
+   ══════════════════════════════════════════════════════════════════════════════ */
+let usersChartDistrict = null;
+let usersChartCategory = null;
+
+async function loadUsersSummary() {
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/users/summary`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load users summary");
+    const data = await res.json();
+    
+    document.getElementById("user-stat-seekers").textContent = data.job_seekers.toLocaleString();
+    document.getElementById("user-stat-recruiters").textContent = data.recruiters.toLocaleString();
+    document.getElementById("user-stat-unregistered").textContent = data.unregistered.toLocaleString();
+    document.getElementById("user-stat-bots").textContent = data.bot_visitors.toLocaleString();
+    document.getElementById("user-stat-bots-conv").textContent = `↑ ${data.conversion_rate}% registered`;
+    document.getElementById("user-stat-dual").textContent = data.dual_users.toLocaleString();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Handle Recruiters Card Click
+document.getElementById('recruiters-card')?.addEventListener('click', function() {
+  const segment = document.getElementById('segment-recruiters');
+  const seekers = document.getElementById('segment-seekers');
+  const seekCard = document.getElementById('seekers-card');
+  const visitors = document.getElementById('segment-visitors');
+  const botCard = document.getElementById('bots-card');
+  const unregs = document.getElementById('segment-unregistered');
+  const unregCard = document.getElementById('unregistered-card');
+  const duals = document.getElementById('segment-dual-users');
+  const dualCard = document.getElementById('dual-card');
+  
+  if (seekers) { seekers.style.display = 'none'; seekCard.style.borderColor = 'transparent'; seekCard.style.boxShadow = ''; }
+  if (visitors) { visitors.style.display = 'none'; botCard.style.borderColor = 'transparent'; botCard.style.boxShadow = ''; }
+  if (unregs) { unregs.style.display = 'none'; unregCard.style.borderColor = 'transparent'; unregCard.style.boxShadow = ''; }
+  if (duals) { duals.style.display = 'none'; dualCard.style.borderColor = 'transparent'; dualCard.style.boxShadow = ''; }
+  
+  this.style.borderColor = segment.style.display === 'block' ? 'transparent' : '#2980b9';
+  this.style.boxShadow = segment.style.display === 'block' ? '' : '0 4px 16px rgba(41,128,185,0.2)';
+  
+  if (segment.style.display === 'none') {
+    segment.style.display = 'block';
+    initUsersCharts();
+  } else {
+    segment.style.display = 'none';
+  }
+});
+
+// Handle Seekers Card Click
+document.getElementById('seekers-card')?.addEventListener('click', function() {
+  const segment = document.getElementById('segment-seekers');
+  const recruiters = document.getElementById('segment-recruiters');
+  const recCard = document.getElementById('recruiters-card');
+  const visitors = document.getElementById('segment-visitors');
+  const botCard = document.getElementById('bots-card');
+  const unregs = document.getElementById('segment-unregistered');
+  const unregCard = document.getElementById('unregistered-card');
+  const duals = document.getElementById('segment-dual-users');
+  const dualCard = document.getElementById('dual-card');
+  
+  if (recruiters) { recruiters.style.display = 'none'; recCard.style.borderColor = 'transparent'; recCard.style.boxShadow = ''; }
+  if (visitors) { visitors.style.display = 'none'; botCard.style.borderColor = 'transparent'; botCard.style.boxShadow = ''; }
+  if (unregs) { unregs.style.display = 'none'; unregCard.style.borderColor = 'transparent'; unregCard.style.boxShadow = ''; }
+  if (duals) { duals.style.display = 'none'; dualCard.style.borderColor = 'transparent'; dualCard.style.boxShadow = ''; }
+  
+  this.style.borderColor = segment.style.display === 'block' ? 'transparent' : '#27ae60';
+  this.style.boxShadow = segment.style.display === 'block' ? '' : '0 4px 16px rgba(39,174,96,0.2)';
+  
+  if (segment.style.display === 'none') {
+    segment.style.display = 'block';
+    initSeekersCharts();
+  } else {
+    segment.style.display = 'none';
+  }
+});
+
+// Handle Bot Visitors Card Click
+document.getElementById('bots-card')?.addEventListener('click', function() {
+  const segment = document.getElementById('segment-visitors');
+  const recruiters = document.getElementById('segment-recruiters');
+  const recCard = document.getElementById('recruiters-card');
+  const seekers = document.getElementById('segment-seekers');
+  const seekCard = document.getElementById('seekers-card');
+  const unregs = document.getElementById('segment-unregistered');
+  const unregCard = document.getElementById('unregistered-card');
+  const duals = document.getElementById('segment-dual-users');
+  const dualCard = document.getElementById('dual-card');
+  
+  if (recruiters) { recruiters.style.display = 'none'; recCard.style.borderColor = 'transparent'; recCard.style.boxShadow = ''; }
+  if (seekers) { seekers.style.display = 'none'; seekCard.style.borderColor = 'transparent'; seekCard.style.boxShadow = ''; }
+  if (unregs) { unregs.style.display = 'none'; unregCard.style.borderColor = 'transparent'; unregCard.style.boxShadow = ''; }
+  if (duals) { duals.style.display = 'none'; dualCard.style.borderColor = 'transparent'; dualCard.style.boxShadow = ''; }
+  
+  this.style.borderColor = segment.style.display === 'block' ? 'transparent' : '#f39c12';
+  this.style.boxShadow = segment.style.display === 'block' ? '' : '0 4px 16px rgba(243,156,18,0.2)';
+  
+  if (segment.style.display === 'none') {
+    segment.style.display = 'block';
+    initVisitorsCharts();
+  } else {
+    segment.style.display = 'none';
+  }
+});
+
+// Handle Unregistered CRM Card Click
+document.getElementById('unregistered-card')?.addEventListener('click', function() {
+  const segment = document.getElementById('segment-unregistered');
+  const recruiters = document.getElementById('segment-recruiters');
+  const recCard = document.getElementById('recruiters-card');
+  const seekers = document.getElementById('segment-seekers');
+  const seekCard = document.getElementById('seekers-card');
+  const visitors = document.getElementById('segment-visitors');
+  const botCard = document.getElementById('bots-card');
+  const duals = document.getElementById('segment-dual-users');
+  const dualCard = document.getElementById('dual-card');
+  
+  if (recruiters) { recruiters.style.display = 'none'; recCard.style.borderColor = 'transparent'; recCard.style.boxShadow = ''; }
+  if (seekers) { seekers.style.display = 'none'; seekCard.style.borderColor = 'transparent'; seekCard.style.boxShadow = ''; }
+  if (visitors) { visitors.style.display = 'none'; botCard.style.borderColor = 'transparent'; botCard.style.boxShadow = ''; }
+  if (duals) { duals.style.display = 'none'; dualCard.style.borderColor = 'transparent'; dualCard.style.boxShadow = ''; }
+  
+  this.style.borderColor = segment.style.display === 'block' ? 'transparent' : '#e74c3c';
+  this.style.boxShadow = segment.style.display === 'block' ? '' : '0 4px 16px rgba(231,76,60,0.2)';
+  
+  if (segment.style.display === 'none') {
+    segment.style.display = 'block';
+    initUnregisteredCharts();
+  } else {
+    segment.style.display = 'none';
+  }
+});
+
+// Handle Dual Users Card Click
+document.getElementById('dual-card')?.addEventListener('click', function() {
+  const segment = document.getElementById('segment-dual-users');
+  const recruiters = document.getElementById('segment-recruiters');
+  const recCard = document.getElementById('recruiters-card');
+  const seekers = document.getElementById('segment-seekers');
+  const seekCard = document.getElementById('seekers-card');
+  const visitors = document.getElementById('segment-visitors');
+  const botCard = document.getElementById('bots-card');
+  const unregs = document.getElementById('segment-unregistered');
+  const unregCard = document.getElementById('unregistered-card');
+  
+  if (recruiters) { recruiters.style.display = 'none'; recCard.style.borderColor = 'transparent'; recCard.style.boxShadow = ''; }
+  if (seekers) { seekers.style.display = 'none'; seekCard.style.borderColor = 'transparent'; seekCard.style.boxShadow = ''; }
+  if (visitors) { visitors.style.display = 'none'; botCard.style.borderColor = 'transparent'; botCard.style.boxShadow = ''; }
+  if (unregs) { unregs.style.display = 'none'; unregCard.style.borderColor = 'transparent'; unregCard.style.boxShadow = ''; }
+  
+  this.style.borderColor = segment.style.display === 'block' ? 'transparent' : '#e67e22';
+  this.style.boxShadow = segment.style.display === 'block' ? '' : '0 4px 16px rgba(230,126,34,0.2)';
+  
+  if (segment.style.display === 'none') {
+    segment.style.display = 'block';
+    initDualUsersCharts();
+  } else {
+    segment.style.display = 'none';
+  }
+});
+
+async function initUsersCharts() {
+  try {
+    console.log("Fetching recruiter stats...");
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/recruiters/stats`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load recruiters stats: " + res.status);
+    const data = await res.json();
+    console.log("Stats received:", data);
+    
+    const customColorsSeq = ['#0077b6', '#00b4d8', '#48cae4', '#90e0ef', '#caf0f8'];
+    const customColorsCat = ['#f4a261', '#e76f51', '#2a9d8f', '#264653', '#e9c46a'];
+    
+    // Process Charts
+    const dKeys = Object.keys(data.chart_data.districts);
+    const dVals = Object.values(data.chart_data.districts);
+    if (!usersChartDistrict) {
+      usersChartDistrict = new Chart(document.getElementById('chart-users-district'), {
+        type: 'bar',
+        data: { labels: dKeys, datasets: [{ label: 'Vacancies', data: dVals, backgroundColor: customColorsSeq, borderRadius: 4 }] },
+        options: { responsive: true, plugins: { legend: { display:false } } }
+      });
+    } else {
+      usersChartDistrict.data.labels = dKeys;
+      usersChartDistrict.data.datasets[0].data = dVals;
+      usersChartDistrict.update();
+    }
+    
+    const cKeys = Object.keys(data.chart_data.categories);
+    const cVals = Object.values(data.chart_data.categories);
+    if (!usersChartCategory) {
+      usersChartCategory = new Chart(document.getElementById('chart-users-category'), {
+        type: 'doughnut',
+        data: { labels: cKeys, datasets: [{ data: cVals, backgroundColor: customColorsCat, borderWidth: 0 }] },
+        options: { responsive: true, plugins: { legend: { position: 'right', display:false } }, cutout: '65%' }
+      });
+    } else {
+      usersChartCategory.data.labels = cKeys;
+      usersChartCategory.data.datasets[0].data = cVals;
+      usersChartCategory.update();
+    }
+    
+    // Process Table
+    const tbody = document.getElementById("users-segment-tbody");
+    tbody.innerHTML = "";
+    if (!data.recruiters_table.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#aaa;padding:24px">No recruiters found</td></tr>`;
+      return;
+    }
+    
+    data.recruiters_table.forEach(r => {
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr style="cursor:pointer;" onclick="openRecruiterDetail('${r.wa_number}')">
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(r.company_name)}</strong></td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(r.business_type)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(r.location)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(r.wa_number)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(r.last_activity)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${r.total_vacancies}</strong></td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${r.avg_apps_per_vacancy}</td>
+        </tr>
+      `);
+    });
+    
+  } catch (err) {
+    console.error(err);
+    document.getElementById("users-segment-tbody").innerHTML = `<tr><td colspan="7" style="text-align:center;color:#e74c3c;padding:24px">Failed to load data</td></tr>`;
+  }
+}
+
+// Micro View Offcanvas
+async function openRecruiterDetail(waNumber) {
+  console.log("Fetching micro-view for:", waNumber);
+  
+  // Show base structure + loading
+  document.getElementById('recoff-name').textContent = "Loading...";
+  document.getElementById('recoff-dates').textContent = "Please wait...";
+  document.getElementById('recoff-wa-btn').href = "#";
+  const tbody = document.getElementById("recoff-tbody");
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>`;
+
+  const offcanvasEl = document.getElementById('recruiterOffcanvas');
+  const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
+  offcanvas.show();
+  
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/recruiters/${encodeURIComponent(waNumber)}/vacancies`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to fetch recruiter info");
+    const data = await res.json();
+    
+    document.getElementById('recoff-name').textContent = data.recruiter_name;
+    document.getElementById('recoff-dates').textContent = `Joined: ${fmtDate(data.joined_at)}`;
+    document.getElementById('recoff-wa-btn').href = `https://wa.me/${waNumber.replace('+', '')}`;
+    
+    tbody.innerHTML = "";
+    if (!data.vacancies.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#aaa;padding:24px">No vacancies posted</td></tr>`;
+      return;
+    }
+    
+    data.vacancies.forEach(v => {
+      const sb = { approved:"badge-approved", pending:"badge-pending", rejected:"badge-rejected" }[v.status] || "badge-pending";
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(v.job_title)}</strong></td>
+          <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><span class="${sb}">${v.status}</span></td>
+          <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;">${fmtDate(v.created_at)}</td>
+          <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><strong>${v.total_applications}</strong></td>
+        </tr>
+      `);
+    });
+    
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#e74c3c;padding:24px">Error loading vacancies</td></tr>`;
+  }
+}
+
+let seekersChartDistrict = null;
+let seekersChartCategory = null;
+
+async function initSeekersCharts() {
+  try {
+    console.log("Fetching seeker stats...");
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/seekers/stats`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load seekers stats: " + res.status);
+    const data = await res.json();
+    
+    const customColorsSeq = ['#27ae60', '#2ecc71', '#f1c40f', '#e67e22', '#e74c3c', '#9b59b6'];
+    
+    // Process Charts
+    const dKeys = Object.keys(data.chart_data.locations);
+    const dVals = Object.values(data.chart_data.locations);
+    if (!seekersChartDistrict) {
+      seekersChartDistrict = new Chart(document.getElementById('chart-seekers-district'), {
+        type: 'bar',
+        data: { labels: dKeys, datasets: [{ label: 'Seekers', data: dVals, backgroundColor: customColorsSeq, borderRadius: 4 }] },
+        options: { responsive: true, plugins: { legend: { display:false } } }
+      });
+    } else {
+      seekersChartDistrict.data.labels = dKeys;
+      seekersChartDistrict.data.datasets[0].data = dVals;
+      seekersChartDistrict.update();
+    }
+    
+    const cKeys = Object.keys(data.chart_data.categories);
+    const cVals = Object.values(data.chart_data.categories);
+    if (!seekersChartCategory) {
+      seekersChartCategory = new Chart(document.getElementById('chart-seekers-category'), {
+        type: 'doughnut',
+        data: { labels: cKeys, datasets: [{ data: cVals, backgroundColor: customColorsSeq, borderWidth: 0 }] },
+        options: { responsive: true, plugins: { legend: { position: 'right', display:false } }, cutout: '65%' }
+      });
+    } else {
+      seekersChartCategory.data.labels = cKeys;
+      seekersChartCategory.data.datasets[0].data = cVals;
+      seekersChartCategory.update();
+    }
+    
+    // Process Table
+    const tbody = document.getElementById("seekers-segment-tbody");
+    tbody.innerHTML = "";
+    if (!data.seekers_table?.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#aaa;padding:24px">No seekers found</td></tr>`;
+      return;
+    }
+    
+    data.seekers_table.forEach(s => {
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr style="cursor:pointer;" onclick="openSeekerDetail('${s.wa_number}')">
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(s.name)}</strong></td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(s.wa_number)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(s.location)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(s.skills)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(s.created_at)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${s.total_applications}</strong></td>
+        </tr>
+      `);
+    });
+    
+  } catch (err) {
+    console.error(err);
+    document.getElementById("seekers-segment-tbody").innerHTML = `<tr><td colspan="6" style="text-align:center;color:#e74c3c;padding:24px">Failed to load data</td></tr>`;
+  }
+}
+
+// Micro View Offcanvas for Seekers
+async function openSeekerDetail(waNumber) {
+  console.log("Fetching micro-view for seeker:", waNumber);
+  
+  // Show base structure + loading
+  document.getElementById('seekoff-name').textContent = "Loading...";
+  document.getElementById('seekoff-dates').textContent = "Please wait...";
+  document.getElementById('seekoff-wa-btn').href = "#";
+  const tbody = document.getElementById("offcanvas-seeker-vacancies-tbody");
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>`;
+
+  const offcanvasEl = document.getElementById('offcanvasSeeker');
+  const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
+  offcanvas.show();
+  
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/seekers/${encodeURIComponent(waNumber)}/applications`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to fetch seeker info");
+    const data = await res.json();
+    
+    document.getElementById('seekoff-name').textContent = data.seeker_name;
+    document.getElementById('seekoff-dates').textContent = `Joined: ${fmtDate(data.joined_at)}`;
+    document.getElementById('seekoff-wa-btn').href = `https://wa.me/${waNumber.replace('+', '')}`;
+    
+    tbody.innerHTML = "";
+    if (!data.applications.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#aaa;padding:24px">No applications yet</td></tr>`;
+      return;
+    }
+    
+    data.applications.forEach(app => {
+      const sb = { approved:"badge-approved", pending:"badge-pending", rejected:"badge-rejected" }[app.status] || "badge-pending";
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(app.job_title)}</strong></td>
+          <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;">${escHtml(app.company_name)}</td>
+          <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;">${fmtDate(app.applied_at)}</td>
+          <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><span class="${sb}">${app.status}</span></td>
+        </tr>
+      `);
+    });
+    
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#e74c3c;padding:24px">Error loading applications</td></tr>`;
+  }
+}
+
+let visitorsChartStatus = null;
+let visitorsChartFunnel = null;
+
+async function initVisitorsCharts() {
+  try {
+    console.log("Fetching visitors stats...");
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/visitors/stats`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load visitors stats");
+    const data = await res.json();
+    
+    const purpleOrange = ['#8e44ad', '#f39c12', '#9b59b6', '#e67e22', '#34495e'];
+    
+    // Status Breakdown (Doughnut)
+    const bKeys = Object.keys(data.chart_data.breakdown);
+    const bVals = Object.values(data.chart_data.breakdown);
+    if (!visitorsChartStatus) {
+      visitorsChartStatus = new Chart(document.getElementById('chart-visitors-status'), {
+        type: 'doughnut',
+        data: { labels: bKeys, datasets: [{ data: bVals, backgroundColor: purpleOrange, borderWidth: 0 }] },
+        options: { responsive: true, plugins: { legend: { position: 'right', display:false } }, cutout: '65%' }
+      });
+    } else {
+      visitorsChartStatus.data.labels = bKeys;
+      visitorsChartStatus.data.datasets[0].data = bVals;
+      visitorsChartStatus.update();
+    }
+    
+    // Funnel (Bar)
+    const fKeys = Object.keys(data.chart_data.funnel);
+    const fVals = Object.values(data.chart_data.funnel);
+    if (!visitorsChartFunnel) {
+      visitorsChartFunnel = new Chart(document.getElementById('chart-visitors-funnel'), {
+        type: 'bar',
+        data: { labels: fKeys, datasets: [{ label: 'Dropped Off', data: fVals, backgroundColor: purpleOrange, borderRadius: 4 }] },
+        options: { responsive: true, plugins: { legend: { display:false } } }
+      });
+    } else {
+      visitorsChartFunnel.data.labels = fKeys;
+      visitorsChartFunnel.data.datasets[0].data = fVals;
+      visitorsChartFunnel.update();
+    }
+    
+    // Process Table
+    const tbody = document.getElementById("visitors-segment-tbody");
+    tbody.innerHTML = "";
+    if (!data.visitors_table?.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#aaa;padding:24px">No recent visitors</td></tr>`;
+      return;
+    }
+    
+    data.visitors_table.forEach(v => {
+      const regBadge = v.is_registered ? `<span class="badge-approved">Yes</span>` : `<span class="badge-pending">No</span>`;
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr style="cursor:pointer;" onclick="openVisitorDetail('${v.wa_number}')">
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(v.wa_number)}</strong></td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(v.state)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(v.last_active)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${regBadge}</td>
+        </tr>
+      `);
+    });
+    
+  } catch (err) {
+    console.error(err);
+    document.getElementById("visitors-segment-tbody").innerHTML = `<tr><td colspan="4" style="text-align:center;color:#e74c3c;padding:24px">Failed to load data</td></tr>`;
+  }
+}
+
+async function openVisitorDetail(waNumber) {
+  console.log("Fetching micro-view for visitor:", waNumber);
+  
+  document.getElementById('visoff-wa').textContent = waNumber;
+  document.getElementById('visoff-status').textContent = "Loading...";
+  const tbody = document.getElementById("offcanvas-visitor-details-tbody");
+  tbody.innerHTML = `<div class="spinner-border text-primary text-sm" role="status"></div> Loading...`;
+
+  const offcanvasEl = document.getElementById('offcanvasVisitor');
+  const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
+  offcanvas.show();
+  
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/visitors/${encodeURIComponent(waNumber)}/details`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to fetch visitor info");
+    const data = await res.json();
+    
+    let joinedTxt = data.account_created_at ? fmtDate(data.account_created_at) : "N/A";
+    document.getElementById('visoff-status').textContent = `Role: ${data.registration_status} | Joined: ${joinedTxt}`;
+    
+    if (!data.context || Object.keys(data.context).length === 0) {
+      tbody.innerHTML = `<span style="color:#aaa; font-style:italic;">No partial data collected yet.</span>`;
+      return;
+    }
+    
+    // Parse JSON into Bootstrap description list <dl class="row">
+    let dlHtml = `<dl class="row mb-0" style="margin:0; font-size:0.85rem;">`;
+    for (const [key, val] of Object.entries(data.context)) {
+      // Make human readable (e.g., expected_salary -> Expected Salary)
+      let prettyKey = key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      let prettyVal = typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val);
+      dlHtml += `
+        <dt class="col-sm-5 text-truncate" title="${escHtml(prettyKey)}" style="color:#666; font-weight:600; padding:6px 0; border-bottom:1px solid #f0f2f5;">${escHtml(prettyKey)}</dt>
+        <dd class="col-sm-7" style="color:#222; margin-bottom:0; padding:6px 0; border-bottom:1px solid #f0f2f5;">${escHtml(prettyVal)}</dd>
+      `;
+    }
+    dlHtml += `</dl>`;
+    tbody.innerHTML = dlHtml;
+    
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<span style="color:#e74c3c;">Error loading visitor details</span>`;
+  }
+}
+
+let unregsChartTemp = null;
+
+async function initUnregisteredCharts() {
+  try {
+    console.log("Fetching unregistered CRM list...");
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/unregistered/recovery-list`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load recovery list");
+    const data = await res.json();
+    
+    const unregsColors = ['#e74c3c', '#d35400', '#f39c12', '#7f8c8d'];
+    
+    // Recovery Temperature Setup
+    const tKeys = Object.keys(data.chart_data.temperature);
+    const tVals = Object.values(data.chart_data.temperature);
+    if (!unregsChartTemp) {
+      unregsChartTemp = new Chart(document.getElementById('chart-unregs-temp'), {
+        type: 'doughnut',
+        data: { labels: tKeys, datasets: [{ data: tVals, backgroundColor: unregsColors, borderWidth: 0 }] },
+        options: { responsive: true, plugins: { legend: { position: 'right', display:false } }, cutout: '65%' }
+      });
+    } else {
+      unregsChartTemp.data.labels = tKeys;
+      unregsChartTemp.data.datasets[0].data = tVals;
+      unregsChartTemp.update();
+    }
+    
+    // Process Table
+    const tbody = document.getElementById("unregistered-segment-tbody");
+    tbody.innerHTML = "";
+    if (!data.table_data?.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#aaa;padding:24px">No unregistered leads found</td></tr>`;
+      return;
+    }
+    
+    data.table_data.forEach(lead => {
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr style="cursor:pointer;" onclick="openUnregisteredDetail('${lead.wa_number}')">
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(lead.wa_number)}</strong></td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(lead.state)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(lead.last_active)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><span class="badge" style="background:#e74c3c; color:white;">Action Needed</span></td>
+        </tr>
+      `);
+    });
+    
+  } catch (err) {
+    console.error(err);
+    document.getElementById("unregistered-segment-tbody").innerHTML = `<tr><td colspan="4" style="text-align:center;color:#e74c3c;padding:24px">Failed to load CRM data</td></tr>`;
+  }
+}
+
+async function openUnregisteredDetail(waNumber) {
+  console.log("Fetching micro-view for unregistered lead:", waNumber);
+  
+  document.getElementById('unregoff-wa').textContent = waNumber;
+  document.getElementById('unregoff-status').textContent = "Loading...";
+  
+  // Bind WhatsApp Recovery href instantly
+  const waClean = waNumber.replace('+', '');
+  const recMsg = "Hi! I saw you started registering on JobInfo but didn't finish. Need any help?";
+  document.getElementById('unregoff-wa-btn').href = `https://wa.me/${waClean}?text=${encodeURIComponent(recMsg)}`;
+
+  const tbody = document.getElementById("offcanvas-unregistered-details-tbody");
+  tbody.innerHTML = `<div class="spinner-border text-primary text-sm" role="status"></div> Loading...`;
+
+  const offcanvasEl = document.getElementById('offcanvasUnregistered');
+  const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
+  offcanvas.show();
+  
+  try {
+    // We can reuse the visitor details endpoint since it yields exactly the JSON mapping we need
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/visitors/${encodeURIComponent(waNumber)}/details`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to fetch lead info");
+    const data = await res.json();
+    
+    document.getElementById('unregoff-status').textContent = `Role: ${data.registration_status} | Last Dropped State: ${data.current_state}`;
+    
+    if (!data.context || Object.keys(data.context).length === 0) {
+      tbody.innerHTML = `<span style="color:#aaa; font-style:italic;">No partial data collected yet.</span>`;
+      return;
+    }
+    
+    // Parse JSON into Bootstrap description list <dl class="row">
+    let dlHtml = `<dl class="row mb-0" style="margin:0; font-size:0.85rem;">`;
+    for (const [key, val] of Object.entries(data.context)) {
+      // Make human readable (e.g., expected_salary -> Expected Salary)
+      let prettyKey = key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      let prettyVal = typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val);
+      dlHtml += `
+        <dt class="col-sm-5 text-truncate" title="${escHtml(prettyKey)}" style="color:#666; font-weight:600; padding:6px 0; border-bottom:1px solid #f0f2f5;">${escHtml(prettyKey)}</dt>
+        <dd class="col-sm-7" style="color:#222; margin-bottom:0; padding:6px 0; border-bottom:1px solid #f0f2f5;">${escHtml(prettyVal)}</dd>
+      `;
+    }
+    dlHtml += `</dl>`;
+    tbody.innerHTML = dlHtml;
+    
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<span style="color:#e74c3c;">Error loading details</span>`;
+  }
+}
+
+let dualChartPersona = null;
+
+async function initDualUsersCharts() {
+  try {
+    console.log("Fetching dual users list...");
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/dual-users/stats`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load dual users list");
+    const data = await res.json();
+    
+    const dualColors = ['#2980b9', '#27ae60', '#e67e22'];
+    
+    // Recovery Temperature Setup
+    const pKeys = Object.keys(data.chart_data.primary_persona);
+    const pVals = Object.values(data.chart_data.primary_persona);
+    if (!dualChartPersona) {
+      dualChartPersona = new Chart(document.getElementById('chart-dual-persona'), {
+        type: 'doughnut',
+        data: { labels: pKeys, datasets: [{ data: pVals, backgroundColor: dualColors, borderWidth: 0 }] },
+        options: { responsive: true, plugins: { legend: { position: 'right', display:false } }, cutout: '65%' }
+      });
+    } else {
+      dualChartPersona.data.labels = pKeys;
+      dualChartPersona.data.datasets[0].data = pVals;
+      dualChartPersona.update();
+    }
+    
+    // Process Table
+    const tbody = document.getElementById("dual-users-segment-tbody");
+    tbody.innerHTML = "";
+    if (!data.table_data?.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#aaa;padding:24px">No dual users found</td></tr>`;
+      return;
+    }
+    
+    data.table_data.forEach(user => {
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr style="cursor:pointer;" onclick="openDualUserDetail('${user.wa_number}')">
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(user.wa_number)}</strong></td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(user.candidate_name)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(user.company_name)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${user.vacancies_posted}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${user.applications_sent}</td>
+        </tr>
+      `);
+    });
+    
+  } catch (err) {
+    console.error(err);
+    document.getElementById("dual-users-segment-tbody").innerHTML = `<tr><td colspan="5" style="text-align:center;color:#e74c3c;padding:24px">Failed to load CRM dual user data</td></tr>`;
+  }
+}
+
+async function openDualUserDetail(waNumber) {
+  console.log("Fetching micro-view for dual lead:", waNumber);
+  
+  document.getElementById('dualoff-wa').textContent = waNumber;
+  const waClean = waNumber.replace('+', '');
+  document.getElementById('dualoff-wa-btn').href = `https://wa.me/${waClean}`;
+
+  const recTbody = document.getElementById("offcanvas-dual-recruiter-tbody");
+  const seekTbody = document.getElementById("offcanvas-dual-seeker-tbody");
+  
+  recTbody.innerHTML = `<tr><td colspan="3"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>`;
+  seekTbody.innerHTML = `<tr><td colspan="3"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>`;
+
+  const offcanvasEl = document.getElementById('offcanvasDualUser');
+  const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
+  offcanvas.show();
+  
+  try {
+    const urls = [
+      `${JOBINFO_CONFIG.API_URL}/admin/api/recruiters/${encodeURIComponent(waNumber)}/vacancies`,
+      `${JOBINFO_CONFIG.API_URL}/admin/api/seekers/${encodeURIComponent(waNumber)}/applications`
+    ];
+
+    const [recRes, seekRes] = await Promise.all(urls.map(url => fetch(url, { headers: authHeaders() })));
+    
+    if (!recRes.ok || !seekRes.ok) throw new Error("Failed fetching partial data.");
+    
+    const recData = await recRes.json();
+    const seekData = await seekRes.json();
+    
+    // Format Recruiter History
+    recTbody.innerHTML = "";
+    if (!recData.vacancies.length) {
+      recTbody.innerHTML = `<tr><td colspan="3" style="color:#aaa; text-align:center; padding:12px;">No vacancies.</td></tr>`;
+    } else {
+      recData.vacancies.forEach(v => {
+        const sb = { approved:"badge-approved", pending:"badge-pending", rejected:"badge-rejected" }[v.status] || "badge-pending";
+        recTbody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(v.job_title)}</strong></td>
+            <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><span class="${sb}">${v.status}</span></td>
+            <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;">${fmtDate(v.created_at)}</td>
+          </tr>
+        `);
+      });
+    }
+
+    // Format Seeker History
+    seekTbody.innerHTML = "";
+    if (!seekData.applications.length) {
+      seekTbody.innerHTML = `<tr><td colspan="3" style="color:#aaa; text-align:center; padding:12px;">No applications.</td></tr>`;
+    } else {
+      seekData.applications.forEach(app => {
+        const sb = { approved:"badge-approved", pending:"badge-pending", rejected:"badge-rejected" }[app.status] || "badge-pending";
+        seekTbody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(app.job_title)}</strong></td>
+            <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;">${escHtml(app.company_name)}</td>
+            <td style="padding:11px 14px; border-bottom:1px solid #f0f2f5;"><span class="${sb}">${app.status}</span></td>
+          </tr>
+        `);
+      });
+    }
+
+  } catch (err) {
+    console.error(err);
+    recTbody.innerHTML = `<tr><td colspan="3"><span style="color:#e74c3c;">Error loading history</span></td></tr>`;
+    seekTbody.innerHTML = `<tr><td colspan="3"><span style="color:#e74c3c;">Error loading history</span></td></tr>`;
   }
 }
 </script>
