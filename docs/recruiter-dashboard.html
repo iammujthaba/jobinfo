@@ -581,9 +581,9 @@ function renderVacancyTable(filter) {
         <td data-label="Job Code"><code class="jc">${esc(v.job_code)}</code></td>
         <td data-label="Title">
           <strong>${esc(v.job_title)}</strong>
-          ${v.company_name ? `<br><span class="text-muted" style="font-size:.78rem">🏢 ${esc(v.company_name)}</span>` : ""}
-          ${v.salary_range ? `<br><span class="text-muted" style="font-size:.78rem">💰 ${esc(v.salary_range)}</span>` : ""}
-          ${v.experience_required ? `<br><span class="text-muted" style="font-size:.78rem">🎓 ${esc(v.experience_required)}</span>` : ""}
+          ${v.company_name ? `<br><span class="text-muted" title="Company Name" style="font-size:.78rem">🏢 ${esc(v.company_name)}</span>` : ""}
+          ${v.salary_range ? `<br><span class="text-muted" title="Salary Range" style="font-size:.78rem">💰 ${esc(v.salary_range)}</span>` : ""}
+          ${v.experience_required ? `<br><span class="text-muted" title="Experience Required" style="font-size:.78rem">🎓 ${esc(v.experience_required)}</span>` : ""}
         </td>
         <td data-label="Location"><i class="bi bi-geo-alt text-muted"></i> ${esc(v.district_region)}</td>
         <td data-label="Status"><span class="${cls}">${label}</span>${rejNote}</td>
