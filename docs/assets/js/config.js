@@ -12,4 +12,17 @@ const JOBINFO_CONFIG = {
   
   WA_CHANNEL: "https://whatsapp.com/channel/0029VawvIr34yltJoSTKit3Z",
   WA_COMMUNITY: "https://chat.whatsapp.com/LB8rI0BPgBTIMIhJAWAeMd",
+
+  BUSINESS_TYPES: {
+    "shop_retail": "Shop / Retail",
+    "hotel_bakery": "Hotel / Bakery",
+    "contractor": "Contractor / Builder",
+    "individual": "Individual / Household",
+    "petrol_pump": "Petrol Pump",
+    "workshop_garage": "Workshop / Garage",
+    "transport": "Transport / Logistics",
+    "agency": "Agency / Consultancy",
+    "company": "Company / Pvt Ltd",
+    "other": "Other"
+  }
 };

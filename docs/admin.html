@@ -1401,7 +1401,8 @@ function openVerifyModal(v) {
   document.getElementById("vm-r-company").innerHTML = compHtml;
   document.getElementById("vm-r-wa").innerHTML = waHtml;
   document.getElementById("vm-r-contact").textContent = contact;
-  document.getElementById("vm-r-type").textContent = r.business_type || "—";
+  const formattedType2 = (JOBINFO_CONFIG.BUSINESS_TYPES && JOBINFO_CONFIG.BUSINESS_TYPES[r.business_type]) ? JOBINFO_CONFIG.BUSINESS_TYPES[r.business_type] : (r.business_type || "—");
+  document.getElementById("vm-r-type").textContent = formattedType2;
   document.getElementById("vm-r-loc").textContent = r.location || "—";
   document.getElementById("vm-r-joined").textContent = r.created_at ? fmtDate(r.created_at) : "—";
   
@@ -1972,7 +1973,7 @@ async function initUsersCharts() {
       tbody.insertAdjacentHTML("beforeend", `
         <tr style="cursor:pointer;" onclick="openRecruiterDetail('${r.wa_number}')">
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(r.company_name)}</strong></td>
-          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(r.business_type)}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml((JOBINFO_CONFIG.BUSINESS_TYPES && JOBINFO_CONFIG.BUSINESS_TYPES[r.business_type]) ? JOBINFO_CONFIG.BUSINESS_TYPES[r.business_type] : (r.business_type || ""))}</td>
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(r.location)}</td>
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(r.wa_number)}</td>
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(r.last_activity)}</td>
