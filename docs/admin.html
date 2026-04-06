@@ -403,58 +403,134 @@
 
     <!-- ── Questions section ── -->
     <div id="questions-section" style="display:none">
-      <h3 style="margin-bottom: 20px; font-weight: 700;">User Questions & Help Requests</h3>
+      <h3 style="margin-bottom: 20px; font-weight: 700;">User Inquiries & Help Center</h3>
       
-      <ul class="nav nav-tabs" id="helpTabs" role="tablist" style="margin-bottom: 20px;">
+      <ul class="nav nav-tabs" id="mainQuestionsTabs" role="tablist" style="margin-bottom: 20px;">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="nav-pending-tab" data-bs-toggle="tab" data-bs-target="#nav-pending-pane" type="button" role="tab" style="font-weight:600; color:#555;">Pending Requests</button>
+          <button class="nav-link active" id="nav-website-tab" data-bs-toggle="tab" data-bs-target="#nav-website-pane" type="button" role="tab" style="font-weight:600; color:#555;">Website Inquiries</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="nav-closed-tab" data-bs-toggle="tab" data-bs-target="#nav-closed-pane" type="button" role="tab" style="font-weight:600; color:#555;">Closed Requests</button>
+          <button class="nav-link" id="nav-whatsapp-tab" data-bs-toggle="tab" data-bs-target="#nav-whatsapp-pane" type="button" role="tab" style="font-weight:600; color:#555;">WhatsApp Help Requests</button>
         </li>
       </ul>
 
-      <div class="tab-content" id="helpTabsContent">
-        <!-- Pending Pane -->
-        <div class="tab-pane fade show active" id="nav-pending-pane" role="tabpanel">
-          <div class="table-card">
-            <div class="table-responsive">
-              <table class="a-table" id="help-pending-table" style="width:100%; text-align:left;">
-                <thead>
-                  <tr>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">Date</th>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">WhatsApp Number</th>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">User Type</th>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="help-pending-tbody">
-                  <tr><td colspan="5" style="text-align:center; padding:24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>
-                </tbody>
-              </table>
+      <div class="tab-content" id="mainQuestionsTabsContent">
+        <!-- Website Inquiries Pane -->
+        <div class="tab-pane fade show active" id="nav-website-pane" role="tabpanel">
+          
+          <ul class="nav nav-pills" id="webSubTabs" role="tablist" style="margin-bottom: 20px;">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active btn-sm" id="web-pending-tab" data-bs-toggle="tab" data-bs-target="#web-pending-pane" type="button" role="tab" style="font-weight:600;">Pending</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link btn-sm" id="web-closed-tab" data-bs-toggle="tab" data-bs-target="#web-closed-pane" type="button" role="tab" style="font-weight:600;">Closed</button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="webSubTabsContent">
+            <!-- Pending Path -->
+            <div class="tab-pane fade show active" id="web-pending-pane" role="tabpanel">
+              <div class="table-card">
+                <div class="table-responsive">
+                  <table class="a-table" id="web-pending-table" style="width:100%; text-align:left;">
+                    <thead>
+                      <tr>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Date</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Source</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">WhatsApp</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Question</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="web-pending-tbody">
+                      <tr><td colspan="6" style="text-align:center; padding:24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Closed Pane -->
+            <div class="tab-pane fade" id="web-closed-pane" role="tabpanel">
+              <div class="table-card">
+                <div class="table-responsive">
+                  <table class="a-table" id="web-closed-table" style="width:100%; text-align:left;">
+                    <thead>
+                      <tr>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Date</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Source</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">WhatsApp</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Question</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="web-closed-tbody">
+                      <tr><td colspan="6" style="text-align:center; padding:24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         
-        <!-- Closed Pane -->
-        <div class="tab-pane fade" id="nav-closed-pane" role="tabpanel">
-          <div class="table-card">
-            <div class="table-responsive">
-              <table class="a-table" id="help-closed-table" style="width:100%; text-align:left;">
-                <thead>
-                  <tr>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">Date</th>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">WhatsApp Number</th>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">User Type</th>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
-                    <th style="padding:12px; border-bottom:2px solid #eef0f4;">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="help-closed-tbody">
-                  <tr><td colspan="5" style="text-align:center; padding:24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>
-                </tbody>
-              </table>
+        <!-- WhatsApp Help Requests Pane -->
+        <div class="tab-pane fade" id="nav-whatsapp-pane" role="tabpanel">
+          
+          <ul class="nav nav-pills" id="helpSubTabs" role="tablist" style="margin-bottom: 20px;">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active btn-sm" id="nav-pending-tab" data-bs-toggle="tab" data-bs-target="#nav-pending-pane" type="button" role="tab" style="font-weight:600;">Pending</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link btn-sm" id="nav-closed-tab" data-bs-toggle="tab" data-bs-target="#nav-closed-pane" type="button" role="tab" style="font-weight:600;">Closed</button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="helpSubTabsContent">
+            <!-- Pending Path -->
+            <div class="tab-pane fade show active" id="nav-pending-pane" role="tabpanel">
+              <div class="table-card">
+                <div class="table-responsive">
+                  <table class="a-table" id="help-pending-table" style="width:100%; text-align:left;">
+                    <thead>
+                      <tr>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Date</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">WhatsApp Number</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">User Type</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="help-pending-tbody">
+                      <tr><td colspan="5" style="text-align:center; padding:24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Closed Pane -->
+            <div class="tab-pane fade" id="nav-closed-pane" role="tabpanel">
+              <div class="table-card">
+                <div class="table-responsive">
+                  <table class="a-table" id="help-closed-table" style="width:100%; text-align:left;">
+                    <thead>
+                      <tr>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Date</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">WhatsApp Number</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">User Type</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Name</th>
+                        <th style="padding:12px; border-bottom:2px solid #eef0f4;">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="help-closed-tbody">
+                      <tr><td colspan="5" style="text-align:center; padding:24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1200,8 +1276,9 @@ document.querySelectorAll(".sidebar-nav a[data-view]").forEach(link => {
       loadAnalytics();
     } else if (view === "user-questions") {
       if(document.getElementById("questions-section")) document.getElementById("questions-section").style.display = "block";
-      document.getElementById("page-heading").textContent = "Help Requests";
+      document.getElementById("page-heading").textContent = "User Inquiries & Help Center";
       fetchHelpRequests();
+      if(typeof loadQuestions === 'function') loadQuestions();
     } else {
       document.getElementById("vacancies-section").style.display = "block";
       currentFilter = link.dataset.filter;
@@ -1797,6 +1874,91 @@ window.resolveHelpRequest = async function(id) {
     alert(err.message);
   }
 }
+
+async function loadQuestions() {
+  const pendingTbody = document.getElementById("web-pending-tbody");
+  const closedTbody = document.getElementById("web-closed-tbody");
+
+  pendingTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>';
+  closedTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px;"><div class="spinner-border text-primary text-sm" role="status"></div> Loading...</td></tr>';
+
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/questions`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("API error fetching website questions");
+    const data = await res.json();
+
+    pendingTbody.innerHTML = "";
+    closedTbody.innerHTML = "";
+
+    let pendingCount = 0;
+    let closedCount = 0;
+
+    (data.results || []).forEach(q => {
+      let waReplyBtn = "";
+      if (q.wa_number) {
+        waReplyBtn = `<a href="https://wa.me/${q.wa_number.replace(/\\D/g,'')}" target="_blank" class="btn btn-sm" style="background-color:#25d366;color:#fff;font-size:0.8rem;padding:4px 8px;border-radius:6px;margin-right:4px;text-decoration:none;"><i class="bi bi-whatsapp"></i> Chat</a>`;
+      }
+        
+      const nameTxt = escHtml(q.name) || "—";
+      const waTxt = escHtml(q.wa_number) || "—";
+      const sourceTxt = escHtml(q.source) || "—";
+
+      if (!q.is_resolved) {
+        pendingCount++;
+        const actionBtn = `${waReplyBtn}<button class="btn btn-sm btn-success" style="font-size:0.8rem;padding:4px 8px;border-radius:6px;" onclick="resolveWebQuestion(${q.id})">Mark as Closed</button>`;
+        
+        pendingTbody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(q.created_at)}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${nameTxt}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${sourceTxt}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${waTxt}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5; max-width: 300px; white-space: pre-wrap;">${escHtml(q.question)}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${actionBtn}</td>
+          </tr>
+        `);
+      } else {
+        closedCount++;
+        const statusBadge = '<span class="badge-approved">✅ Closed</span>';
+        
+        closedTbody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(q.created_at)}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${nameTxt}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${sourceTxt}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${waTxt}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5; max-width: 300px; white-space: pre-wrap;">${escHtml(q.question)}</td>
+            <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${statusBadge}</td>
+          </tr>
+        `);
+      }
+    });
+
+    if (pendingCount === 0) pendingTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#aaa; padding:24px;">No pending inquiries.</td></tr>';
+    if (closedCount === 0) closedTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#aaa; padding:24px;">No closed inquiries.</td></tr>';
+
+  } catch (err) {
+    console.error(err);
+    pendingTbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Failed to load</td></tr>';
+    closedTbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Failed to load</td></tr>';
+  }
+}
+
+window.resolveWebQuestion = async function(id) {
+  if (!confirm("Are you sure you want to resolve this inquiry?")) return;
+  try {
+    const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/questions/${id}/resolve`, {
+      method: "POST",
+      headers: authHeaders()
+    });
+    if (!res.ok) throw new Error("Failed to resolve the inquiry.");
+    loadQuestions(); // refresh tables dynamically
+  } catch(err) {
+    console.error("Error resolving web inquiry:", err);
+    alert(err.message);
+  }
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    USERS SECTION (Phase 2 Logic)
    ══════════════════════════════════════════════════════════════════════════════ */
