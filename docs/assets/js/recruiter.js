@@ -124,7 +124,8 @@ document.addEventListener("DOMContentLoaded", () => {
         job_description: fd.get("job_description"),
         job_mode: fd.get("job_mode"),
         experience_required: fd.get("experience_required"),
-        salary_range: fd.get("salary_range")
+        salary_range: fd.get("salary_range"),
+        cv_required: fd.get("cv_required") === "true"
       };
 
       try {
