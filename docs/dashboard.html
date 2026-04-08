@@ -123,12 +123,12 @@
               <div class="fw-bold text-dark" id="viewAge" style="font-size:0.9rem;">—</div>
             </div>
             <div class="col-6 col-md-6 mb-2">
-              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Location</div>
-              <div class="fw-bold text-dark" id="viewPostOffice" style="font-size:0.9rem;">—</div>
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">District</div>
+              <div class="fw-bold text-dark" id="viewDistrict" style="font-size:0.9rem;">—</div>
             </div>
             <div class="col-6 col-md-6 mb-2">
-              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">PIN Code</div>
-              <div class="fw-bold text-dark" id="viewPinCode" style="font-size:0.9rem;">—</div>
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Exact Location</div>
+              <div class="fw-bold text-dark" id="viewExactLocation" style="font-size:0.9rem;">—</div>
             </div>
             <div class="col-6 col-md-6 mb-2">
               <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Job Category</div>
@@ -137,6 +137,10 @@
             <div class="col-6 col-md-6 mb-2">
               <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Mobile</div>
               <div class="fw-bold text-dark" id="viewAltPhone" style="font-size:0.9rem;">—</div>
+            </div>
+            <div class="col-6 col-md-6 mb-2">
+              <div class="form-label text-muted mb-1" style="font-size:0.75rem;">Gender</div>
+              <div class="fw-bold text-dark" id="viewGender" style="font-size:0.9rem;">—</div>
             </div>
           </div>
         </div>
@@ -155,12 +159,28 @@
                 <input type="number" class="form-control" id="profileAge">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Post Office / Location</label>
-                <input type="text" class="form-control" id="profilePostOffice">
+                <label class="form-label">District</label>
+                <select class="form-select" id="profileDistrict">
+                  <option value="" disabled selected>Select a District</option>
+                  <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                  <option value="Kollam">Kollam</option>
+                  <option value="Pathanamthitta">Pathanamthitta</option>
+                  <option value="Alappuzha">Alappuzha</option>
+                  <option value="Kottayam">Kottayam</option>
+                  <option value="Idukki">Idukki</option>
+                  <option value="Ernakulam">Ernakulam</option>
+                  <option value="Thrissur">Thrissur</option>
+                  <option value="Palakkad">Palakkad</option>
+                  <option value="Malappuram">Malappuram</option>
+                  <option value="Kozhikode">Kozhikode</option>
+                  <option value="Wayanad">Wayanad</option>
+                  <option value="Kannur">Kannur</option>
+                  <option value="Kasaragod">Kasaragod</option>
+                </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">PIN Code</label>
-                <input type="text" class="form-control" id="profilePinCode" maxlength="6">
+                <label class="form-label">Exact Location / Nearest Town</label>
+                <input type="text" class="form-control" id="profileExactLocation" placeholder="E.g. Vyttila, Mavoor">
               </div>
               <div class="col-md-6">
                 <label class="form-label">Job Category</label>
@@ -180,6 +200,15 @@
               <div class="col-md-6">
                 <label class="form-label">Alternate Phone</label>
                 <input type="tel" class="form-control" id="profileAltPhone">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Gender</label>
+                <select class="form-select" id="profileGender">
+                  <option value="" disabled selected>Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div class="col-12 mt-4 d-grid gap-2 d-md-flex justify-content-md-end">
                 <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" style="border:1px solid #dde1e7;" onclick="toggleProfileEdit(false)">Cancel</button>

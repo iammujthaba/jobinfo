@@ -45,18 +45,20 @@ async function loadProfile() {
             document.getElementById("topbar-name").textContent = data.name || "Seeker Profile";
             document.getElementById("viewName").textContent = data.name || "—";
             document.getElementById("viewAge").textContent = data.age || "—";
-            document.getElementById("viewPostOffice").textContent = data.post_office || "—";
-            document.getElementById("viewPinCode").textContent = data.pin_code || "—";
+            document.getElementById("viewDistrict").textContent = data.district || "—";
+            document.getElementById("viewExactLocation").textContent = data.exact_location || "—";
             document.getElementById("viewCategory").textContent = data.category || "—";
             document.getElementById("viewAltPhone").textContent = data.alt_phone || "—";
+            document.getElementById("viewGender").textContent = data.gender ? data.gender.charAt(0).toUpperCase() + data.gender.slice(1) : "—";
 
             // Populate Edit Form
             document.getElementById("profileName").value = data.name || "";
             document.getElementById("profileAge").value = data.age || "";
-            document.getElementById("profilePostOffice").value = data.post_office || "";
-            document.getElementById("profilePinCode").value = data.pin_code || "";
+            document.getElementById("profileDistrict").value = data.district || "";
+            document.getElementById("profileExactLocation").value = data.exact_location || "";
             document.getElementById("profileCategory").value = data.category || "";
             document.getElementById("profileAltPhone").value = data.alt_phone || "";
+            document.getElementById("profileGender").value = data.gender || "";
             
             computeProfileStrength(data);
         } else {
@@ -78,10 +80,11 @@ async function updateProfile() {
         session_token: sessionToken,
         name: document.getElementById("profileName").value.trim() || null,
         age: parseInt(document.getElementById("profileAge").value) || null,
-        post_office: document.getElementById("profilePostOffice").value.trim() || null,
-        pin_code: document.getElementById("profilePinCode").value.trim() || null,
+        district: document.getElementById("profileDistrict").value.trim() || null,
+        exact_location: document.getElementById("profileExactLocation").value.trim() || null,
         category: document.getElementById("profileCategory").value.trim() || null,
         alt_phone: document.getElementById("profileAltPhone").value.trim() || null,
+        gender: document.getElementById("profileGender").value.trim() || null,
     };
 
     try {
@@ -101,10 +104,11 @@ async function updateProfile() {
             document.getElementById("topbar-name").textContent = currentProfileData.name || "Seeker Profile";
             document.getElementById("viewName").textContent = currentProfileData.name || "—";
             document.getElementById("viewAge").textContent = currentProfileData.age || "—";
-            document.getElementById("viewPostOffice").textContent = currentProfileData.post_office || "—";
-            document.getElementById("viewPinCode").textContent = currentProfileData.pin_code || "—";
+            document.getElementById("viewDistrict").textContent = currentProfileData.district || "—";
+            document.getElementById("viewExactLocation").textContent = currentProfileData.exact_location || "—";
             document.getElementById("viewCategory").textContent = currentProfileData.category || "—";
             document.getElementById("viewAltPhone").textContent = currentProfileData.alt_phone || "—";
+            document.getElementById("viewGender").textContent = currentProfileData.gender ? currentProfileData.gender.charAt(0).toUpperCase() + currentProfileData.gender.slice(1) : "—";
 
             toggleProfileEdit(false);
         } else {
@@ -130,10 +134,11 @@ function toggleProfileEdit(show) {
         // Reset form inputs to originally loaded data if hiding
         document.getElementById("profileName").value = currentProfileData.name || "";
         document.getElementById("profileAge").value = currentProfileData.age || "";
-        document.getElementById("profilePostOffice").value = currentProfileData.post_office || "";
-        document.getElementById("profilePinCode").value = currentProfileData.pin_code || "";
+        document.getElementById("profileDistrict").value = currentProfileData.district || "";
+        document.getElementById("profileExactLocation").value = currentProfileData.exact_location || "";
         document.getElementById("profileCategory").value = currentProfileData.category || "";
         document.getElementById("profileAltPhone").value = currentProfileData.alt_phone || "";
+        document.getElementById("profileGender").value = currentProfileData.gender || "";
     }
 }
 
@@ -142,7 +147,7 @@ function computeProfileStrength(data) {
     const missing = [];
 
     if (data.name) score += 25; else missing.push("Full Name");
-    if (data.post_office) score += 25; else missing.push("Location");
+    if (data.district) score += 25; else missing.push("District");
     if (data.age) score += 25; else missing.push("Age");
     if (data.category) score += 25; else missing.push("Job Category");
 

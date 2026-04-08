@@ -323,6 +323,8 @@ function renderApps() {
               <div class="cand-name">${esc(c.name)}</div>
               <div class="cand-meta">
                 ${c.location ? "📍 " + esc(c.location) + "<br>" : ""}
+                <i class="bi bi-gender-ambiguous"></i> ${c.gender ? esc(c.gender.charAt(0).toUpperCase() + c.gender.slice(1)) : 'Not specified'} ·
+                ${c.age ? "🎂 Age " + c.age + "<br>" : ""}
                 📅 Applied ${applied}
               </div>
             </div>
