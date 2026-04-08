@@ -46,37 +46,62 @@
     .btn-logout:hover { background:rgba(255,255,255,.1); }
 
     /* ── Profile ──────────────────────────────────── */
-    .profile-card { background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap; }
-    .avatar { width:58px;height:58px;border-radius:50%;background:var(--ji-green);color:#fff;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-    .profile-info h4 { font-size:1.05rem;font-weight:700;margin-bottom:2px; }
+    .profile-card { background:#fff;border-radius:16px;padding:20px 24px;margin-bottom:22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.06); }
+    .avatar { width:54px;height:54px;border-radius:50%;background:var(--ji-green);color:#fff;font-size:1.4rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:3px solid #e8e8e8; }
+    .profile-info h4 { font-size:1.05rem;font-weight:700;margin-bottom:2px;color:#222; }
     .profile-info p { font-size:.82rem;color:#666;margin:0;line-height:1.7; }
 
     /* ── Stat cards ───────────────────────────────── */
-    .stat-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin-bottom:22px; }
-    .stat-card { background:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s; }
+    .stat-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px; }
+    .stat-card { background:#fff;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent;box-shadow:0 2px 8px rgba(0,0,0,.06); }
     .stat-card:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1); }
-    .stat-card .val { font-size:2rem;font-weight:700;line-height:1; }
-    .stat-card .lbl { font-size:.68rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:4px; }
+    .stat-card .val { font-size:2rem;font-weight:700;line-height:1;color:#222; }
+    .stat-card .lbl { font-size:.68rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:6px; }
     .stat-card.approved .val { color:#27ae60; }
-    .stat-card.pending  .val { color:#f39c12; }
+    .stat-card.pending  .val { color:#e67e22; }
     .stat-card.rejected .val { color:#e74c3c; }
     .stat-card.apps     .val { color:#2980b9; }
-    .stat-card.shortlisted .val { color:#1a5276; }
-    
-    .stat-card.active { border: 2px solid var(--ji-green); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+    .stat-card.shortlisted .val { color:#8e44ad; }
+    .stat-card.active { border-color:var(--ji-green);transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,211,102,.15); }
 
     /* ── Filter / action bar ──────────────────────── */
     .top-actions { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center; }
     .btn-post { background:var(--ji-green);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-weight:700;font-size:.88rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .2s; }
     .btn-post:hover { background:#1ebe5d;color:#fff; }
 
-    /* ── Vacancy table ────────────────────────────── */
-    .table-card { background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06); }
-    .table-card table { width:100%;border-collapse:collapse; }
-    .table-card th { background:#f8f9fc;font-size:.69rem;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.05em;padding:12px 16px;text-align:left;border-bottom:2px solid #eef0f4;white-space:nowrap; }
-    .table-card td { padding:13px 16px;border-bottom:1px solid #f0f2f5;font-size:.87rem;vertical-align:middle; }
-    .table-card tr:last-child td { border-bottom:none; }
-    .table-card tr:hover td { background:#f9fafb; }
+    /* ── Vacancy list & cards ─────────────────────── */
+    .vacancy-list { display:flex;flex-direction:column;gap:16px; }
+    .vac-section-title { font-size:.75rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;padding-left:4px; }
+
+    .vacancy-card { background:#fff;border-radius:16px;padding:20px;transition:box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.06); }
+    .vacancy-card:hover { box-shadow:0 8px 28px rgba(0,0,0,.1); }
+
+    .vc-header { display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px; }
+    .vc-title { font-size:1.1rem;font-weight:700;color:#222;line-height:1.3; }
+    .vc-badge { padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap;flex-shrink:0; }
+    .vc-badge.approved { background:#d5f5e3;color:#1e8449; }
+    .vc-badge.pending  { background:#fef9e7;color:#b7770d; }
+    .vc-badge.rejected { background:#fadbd8;color:#922b21; }
+
+    .vc-jc-pill { display:inline-block;background:#f0f2f5;color:#555;padding:3px 12px;border-radius:20px;font-size:.72rem;font-weight:700;font-family:monospace;margin-bottom:14px; }
+
+    .vc-details { display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:16px; }
+    .vc-detail-label { font-size:.7rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px; }
+    .vc-detail-value { font-size:.88rem;color:#333;font-weight:500; }
+    .vc-detail-value i { margin-right:3px; }
+
+    .vc-reject-block { background:#fff5f5;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.82rem;color:#c0392b;font-style:italic;border:1px solid #fadbd8; }
+
+    .vc-footer { display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid #eef0f4; }
+    .vc-footer-meta { font-size:.78rem;color:#888; }
+    .vc-footer-meta .app-count-inline { color:#2980b9;font-weight:600; }
+
+    .btn-apps { background:var(--ji-dark);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s; }
+    .btn-apps:hover { background:#2c2c54; }
+    .btn-edit-vac { background:transparent;color:#922b21;border:1px solid #fadbd8;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s; }
+    .btn-edit-vac:hover { background:#fff5f5;border-color:#e74c3c; }
+
+    /* badges still used in apps panel */
     code.jc { background:#e8f5e9;color:#1e8449;padding:2px 9px;border-radius:12px;font-size:.78rem;font-weight:700; }
     .badge-appr { background:#d5f5e3;color:#1e8449;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
     .badge-pend { background:#fef9e7;color:#b7770d;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
@@ -84,11 +109,6 @@
     .badge-shrt { background:#d6eaf8;color:#1a5276;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
     .badge-appl { background:#eaf4fb;color:#2471a3;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
     .app-count  { background:#ebf5fb;color:#2980b9;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600; }
-    .rejpill { background:#fadbd8;color:#922b21;border-radius:8px;padding:3px 10px;font-size:.73rem;cursor:help;display:inline-block;margin-top:4px; }
-    .btn-apps { background:var(--ji-dark);color:#fff;border:none;border-radius:8px;padding:5px 14px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s; }
-    .btn-apps:hover { background:#2c2c54; }
-    .btn-edit-vac { background:#7b2d8b;color:#fff;border:none;border-radius:8px;padding:5px 14px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s;margin-left:6px; }
-    .btn-edit-vac:hover { background:#6a2578; }
 
     /* ── Edit modal ───────────────────────────────── */
     .edit-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:950;align-items:center;justify-content:center; }
@@ -167,47 +187,6 @@
 
     /* ── Responsive ───────────────────────────────── */
     @media(max-width:768px) {
-      /* Convert table to cards */
-      .table-card table, .table-card thead, .table-card tbody, .table-card th, .table-card td, .table-card tr {
-        display: block;
-      }
-      .table-card thead tr {
-        position: absolute; top: -9999px; left: -9999px; /* Hide headers */
-      }
-      .table-card tr {
-        border-bottom: 2px solid #eef0f4;
-        margin-bottom: 12px;
-        padding-bottom: 12px;
-        padding-top: 8px;
-        background: #fff;
-      }
-      .table-card tr:last-child { margin-bottom: 0; border-bottom: none; }
-      .table-card td {
-        border: none;
-        position: relative;
-        padding-left: 120px;
-        padding-top: 8px; padding-bottom: 8px;
-        font-size: .88rem;
-      }
-      .table-card td::before {
-        content: attr(data-label);
-        position: absolute; left: 16px; top: 8px;
-        width: 90px;
-        padding-right: 10px;
-        white-space: nowrap;
-        font-weight: 700;
-        color: #888;
-        font-size: .75rem;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-      }
-      /* Ensure actions don't overlap inside the mobile card */
-      .table-card td:last-child {
-        text-align: right;
-        padding-left: 16px;
-      }
-      .table-card td:last-child::before { display: none; } /* Hide label for actions */
-
       .panel-toolbar { flex-direction:column; align-items:stretch; }
     }
 
@@ -215,10 +194,19 @@
       .auth-card { padding:28px 18px; }
       .profile-card { flex-direction:column;gap:10px; text-align: center; }
       .profile-card .ms-auto { margin-left: auto !important; margin-right: auto !important; width: 100%; justify-content: center; }
-      .stat-grid { grid-template-columns:repeat(2,1fr); gap: 10px; }
+      .stat-grid { grid-template-columns:repeat(3,1fr); gap: 10px; }
       .stat-card { padding: 14px 10px; }
       .stat-card .val { font-size: 1.6rem; }
       .cand-top { flex-direction:column; }
+    }
+
+    @media(max-width:400px) {
+      .stat-grid { grid-template-columns:repeat(3,1fr); gap:8px; }
+      .stat-card .val { font-size:1.4rem; }
+      .stat-card .lbl { font-size:.6rem; }
+      .vacancy-card { padding:16px; }
+      .vc-title { font-size:1rem; }
+      .vc-details { gap:10px 14px; }
     }
   </style>
 </head>
@@ -320,30 +308,16 @@
       </div>
     </div>
 
-    <!-- Vacancy table -->
-    <div class="table-card" id="table-card">
-      <div class="spinner-wrap" id="tbl-loading">
-        <div class="spinner-border text-success"></div>
-        <p class="mt-3 text-muted small">Loading vacancies…</p>
-      </div>
-      <table id="vac-table" style="display:none">
-        <thead>
-          <tr>
-            <th>Job Code</th>
-            <th>Title &amp; Details</th>
-            <th>Location</th>
-            <th>Status</th>
-            <th>Applications</th>
-            <th>Posted</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="vac-tbody"></tbody>
-      </table>
-      <div class="empty-state" id="vac-empty" style="display:none">
-        <i class="bi bi-inbox"></i>
-        No vacancies in this category.
-      </div>
+    <!-- Vacancy list -->
+    <div class="vac-section-title">YOUR VACANCIES</div>
+    <div class="spinner-wrap" id="tbl-loading">
+      <div class="spinner-border text-success"></div>
+      <p class="mt-3 text-muted small">Loading vacancies…</p>
+    </div>
+    <div class="vacancy-list" id="vac-list"></div>
+    <div class="empty-state" id="vac-empty" style="display:none">
+      <i class="bi bi-inbox"></i>
+      No vacancies in this category.
     </div>
 
   </div>
@@ -544,7 +518,6 @@ function renderDashboard(d) {
   document.getElementById("topbar-name").textContent = rc.company_name || "Company";
   document.getElementById("avatar-letter").textContent = (rc.company_name || "C").charAt(0).toUpperCase();
   document.getElementById("p-name").textContent = rc.company_name || "Company Profile";
-  document.getElementById("p-company").textContent = rc.business_type ? "👔 " + rc.business_type : "";
   document.getElementById("p-details").innerHTML =
     (rc.location ? "📍 " + rc.location + "&nbsp;&nbsp;" : "") +
     (rc.business_contact ? "📞 " + rc.business_contact + "&nbsp;&nbsp;" : "") +
@@ -562,43 +535,69 @@ function renderDashboard(d) {
 function renderVacancyTable(filter) {
   currentVacFilter = filter;
   const rows = filter === "all" ? allVacancies : allVacancies.filter(v => v.status === filter);
-  const tbody = document.getElementById("vac-tbody");
-  const table = document.getElementById("vac-table");
+  const list = document.getElementById("vac-list");
   const empty = document.getElementById("vac-empty");
   document.getElementById("tbl-loading").style.display = "none";
-  tbody.innerHTML = "";
-  if (!rows.length) { table.style.display = "none"; empty.style.display = "block"; return; }
-  empty.style.display = "none"; table.style.display = "table";
+  list.innerHTML = "";
+  if (!rows.length) { empty.style.display = "block"; return; }
+  empty.style.display = "none";
+
+  const statusMap = {
+    approved: { cls: "approved", label: "✓ Approved" },
+    pending:  { cls: "pending",  label: "⏳ Pending" },
+    rejected: { cls: "rejected", label: "✕ Rejected" }
+  };
 
   rows.forEach(v => {
-    const sb = { approved:"badge-appr ✅ Approved", pending:"badge-pend ⏳ Pending", rejected:"badge-reje ❌ Rejected" }[v.status] || v.status;
-    const parts = sb.split(" "), cls = parts[0], label = parts.slice(1).join(" ");
+    const st = statusMap[v.status] || { cls: "", label: v.status };
     const posted = v.created_at ? new Date(v.created_at).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}) : "—";
-    const rejNote = v.status === "rejected" && v.rejection_reason
-      ? `<div class="rejpill" title="${esc(v.rejection_reason)}">Reason: ${esc(v.rejection_reason.substring(0,40))}${v.rejection_reason.length>40?"…":""}</div>` : "";
-    tbody.insertAdjacentHTML("beforeend", `
-      <tr>
-        <td data-label="Job Code"><code class="jc">${esc(v.job_code)}</code></td>
-        <td data-label="Title">
-          <strong>${esc(v.job_title)}</strong>
-          ${v.company_name ? `<br><span class="text-muted" title="Company Name" style="font-size:.78rem">🏢 ${esc(v.company_name)}</span>` : ""}
-          ${v.salary_range ? `<br><span class="text-muted" title="Salary Range" style="font-size:.78rem">💰 ${esc(v.salary_range)}</span>` : ""}
-          ${v.experience_required ? `<br><span class="text-muted" title="Experience Required" style="font-size:.78rem">🎓 ${esc(v.experience_required)}</span>` : ""}
-        </td>
-        <td data-label="Location"><i class="bi bi-geo-alt text-muted"></i> ${esc(v.district_region)}</td>
-        <td data-label="Status"><span class="${cls}">${label}</span>${rejNote}</td>
-        <td data-label="Applications"><span class="app-count"><i class="bi bi-people me-1"></i>${v.application_count}</span></td>
-        <td data-label="Posted" style="font-size:.78rem;color:#888;white-space:nowrap">${posted}</td>
-        <td data-label="Action">
-          ${v.status === 'rejected'
-            ? `<button class="btn-edit-vac" onclick="openEditModal(${JSON.stringify(v).replace(/"/g,'&quot;')})">
-                 <i class="bi bi-pencil me-1"></i>Edit
-               </button>`
-            : `<button class="btn-apps" onclick="openAppsPanel(${v.id},'${esc(v.job_code)}','${esc(v.job_title)}',${v.application_count})">
-                 <i class="bi bi-people me-1"></i>View Apps
-               </button>`}
-        </td>
-      </tr>
+
+    const rejBlock = (v.status === "rejected" && v.rejection_reason)
+      ? `<div class="vc-reject-block">Reason: ${esc(v.rejection_reason)}</div>` : "";
+
+    const actionBtn = v.status === "rejected"
+      ? `<button class="btn-edit-vac" onclick="openEditModal(${JSON.stringify(v).replace(/"/g,'&quot;')})">
+           Edit &amp; resubmit
+         </button>`
+      : `<button class="btn-apps" onclick="openAppsPanel(${v.id},'${esc(v.job_code)}','${esc(v.job_title)}',${v.application_count})">
+           View apps
+         </button>`;
+
+    const footerMeta = v.status !== "rejected"
+      ? `<span class="app-count-inline">${v.application_count} applicant${v.application_count !== 1 ? 's' : ''}</span>  ·  ${posted}`
+      : posted;
+
+    list.insertAdjacentHTML("beforeend", `
+      <div class="vacancy-card">
+        <div class="vc-header">
+          <div class="vc-title">${esc(v.job_title)}</div>
+          <span class="vc-badge ${st.cls}">${st.label}</span>
+        </div>
+        <span class="vc-jc-pill">JC : ${esc(v.job_code)}</span>
+        <div class="vc-details">
+          <div>
+            <div class="vc-detail-label">COMPANY</div>
+            <div class="vc-detail-value">🏢 ${esc(v.company_name || '—')}</div>
+          </div>
+          <div>
+            <div class="vc-detail-label">LOCATION</div>
+            <div class="vc-detail-value">📍 ${esc(v.district_region || '—')}</div>
+          </div>
+          <div>
+            <div class="vc-detail-label">SALARY</div>
+            <div class="vc-detail-value">💰 ₹${esc(v.salary_range || '—')}</div>
+          </div>
+          <div>
+            <div class="vc-detail-label">EXPERIENCE</div>
+            <div class="vc-detail-value">🎓 ${esc(v.experience_required || '—')}</div>
+          </div>
+        </div>
+        ${rejBlock}
+        <div class="vc-footer">
+          <span class="vc-footer-meta">${footerMeta}</span>
+          ${actionBtn}
+        </div>
+      </div>
     `);
   });
 }
