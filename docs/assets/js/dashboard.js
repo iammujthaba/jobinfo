@@ -45,8 +45,11 @@ async function loadProfile() {
             document.getElementById("topbar-name").textContent = data.name || "Seeker Profile";
             document.getElementById("viewName").textContent = data.name || "—";
             document.getElementById("viewAge").textContent = data.age || "—";
-            document.getElementById("viewDistrict").textContent = data.district || "—";
-            document.getElementById("viewExactLocation").textContent = data.exact_location || "—";
+            
+            const locText = data.exact_location && data.district 
+                ? `📍 ${data.exact_location}, ${data.district}` 
+                : (data.exact_location || data.district ? `📍 ${data.exact_location || data.district}` : "📍 Location Not Set");
+            document.getElementById("viewHeaderLocation").textContent = locText;
             document.getElementById("viewCategory").textContent = data.category || "—";
             document.getElementById("viewAltPhone").textContent = data.alt_phone || "—";
             document.getElementById("viewGender").textContent = data.gender ? data.gender.charAt(0).toUpperCase() + data.gender.slice(1) : "—";
@@ -104,8 +107,10 @@ async function updateProfile() {
             document.getElementById("topbar-name").textContent = currentProfileData.name || "Seeker Profile";
             document.getElementById("viewName").textContent = currentProfileData.name || "—";
             document.getElementById("viewAge").textContent = currentProfileData.age || "—";
-            document.getElementById("viewDistrict").textContent = currentProfileData.district || "—";
-            document.getElementById("viewExactLocation").textContent = currentProfileData.exact_location || "—";
+            const locText = currentProfileData.exact_location && currentProfileData.district 
+                ? `📍 ${currentProfileData.exact_location}, ${currentProfileData.district}` 
+                : (currentProfileData.exact_location || currentProfileData.district ? `📍 ${currentProfileData.exact_location || currentProfileData.district}` : "📍 Location Not Set");
+            document.getElementById("viewHeaderLocation").textContent = locText;
             document.getElementById("viewCategory").textContent = currentProfileData.category || "—";
             document.getElementById("viewAltPhone").textContent = currentProfileData.alt_phone || "—";
             document.getElementById("viewGender").textContent = currentProfileData.gender ? currentProfileData.gender.charAt(0).toUpperCase() + currentProfileData.gender.slice(1) : "—";
