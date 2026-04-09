@@ -224,20 +224,11 @@
       <div class="stat-card active" data-filter="all">
         <div class="val" id="s-total">—</div><div class="lbl">Total Vacancies</div>
       </div>
-      <div class="stat-card approved" data-filter="approved">
-        <div class="val" id="s-approved">—</div><div class="lbl">✅ Approved</div>
-      </div>
-      <div class="stat-card pending" data-filter="pending">
-        <div class="val" id="s-pending">—</div><div class="lbl">⏳ Pending</div>
-      </div>
-      <div class="stat-card rejected" data-filter="rejected">
-        <div class="val" id="s-rejected">—</div><div class="lbl">❌ Rejected</div>
-      </div>
       <div class="stat-card apps" data-filter="__apps">
         <div class="val" id="s-apps">—</div><div class="lbl">📩 Applications</div>
       </div>
-      <div class="stat-card shortlisted" data-filter="__shortlisted">
-        <div class="val" id="s-shortlisted">—</div><div class="lbl">⭐ Shortlisted</div>
+      <div class="stat-card rejected" data-filter="rejected">
+        <div class="val" id="s-rejected">—</div><div class="lbl">❌ Rejected</div>
       </div>
     </div>
 
@@ -412,11 +403,8 @@ function renderDashboard(d) {
     (rc.business_contact ? "📞 " + rc.business_contact + "&nbsp;&nbsp;" : "") +
     '<i class="bi bi-whatsapp" style="color:#25d366"></i> +' + rc.wa_number;
   document.getElementById("s-total").textContent    = s.total;
-  document.getElementById("s-approved").textContent = s.approved;
-  document.getElementById("s-pending").textContent  = s.pending;
   document.getElementById("s-rejected").textContent = s.rejected;
   document.getElementById("s-apps").textContent     = s.total_applications;
-  document.getElementById("s-shortlisted").textContent = s.total_shortlisted;
   allVacancies = d.vacancies;
   renderVacancyTable("all");
 }
@@ -459,7 +447,7 @@ function renderVacancyTable(filter) {
     list.insertAdjacentHTML("beforeend", `
       <div class="vacancy-card">
         <div class="vc-header">
-          <div class="vc-title">${esc(v.job_title)}</div>
+          <div class="vc-title">💼 ${esc(v.job_title)}</div>
           <span class="vc-badge ${st.cls}">${st.label}</span>
         </div>
         <span class="vc-jc-pill">JC : ${esc(v.job_code)}</span>
