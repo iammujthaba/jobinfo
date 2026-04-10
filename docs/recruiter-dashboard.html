@@ -436,12 +436,12 @@ function renderVacancyTable(filter) {
       ? `<button class="btn-edit-vac" onclick="openEditModal(${JSON.stringify(v).replace(/"/g,'&quot;')})">
            Edit &amp; resubmit
          </button>`
-      : `<button class="btn-apps" onclick="goToApps(${v.id},'${esc(v.job_code)}','${esc(v.job_title)}',${v.application_count})">
+      : `<button class="btn-apps" onclick="goToApps(${v.id},'${esc(v.job_code)}','${esc(v.job_title)}',${v.application_count},'${esc(v.company_name || '')}')">
            View apps
          </button>`;
 
     const footerMeta = v.status !== "rejected"
-      ? `<span class="app-count-inline">${v.application_count} applicant${v.application_count !== 1 ? 's' : ''}</span>  ·  ${posted}`
+      ? `<span class="app-count-inline">${v.application_count} application ${v.application_count !== 1 ? 's' : ''}</span>  ·  ${posted}`
       : posted;
 
     list.insertAdjacentHTML("beforeend", `
@@ -494,12 +494,13 @@ document.querySelectorAll(".stat-card[data-filter]").forEach(card => {
 });
 
 /* Navigate to applications page for a specific vacancy */
-function goToApps(vacId, jobCode, title, count) {
+function goToApps(vacId, jobCode, title, count, company) {
   const params = new URLSearchParams({
     vacancy_id: vacId,
     job_code: jobCode,
     title: title,
-    count: count
+    count: count,
+    company: company || ""
   });
   window.location.href = "applications.html?" + params.toString();
 }

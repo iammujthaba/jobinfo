@@ -322,6 +322,8 @@ let verifiedWa    = null;
 let sessionToken  = null;
 let panelVacancyId = null;   // int or "global"
 let panelJobCode  = null;
+let panelJobTitle = "";
+let panelCompany  = "";
 let allApps       = [];
 let currentFilter = "all";   // "all" | "shortlisted"
 let searchQuery   = "";
@@ -367,6 +369,8 @@ function initPage() {
     // Single-vacancy mode
     panelVacancyId = parseInt(vacancyId);
     panelJobCode = jobCode;
+    panelJobTitle = title || "";
+    panelCompany = params.get("company") || "";
     document.getElementById("header-job-title").textContent = title || "Applications";
     if (jobCode) {
       document.getElementById("header-job-code").innerHTML =
@@ -506,7 +510,10 @@ function renderApps() {
       : `<span class="btn-no-cv">📂 No CV</span>`;
 
     const contactNumber = c.alt_phone ? c.alt_phone : c.wa_number;
-    const waLink = `https://wa.me/${c.wa_number}?text=Hi%20${encodeURIComponent(c.name)}%2C%20regarding%20your%20application%20on%20JobInfo.`;
+    const jobTitle = panelJobTitle || app.job_code || "a position";
+    const companyPart = panelCompany ? ` at *${panelCompany}*` : "";
+    const waText = `Hi ${c.name}! 👋\n\nThis is regarding your application for *${jobTitle}*${companyPart}.\n\nWe found your profile through *JobInfo* and would like to connect with you. Are you available for a quick discussion?`;
+    const waLink = `https://wa.me/${c.wa_number}?text=${encodeURIComponent(waText)}`;
 
     list.insertAdjacentHTML("beforeend", `
       <div class="${cardClass}" id="ccard-${app.application_id}">
