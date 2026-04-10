@@ -35,11 +35,6 @@
       font-size:.78rem; font-weight:700; display:inline-block;
     }
     .header-right { display:flex; gap:8px; align-items:center; flex-shrink:0; }
-    .count-chip {
-      background:#f4f6fb; border:1px solid #dde1e7; border-radius:8px;
-      padding:6px 12px; font-size:.82rem; color:#666;
-    }
-    .count-chip strong { color:#222; }
     .btn-csv {
       background:var(--ji-dark); color:#fff; border:none; border-radius:8px;
       padding:7px 14px; font-size:.8rem; font-weight:600; cursor:pointer;
@@ -53,9 +48,13 @@
     .search-wrap {
       position:relative; width:100%; margin-bottom:12px;
     }
+    .search-icon {
+      position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      color:#999; font-size:.95rem; pointer-events:none; line-height:1;
+    }
     .search-input {
       width:100%; border:1px solid #dde1e7; border-radius:10px;
-      padding:9px 42px 9px 14px; font-size:.85rem; outline:none;
+      padding:9px 42px 9px 36px; font-size:.85rem; outline:none;
       font-family:inherit; background:#fff; box-sizing:border-box;
     }
     .search-input:focus { border-color:var(--ji-green); box-shadow:0 0 0 2px rgba(37,211,102,.15); }
@@ -64,6 +63,38 @@
       background:none; border:none; color:#888; cursor:pointer; font-size:1.1rem;
       padding:0; display:flex; align-items:center; line-height:1;
     }
+    .search-filter-btn.has-filters { color:var(--ji-green); }
+
+    /* Filter Panel */
+    .filter-panel {
+      display:none; background:#fff; border:1px solid #dde1e7; border-radius:12px;
+      padding:14px 16px; margin-bottom:12px; box-shadow:0 4px 16px rgba(0,0,0,.08);
+    }
+    .filter-panel.open { display:block; }
+    .filter-panel-title {
+      font-size:.78rem; font-weight:700; color:#555; text-transform:uppercase;
+      letter-spacing:.05em; margin-bottom:10px;
+    }
+    .filter-row {
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; align-items:center;
+    }
+    .filter-row:last-child { margin-bottom:0; }
+    .filter-label {
+      font-size:.78rem; font-weight:600; color:#666; min-width:60px; flex-shrink:0;
+    }
+    .filter-select {
+      flex:1; min-width:120px; border:1px solid #dde1e7; border-radius:8px;
+      padding:7px 10px; font-size:.82rem; outline:none; background:#fff;
+      font-family:inherit; cursor:pointer;
+    }
+    .filter-select:focus { border-color:var(--ji-green); }
+    .filter-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+    .btn-clear-filters {
+      background:#f5f5f5; color:#666; border:1px solid #dde1e7; border-radius:8px;
+      padding:6px 14px; font-size:.78rem; font-weight:600; cursor:pointer;
+      font-family:inherit;
+    }
+    .btn-clear-filters:hover { background:#eee; }
 
     /* Row 3 — Status Tabs */
     .status-tabs { display:flex; gap:6px; flex-wrap:wrap; }
@@ -205,7 +236,6 @@
       <div class="header-job-code" id="header-job-code"></div>
     </div>
     <div class="header-right">
-      <div class="count-chip" id="count-chip"><strong>0</strong> applicants</div>
       <button class="btn-csv" id="export-csv-btn">
         <i class="bi bi-download"></i> CSV
       </button>
@@ -214,14 +244,47 @@
 
   <!-- Row 2 — Search bar -->
   <div class="search-wrap">
+    <i class="bi bi-search search-icon"></i>
     <input type="text" class="search-input" id="app-search" placeholder="Search by name, location, job area…">
-    <button class="search-filter-btn" title="Filters (coming soon)"><i class="bi bi-sliders"></i></button>
+    <button class="search-filter-btn" id="filter-toggle-btn" title="Filters"><i class="bi bi-sliders"></i></button>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="filter-panel" id="filter-panel">
+    <div class="filter-panel-title">Filters</div>
+    <div class="filter-row">
+      <span class="filter-label">Gender</span>
+      <select class="filter-select" id="filter-gender">
+        <option value="">All Genders</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Age</span>
+      <select class="filter-select" id="filter-age">
+        <option value="">All Ages</option>
+        <option value="18-25">18 – 25</option>
+        <option value="26-35">26 – 35</option>
+        <option value="36-45">36 – 45</option>
+        <option value="46+">46+</option>
+      </select>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">District</span>
+      <select class="filter-select" id="filter-district">
+        <option value="">All Districts</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="btn-clear-filters" id="btn-clear-filters">Clear Filters</button>
+    </div>
   </div>
 
   <!-- Row 3 — Status tabs -->
   <div class="status-tabs" id="status-tabs">
     <button class="tab-pill active" data-filter="all" id="tab-all">All (0)</button>
-    <button class="tab-pill" data-filter="applied" id="tab-applied">Applied (0)</button>
     <button class="tab-pill" data-filter="shortlisted" id="tab-shortlisted">Shortlisted (0)</button>
   </div>
 
@@ -260,8 +323,9 @@ let sessionToken  = null;
 let panelVacancyId = null;   // int or "global"
 let panelJobCode  = null;
 let allApps       = [];
-let currentFilter = "all";   // "all" | "applied" | "shortlisted"
+let currentFilter = "all";   // "all" | "shortlisted"
 let searchQuery   = "";
+let activeFilters = { gender: "", age: "", district: "" };
 
 /* ── Session Guard ─────────────────────────────────── */
 (function() {
@@ -308,7 +372,6 @@ function initPage() {
       document.getElementById("header-job-code").innerHTML =
         `Job code <span class="jc-pill">${esc(jobCode)}</span>`;
     }
-    document.getElementById("count-chip").innerHTML = `<strong>${count}</strong> applicant${count !== 1 ? "s" : ""}`;
     loadVacancyApps(panelVacancyId);
   } else if (filter === "__apps" || filter === "__shortlisted") {
     // Global mode
@@ -380,15 +443,13 @@ function renderApps() {
 
   // Update tab counts (always reflect full allApps)
   const totalCount       = allApps.length;
-  const appliedCount     = allApps.filter(a => a.status === "applied").length;
   const shortlistedCount = allApps.filter(a => a.status === "shortlisted").length;
 
   document.getElementById("tab-all").textContent        = `All (${totalCount})`;
-  document.getElementById("tab-applied").textContent     = `Applied (${appliedCount})`;
   document.getElementById("tab-shortlisted").textContent = `Shortlisted (${shortlistedCount})`;
 
-  // Update count chip in header
-  document.getElementById("count-chip").innerHTML = `<strong>${totalCount}</strong> applicant${totalCount !== 1 ? "s" : ""}`;
+  // Populate district filter options (once)
+  populateDistrictFilter();
 
   // Apply filters
   let rows = allApps;
@@ -403,6 +464,24 @@ function renderApps() {
         || (c.category || "").toLowerCase().includes(q)
         || (c.sub_category || "").toLowerCase().includes(q);
     });
+  }
+  // Apply advanced filters
+  if (activeFilters.gender) {
+    rows = rows.filter(a => (a.candidate.gender || "").toLowerCase() === activeFilters.gender.toLowerCase());
+  }
+  if (activeFilters.age) {
+    rows = rows.filter(a => {
+      const age = a.candidate.age;
+      if (age == null) return false;
+      if (activeFilters.age === "18-25") return age >= 18 && age <= 25;
+      if (activeFilters.age === "26-35") return age >= 26 && age <= 35;
+      if (activeFilters.age === "36-45") return age >= 36 && age <= 45;
+      if (activeFilters.age === "46+") return age >= 46;
+      return true;
+    });
+  }
+  if (activeFilters.district) {
+    rows = rows.filter(a => (a.candidate.district || "") === activeFilters.district);
   }
 
   list.innerHTML = "";
@@ -502,6 +581,56 @@ document.getElementById("app-search").addEventListener("input", e => {
   renderApps();
 });
 
+/* ── Filter Panel ──────────────────────────────────── */
+
+document.getElementById("filter-toggle-btn").addEventListener("click", () => {
+  const panel = document.getElementById("filter-panel");
+  panel.classList.toggle("open");
+});
+
+document.getElementById("filter-gender").addEventListener("change", e => {
+  activeFilters.gender = e.target.value;
+  updateFilterIndicator();
+  renderApps();
+});
+
+document.getElementById("filter-age").addEventListener("change", e => {
+  activeFilters.age = e.target.value;
+  updateFilterIndicator();
+  renderApps();
+});
+
+document.getElementById("filter-district").addEventListener("change", e => {
+  activeFilters.district = e.target.value;
+  updateFilterIndicator();
+  renderApps();
+});
+
+document.getElementById("btn-clear-filters").addEventListener("click", () => {
+  activeFilters = { gender: "", age: "", district: "" };
+  document.getElementById("filter-gender").value = "";
+  document.getElementById("filter-age").value = "";
+  document.getElementById("filter-district").value = "";
+  updateFilterIndicator();
+  renderApps();
+});
+
+function updateFilterIndicator() {
+  const hasAny = activeFilters.gender || activeFilters.age || activeFilters.district;
+  document.getElementById("filter-toggle-btn").classList.toggle("has-filters", !!hasAny);
+}
+
+let districtPopulated = false;
+function populateDistrictFilter() {
+  if (districtPopulated) return;
+  const sel = document.getElementById("filter-district");
+  const districts = [...new Set(allApps.map(a => a.candidate.district).filter(Boolean))].sort();
+  districts.forEach(d => {
+    sel.insertAdjacentHTML("beforeend", `<option value="${esc(d)}">${esc(d)}</option>`);
+  });
+  districtPopulated = true;
+}
+
 /* ── Status Tabs ───────────────────────────────────── */
 
 document.querySelectorAll(".tab-pill[data-filter]").forEach(tab => {
@@ -522,6 +651,13 @@ function setActiveTab(filter) {
 
 document.getElementById("export-csv-btn").addEventListener("click", async () => {
   if (!panelVacancyId) return;
+
+  // Detect WhatsApp / Facebook / Instagram in-app browsers
+  const isInAppBrowser = /WhatsApp|FBAV|Instagram/i.test(navigator.userAgent);
+  if (isInAppBrowser) {
+    new bootstrap.Modal(document.getElementById('wa-browser-modal')).show();
+    return;
+  }
 
   const btn = document.getElementById("export-csv-btn");
   btn.disabled = true;
@@ -583,6 +719,48 @@ function formatDate(isoString) {
 
 function showLoading() { document.getElementById("apps-loading").style.display = "block"; }
 function hideLoading() { document.getElementById("apps-loading").style.display = "none"; }
+
+/* ── WhatsApp Browser Breakout ─────────────────────── */
+
+document.getElementById("btn-breakout").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-breakout");
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+  } catch { /* clipboard may fail in some browsers */ }
+  window.open(window.location.href, "_blank");
+  btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Link Copied!';
+  setTimeout(() => {
+    btn.innerHTML = '<i class="bi bi-box-arrow-up-right me-1"></i> Copy Link & Open';
+  }, 3000);
+});
 </script>
+
+<!-- ════════════════════ WHATSAPP BROWSER WARNING MODAL ════════════════════ -->
+<div class="modal fade" id="wa-browser-modal" tabindex="-1" aria-labelledby="waBrowserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
+      <div class="modal-header" style="background:var(--ji-dark); color:#fff; border:none; padding:16px 20px;">
+        <h6 class="modal-title" id="waBrowserModalLabel" style="font-weight:700; font-size:.95rem;">
+          <i class="bi bi-exclamation-triangle me-2" style="color:#f39c12;"></i>External Browser Required
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding:20px; font-size:.88rem; color:#444; line-height:1.6;">
+        WhatsApp's built-in browser blocks file downloads. To download this CSV, please open this page in your main browser (Chrome / Safari).
+      </div>
+      <div class="modal-footer" style="border-top:1px solid #eef0f4; padding:12px 20px; gap:8px;">
+        <button type="button" class="btn btn-sm" data-bs-dismiss="modal"
+                style="background:#f5f5f5; color:#555; border:1px solid #dde1e7; border-radius:8px; padding:8px 16px; font-size:.82rem; font-weight:600;">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-sm" id="btn-breakout"
+                style="background:var(--ji-green); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:.82rem; font-weight:600;">
+          <i class="bi bi-box-arrow-up-right me-1"></i> Copy Link & Open
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
