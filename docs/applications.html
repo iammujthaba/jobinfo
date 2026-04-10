@@ -130,12 +130,6 @@
       color:#888; font-weight:600; display:block; margin-bottom:3px;
     }
     .info-value { font-size:13px; color:#333; }
-    .job-area-pill {
-      background:#eeedfe; color:#3c3489; border:1px solid #afa9ec;
-      border-radius:20px; padding:3px 10px; font-size:11px;
-      display:inline-flex; align-items:center; gap:4px;
-      max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    }
 
     /* Zone D — Card Footer */
     .card-footer-zone {
@@ -194,7 +188,6 @@
       .card-header-zone { padding:12px 48px 12px 12px; }
       .card-info-grid { padding:12px; gap:10px 8px; }
       .card-footer-zone { padding:9px 12px; }
-      .job-area-pill { font-size:10.5px; padding:3px 8px; }
     }
   </style>
 </head>
@@ -422,9 +415,7 @@ function renderApps() {
     const initials = c.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
     const appliedDate = formatDate(app.applied_at);
     const location = [c.exact_location, c.district].filter(Boolean).join(", ") || "—";
-    const jobArea = c.category
-      ? `<span class="job-area-pill">${esc(c.category)}</span>`
-      : '<span style="color:#aaa">—</span>';
+    const jobArea = c.category ? esc(c.category) : "—";
 
     const heartClass = isShortlisted ? "active" : "inactive";
     const heartChar  = isShortlisted ? "♥" : "♡";
@@ -432,9 +423,10 @@ function renderApps() {
     const cardClass  = isShortlisted ? "app-card shortlisted" : "app-card";
 
     const cvBtn = c.has_cv
-      ? `<a href="${JOBINFO_CONFIG.API_URL}/files/cv/${encodeURIComponent(c.cv_path)}?candidate_name=${encodeURIComponent(c.name)}&job_code=${encodeURIComponent(panelJobCode || '')}" target="_blank" class="btn-view-cv">📄 View CV</a>`
+      ? `<a href="cv-viewer.html?file=${encodeURIComponent(JOBINFO_CONFIG.API_URL + '/files/cv/' + encodeURIComponent(c.cv_path) + '?candidate_name=' + encodeURIComponent(c.name) + '&job_code=' + encodeURIComponent(panelJobCode || ''))}&name=${encodeURIComponent(c.name + ' – CV')}" target="_blank" class="btn-view-cv">📄 View CV</a>`
       : `<span class="btn-no-cv">📂 No CV</span>`;
 
+    const contactNumber = c.alt_phone ? c.alt_phone : c.wa_number;
     const waLink = `https://wa.me/${c.wa_number}?text=Hi%20${encodeURIComponent(c.name)}%2C%20regarding%20your%20application%20on%20JobInfo.`;
 
     list.insertAdjacentHTML("beforeend", `
@@ -478,7 +470,7 @@ function renderApps() {
         <div class="card-footer-zone">
           ${cvBtn}
           <div class="contact-buttons">
-            <a href="tel:+${c.wa_number}" class="btn-contact">📞 Contact</a>
+            <a href="tel:+${contactNumber}" class="btn-contact">📞 Contact</a>
             <a href="${waLink}" target="_blank" class="btn-whatsapp"><i class="bi bi-whatsapp"></i>WhatsApp</a>
           </div>
         </div>

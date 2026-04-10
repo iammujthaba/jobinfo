@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>CV Viewer – JobInfo</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root { --ji-green:#25d366; --ji-dark:#1a1a2e; }
+    *, *::before, *::after { box-sizing:border-box; }
+    html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#333; font-family:Roboto,sans-serif; }
+
+    /* ── Top Header Bar ──────────────────────────── */
+    .viewer-bar {
+      position:fixed; top:0; left:0; right:0; z-index:20;
+      background:var(--ji-dark); color:#fff; height:50px; padding:0 14px;
+      display:flex; align-items:center; justify-content:space-between;
+      box-shadow:0 2px 10px rgba(0,0,0,.4);
+    }
+    .bar-left, .bar-right { display:flex; align-items:center; gap:8px; }
+    .bar-title {
+      font-size:.85rem; font-weight:600; color:#fff; white-space:nowrap;
+      overflow:hidden; text-overflow:ellipsis; max-width:180px;
+    }
+    .bar-btn {
+      background:none; border:1px solid rgba(255,255,255,.25); color:#fff;
+      border-radius:8px; padding:6px 12px; font-size:.78rem; font-weight:600;
+      cursor:pointer; text-decoration:none; display:inline-flex;
+      align-items:center; gap:5px; font-family:inherit; transition:all .2s;
+      white-space:nowrap;
+    }
+    .bar-btn:hover { background:rgba(255,255,255,.1); color:#fff; }
+    .bar-btn.download {
+      background:var(--ji-green); border-color:var(--ji-green); color:#fff;
+    }
+    .bar-btn.download:hover { background:#1ebe5d; }
+
+    /* ── Page Navigation ─────────────────────────── */
+    .page-nav {
+      position:fixed; bottom:0; left:0; right:0; z-index:20;
+      background:var(--ji-dark); color:#fff; height:46px; padding:0 14px;
+      display:flex; align-items:center; justify-content:center; gap:14px;
+      box-shadow:0 -2px 10px rgba(0,0,0,.4);
+    }
+    .page-nav button {
+      background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+      color:#fff; border-radius:8px; width:36px; height:36px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-size:1rem; transition:all .15s;
+    }
+    .page-nav button:hover { background:rgba(255,255,255,.2); }
+    .page-nav button:disabled { opacity:.3; cursor:not-allowed; }
+    .page-info { font-size:.82rem; color:#ccc; min-width:80px; text-align:center; }
+
+    /* ── Canvas Container ────────────────────────── */
+    .viewer-body {
+      position:fixed; top:50px; bottom:46px; left:0; right:0;
+      overflow-y:auto; overflow-x:hidden;
+      background:#333; display:flex; flex-direction:column;
+      align-items:center; padding:10px 0;
+      -webkit-overflow-scrolling:touch;
+    }
+    .viewer-body canvas {
+      display:block; margin:0 auto 12px;
+      background:#fff;
+      max-width:100%;
+      box-shadow:0 2px 16px rgba(0,0,0,.5);
+    }
+
+    /* ── Loading / Error States ──────────────────── */
+    .viewer-state {
+      position:fixed; top:50px; bottom:46px; left:0; right:0;
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; color:#ccc; gap:12px;
+    }
+    .viewer-state .spinner-border { width:2.5rem; height:2.5rem; }
+    .viewer-state .msg { font-size:.9rem; text-align:center; padding:0 20px; }
+    .viewer-state .err-icon { font-size:2.5rem; color:#e74c3c; }
+  </style>
+</head>
+<body>
+
+<!-- ── Top Bar ──────────────────────────────────── -->
+<div class="viewer-bar">
+  <div class="bar-left">
+    <button class="bar-btn" id="btn-back" title="Close">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <span class="bar-title" id="bar-title">CV Viewer</span>
+  </div>
+  <div class="bar-right">
+    <a class="bar-btn download" id="btn-download" href="#" download title="Download PDF">
+      <i class="bi bi-download"></i> Download
+    </a>
+  </div>
+</div>
+
+<!-- ── Page Navigation ─────────────────────────── -->
+<div class="page-nav">
+  <button id="btn-prev" disabled title="Previous page"><i class="bi bi-chevron-left"></i></button>
+  <span class="page-info" id="page-info">— / —</span>
+  <button id="btn-next" disabled title="Next page"><i class="bi bi-chevron-right"></i></button>
+</div>
+
+<!-- ── Loading State ───────────────────────────── -->
+<div class="viewer-state" id="loading-state">
+  <div class="spinner-border text-light" role="status"></div>
+  <div class="msg">Loading PDF…</div>
+</div>
+
+<!-- ── Error State (hidden) ────────────────────── -->
+<div class="viewer-state" id="error-state" style="display:none">
+  <i class="bi bi-exclamation-triangle err-icon"></i>
+  <div class="msg" id="error-msg">Could not load the PDF file.</div>
+</div>
+
+<!-- ── Canvas Container (hidden until loaded) ──── -->
+<div class="viewer-body" id="viewer-body" style="display:none"></div>
+
+<!-- ── pdf.js CDN ──────────────────────────────── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   JobInfo – Universal CV Viewer (pdf.js)
+   ══════════════════════════════════════════════════════ */
+
+// pdf.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+// ── Read URL params ──────────────────────────────────
+const params  = new URLSearchParams(window.location.search);
+const fileUrl = params.get("file");
+const nameParam = params.get("name") || "CV";
+
+// ── DOM refs ─────────────────────────────────────────
+const barTitle     = document.getElementById("bar-title");
+const btnBack      = document.getElementById("btn-back");
+const btnDownload  = document.getElementById("btn-download");
+const btnPrev      = document.getElementById("btn-prev");
+const btnNext      = document.getElementById("btn-next");
+const pageInfo     = document.getElementById("page-info");
+const viewerBody   = document.getElementById("viewer-body");
+const loadingState = document.getElementById("loading-state");
+const errorState   = document.getElementById("error-state");
+const errorMsg     = document.getElementById("error-msg");
+
+// ── State ────────────────────────────────────────────
+let pdfDoc   = null;
+let totalPages = 0;
+let renderedPages = new Set();
+let renderingInProgress = false;
+
+// ── Init ─────────────────────────────────────────────
+barTitle.textContent = decodeURIComponent(nameParam);
+
+btnBack.addEventListener("click", () => {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.close();
+  }
+});
+
+if (!fileUrl) {
+  showError("No PDF file URL provided.");
+} else {
+  // Set download link to direct PDF URL
+  btnDownload.href = fileUrl;
+  loadPDF(fileUrl);
+}
+
+// ── Load PDF ─────────────────────────────────────────
+async function loadPDF(url) {
+  try {
+    const loadingTask = pdfjsLib.getDocument({ url, withCredentials: false });
+    pdfDoc = await loadingTask.promise;
+    totalPages = pdfDoc.numPages;
+
+    // Hide loading, show viewer
+    loadingState.style.display = "none";
+    viewerBody.style.display = "flex";
+
+    // Render all pages
+    pageInfo.textContent = `${totalPages} page${totalPages !== 1 ? "s" : ""}`;
+    renderAllPages();
+
+  } catch (err) {
+    console.error("PDF load error:", err);
+    showError("Could not load the PDF. The file may be missing or the server is unreachable.");
+  }
+}
+
+// ── Render All Pages ─────────────────────────────────
+async function renderAllPages() {
+  // Calculate the width for rendering (fit to viewport)
+  const containerWidth = viewerBody.clientWidth - 20; // 10px padding each side
+  const pixelRatio = window.devicePixelRatio || 1;
+
+  for (let num = 1; num <= totalPages; num++) {
+    try {
+      const page = await pdfDoc.getPage(num);
+      const unscaledViewport = page.getViewport({ scale: 1 });
+
+      // Scale to fit container width
+      const scale = containerWidth / unscaledViewport.width;
+      const viewport = page.getViewport({ scale: scale * pixelRatio });
+
+      // Create canvas
+      const canvas = document.createElement("canvas");
+      canvas.width  = viewport.width;
+      canvas.height = viewport.height;
+      canvas.style.width  = (viewport.width / pixelRatio) + "px";
+      canvas.style.height = (viewport.height / pixelRatio) + "px";
+      canvas.dataset.page = num;
+
+      viewerBody.appendChild(canvas);
+
+      const ctx = canvas.getContext("2d");
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+    } catch (err) {
+      console.error(`Error rendering page ${num}:`, err);
+    }
+  }
+
+  // Setup page navigation (scroll-based)
+  updatePageNav();
+  viewerBody.addEventListener("scroll", updatePageNav);
+
+  btnPrev.disabled = false;
+  btnNext.disabled = false;
+
+  btnPrev.addEventListener("click", () => scrollToPage("prev"));
+  btnNext.addEventListener("click", () => scrollToPage("next"));
+}
+
+// ── Scroll-based Page Navigation ─────────────────────
+function updatePageNav() {
+  const canvases = viewerBody.querySelectorAll("canvas");
+  if (!canvases.length) return;
+
+  const scrollTop = viewerBody.scrollTop;
+  const viewerMid = scrollTop + viewerBody.clientHeight / 3;
+  let currentPage = 1;
+
+  canvases.forEach((c, i) => {
+    if (c.offsetTop <= viewerMid) currentPage = i + 1;
+  });
+
+  pageInfo.textContent = `${currentPage} / ${totalPages}`;
+  btnPrev.disabled = currentPage <= 1;
+  btnNext.disabled = currentPage >= totalPages;
+}
+
+function scrollToPage(dir) {
+  const canvases = viewerBody.querySelectorAll("canvas");
+  if (!canvases.length) return;
+
+  const scrollTop = viewerBody.scrollTop;
+  const viewerMid = scrollTop + viewerBody.clientHeight / 3;
+  let currentPage = 0;
+
+  canvases.forEach((c, i) => {
+    if (c.offsetTop <= viewerMid) currentPage = i;
+  });
+
+  let target;
+  if (dir === "prev" && currentPage > 0) {
+    target = canvases[currentPage - 1];
+  } else if (dir === "next" && currentPage < canvases.length - 1) {
+    target = canvases[currentPage + 1];
+  }
+
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+// ── Error Helper ─────────────────────────────────────
+function showError(msg) {
+  loadingState.style.display = "none";
+  errorState.style.display = "flex";
+  errorMsg.textContent = msg;
+  btnPrev.disabled = true;
+  btnNext.disabled = true;
+}
+
+// ── Handle Resize ────────────────────────────────────
+let resizeTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (pdfDoc) {
+      viewerBody.innerHTML = "";
+      renderAllPages();
+    }
+  }, 300);
+});
+</script>
+</body>
+</html>
