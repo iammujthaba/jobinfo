@@ -10,8 +10,7 @@ let currentProfileData = {};
 
 document.addEventListener("DOMContentLoaded", () => {
     loadProfile();
-    loadApplications();
-    loadAnalytics();
+    loadResumes();
 });
 
 function logoutSeeker() {
@@ -44,16 +43,33 @@ async function loadProfile() {
             // Populate View Mode
             document.getElementById("topbar-name").textContent = data.name || "Seeker Profile";
             document.getElementById("viewName").textContent = data.name || "—";
-            document.getElementById("viewAge").textContent = data.age || "—";
+            document.getElementById("viewAge").textContent = data.age ? `${data.age} years` : "—";
             
             const locText = data.exact_location && data.district 
                 ? `📍 ${data.exact_location}, ${data.district}` 
                 : (data.exact_location || data.district ? `📍 ${data.exact_location || data.district}` : "📍 Location Not Set");
             document.getElementById("viewHeaderLocation").textContent = locText;
-            document.getElementById("viewCategory").textContent = data.category || "—";
-            document.getElementById("viewAltPhone").textContent = data.alt_phone || "—";
+            
+            document.getElementById("viewMobile").textContent = data.alt_phone || "—";
+            document.getElementById("viewWhatsApp").textContent = waNumber ? `+${waNumber}` : "—";
             document.getElementById("viewGender").textContent = data.gender ? data.gender.charAt(0).toUpperCase() + data.gender.slice(1) : "—";
 
+            if (data.name) {
+                const parts = data.name.trim().split(' ');
+                const initials = parts.length > 1 ? parts[0][0] + parts[parts.length-1][0] : parts[0][0];
+                document.getElementById("profile-avatar").textContent = initials.toUpperCase().substring(0, 2);
+            } else {
+                document.getElementById("profile-avatar").textContent = "JS";
+            }
+
+            if (data.category) {
+                let catText = data.category.replace('_', ' ');
+                catText = catText.replace(/\b\w/g, l => l.toUpperCase());
+                document.getElementById("viewCategory").textContent = catText;
+            } else {
+                document.getElementById("viewCategory").textContent = "—";
+            }
+            document.getElementById("viewSubCategory").textContent = data.sub_category || "—";
             // Populate Edit Form
             document.getElementById("profileName").value = data.name || "";
             document.getElementById("profileAge").value = data.age || "";
@@ -106,15 +122,31 @@ async function updateProfile() {
             // Update View Mode
             document.getElementById("topbar-name").textContent = currentProfileData.name || "Seeker Profile";
             document.getElementById("viewName").textContent = currentProfileData.name || "—";
-            document.getElementById("viewAge").textContent = currentProfileData.age || "—";
+            document.getElementById("viewAge").textContent = currentProfileData.age ? `${currentProfileData.age} years` : "—";
             const locText = currentProfileData.exact_location && currentProfileData.district 
                 ? `📍 ${currentProfileData.exact_location}, ${currentProfileData.district}` 
                 : (currentProfileData.exact_location || currentProfileData.district ? `📍 ${currentProfileData.exact_location || currentProfileData.district}` : "📍 Location Not Set");
             document.getElementById("viewHeaderLocation").textContent = locText;
-            document.getElementById("viewCategory").textContent = currentProfileData.category || "—";
-            document.getElementById("viewAltPhone").textContent = currentProfileData.alt_phone || "—";
+            document.getElementById("viewMobile").textContent = currentProfileData.alt_phone || "—";
+            document.getElementById("viewWhatsApp").textContent = waNumber ? `+${waNumber}` : "—";
             document.getElementById("viewGender").textContent = currentProfileData.gender ? currentProfileData.gender.charAt(0).toUpperCase() + currentProfileData.gender.slice(1) : "—";
 
+            if (currentProfileData.name) {
+                const parts = currentProfileData.name.trim().split(' ');
+                const initials = parts.length > 1 ? parts[0][0] + parts[parts.length-1][0] : parts[0][0];
+                document.getElementById("profile-avatar").textContent = initials.toUpperCase().substring(0, 2);
+            } else {
+                document.getElementById("profile-avatar").textContent = "JS";
+            }
+
+            if (currentProfileData.category) {
+                let catText = currentProfileData.category.replace('_', ' ');
+                catText = catText.replace(/\b\w/g, l => l.toUpperCase());
+                document.getElementById("viewCategory").textContent = catText;
+            } else {
+                document.getElementById("viewCategory").textContent = "—";
+            }
+            document.getElementById("viewSubCategory").textContent = currentProfileData.sub_category || "—";
             toggleProfileEdit(false);
         } else {
             const data = await res.json();
@@ -131,11 +163,11 @@ async function updateProfile() {
 
 function toggleProfileEdit(show) {
     if (show) {
-        document.getElementById("profileViewSection").style.display = "none";
-        document.getElementById("profileEditSection").style.display = "block";
+        document.getElementById("profile-view").style.display = "none";
+        document.getElementById("profile-edit").style.display = "block";
     } else {
-        document.getElementById("profileViewSection").style.display = "block";
-        document.getElementById("profileEditSection").style.display = "none";
+        document.getElementById("profile-view").style.display = "block";
+        document.getElementById("profile-edit").style.display = "none";
         // Reset form inputs to originally loaded data if hiding
         document.getElementById("profileName").value = currentProfileData.name || "";
         document.getElementById("profileAge").value = currentProfileData.age || "";
@@ -149,49 +181,61 @@ function toggleProfileEdit(show) {
 
 function computeProfileStrength(data) {
     let score = 0;
-    const missing = [];
+    const checks = {
+        nameAge: !!(data.name && data.age),
+        location: !!(data.district && data.exact_location),
+        category: !!data.category,
+        cv: !!data.has_cv,
+        mobile: !!data.alt_phone
+    };
 
-    if (data.name) score += 25; else missing.push("Full Name");
-    if (data.district) score += 25; else missing.push("District");
-    if (data.age) score += 25; else missing.push("Age");
-    if (data.category) score += 25; else missing.push("Job Category");
+    if (checks.nameAge) score += 20;
+    if (checks.location) score += 20;
+    if (checks.category) score += 20;
+    if (checks.cv) score += 20;
+    if (checks.mobile) score += 20;
 
     const bar = document.getElementById("strengthProgressBar");
-    const text = document.getElementById("strengthText");
+    const text = document.getElementById("strengthPctText");
     const list = document.getElementById("strengthChecklist");
 
-    if (bar) {
-        bar.style.width = score + "%";
-        bar.setAttribute("aria-valuenow", score);
-        if (score === 100) {
-            bar.className = "progress-bar bg-success";
-        } else if (score >= 50) {
-            bar.className = "progress-bar bg-warning";
-        } else {
-            bar.className = "progress-bar bg-danger";
-        }
-    }
-    
-    if (text) text.textContent = score + "% Complete";
+    if (bar) bar.style.width = score + "%";
+    if (text) text.textContent = score + "%";
 
     if (list) {
-        list.innerHTML = "";
-        if (score === 100) {
-            list.innerHTML = `<li class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Profile looks great!</li>`;
-        } else {
-            missing.forEach(item => {
-                list.insertAdjacentHTML("beforeend", `<li><i class="bi bi-exclamation-circle text-warning me-1"></i>Missing: ${item}</li>`);
-            });
-        }
+        list.innerHTML = `
+            <li>
+              <div class="check-icon ${checks.nameAge ? 'done' : 'pending'}"><i class="bi ${checks.nameAge ? 'bi-check-lg' : 'bi-x-lg'}"></i></div>
+              Name & age added
+            </li>
+            <li>
+              <div class="check-icon ${checks.location ? 'done' : 'pending'}"><i class="bi ${checks.location ? 'bi-check-lg' : 'bi-x-lg'}"></i></div>
+              Location set
+            </li>
+            <li>
+              <div class="check-icon ${checks.category ? 'done' : 'pending'}"><i class="bi ${checks.category ? 'bi-check-lg' : 'bi-x-lg'}"></i></div>
+              Job category selected
+            </li>
+            <li>
+              <div class="check-icon ${checks.mobile ? 'done' : 'pending'}"><i class="bi ${checks.mobile ? 'bi-check-lg' : 'bi-x-lg'}"></i></div>
+              Mobile number added
+            </li>
+            <li>
+              <div class="check-icon ${checks.cv ? 'done' : 'pending'}"><i class="bi ${checks.cv ? 'bi-check-lg' : 'bi-x-lg'}"></i></div>
+              ${checks.cv ? 'CV uploaded' : 'CV not uploaded'}
+            </li>
+        `;
     }
 }
 
-async function loadAnalytics() {
-    const container = document.getElementById("analyticsContent");
-    if (!container) return;
-    
+
+// ─── End ───────────────────────────────────────────────────────────────────────
+
+// ─── CV Management ─────────────────────────────────────────────────────────────
+
+async function loadResumes() {
     try {
-        const url = new URL(`${JOBINFO_CONFIG.API_URL}/api/candidates/analytics`);
+        const url = new URL(`${JOBINFO_CONFIG.API_URL}/api/candidates/cvs`);
         url.searchParams.append("wa_number", waNumber);
         url.searchParams.append("session_token", sessionToken);
 
@@ -201,112 +245,122 @@ async function loadAnalytics() {
 
         if (res.ok) {
             const data = await res.json();
+            const cvs = data.cvs || [];
+            document.getElementById("cvCountBadge").textContent = `${cvs.length} / 4`;
+            
+            const container = document.getElementById("cvListContainer");
             container.innerHTML = "";
             
-            if (!data.focus_areas || data.focus_areas.length === 0) {
-                container.innerHTML = `<div class="text-center text-muted small py-3">No data available yet.</div>`;
-                return;
-            }
-            
-            data.focus_areas.slice(0, 4).forEach(area => {
-                let catName = area.category;
-                if (catName === "retail") catName = "Retail";
-                else if (catName === "hospitality") catName = "Hospitality";
-                else if (catName === "healthcare") catName = "Healthcare";
-                else if (catName === "driving") catName = "Driving";
-                else if (catName === "office_admin") catName = "Office";
-                else if (catName === "maintenance_technician") catName = "Maintenance";
-                else if (catName === "it_professional") catName = "IT";
-                else if (catName === "gulf_abroad") catName = "Gulf/Abroad";
-                else catName = catName.charAt(0).toUpperCase() + catName.slice(1).replace('_', ' ');
-
+            cvs.forEach(cv => {
+                const dateText = cv.uploaded_at ? new Date(cv.uploaded_at).toLocaleDateString('en-GB') : "Unknown date";
+                const badge = cv.is_default ? `<span class="badge bg-success" style="font-size:0.6rem; margin-left:6px; font-weight: 500;">Default</span>` : '';
+                
                 const html = `
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span class="fw-bold" style="color:#555;">${catName}</span>
-                            <span class="text-muted">${area.percentage}% (${area.count})</span>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: ${area.percentage}%;" aria-valuenow="${area.percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="cv-item">
+                    <div class="cv-info">
+                        <i class="bi bi-file-earmark-pdf cv-icon"></i>
+                        <div>
+                            <div class="cv-name">${cv.filename} ${badge}</div>
+                            <div class="cv-meta">Uploaded on ${dateText}</div>
                         </div>
                     </div>
-                `;
-                container.insertAdjacentHTML("beforeend", html);
+                    <button class="btn-delete-cv" onclick="deleteResume(${cv.id})" title="Delete CV">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>`;
+                container.innerHTML += html;
             });
+
+            const uploadBtn = document.getElementById("cvUploadBtn");
+            const fileInput = document.getElementById("cvFileInput");
+            if (cvs.length >= 4) {
+                uploadBtn.style.opacity = "0.5";
+                uploadBtn.style.pointerEvents = "none";
+                document.getElementById("cvUploadSub").textContent = "Maximum 4 CVs reached. Delete one to upload.";
+            } else {
+                uploadBtn.style.opacity = "1";
+                uploadBtn.style.pointerEvents = "auto";
+                document.getElementById("cvUploadSub").textContent = "PDF or DOCX max 10MB";
+            }
         }
     } catch (e) {
-        console.error("Error loading analytics", e);
-        container.innerHTML = `<div class="text-center text-danger small py-3">Failed to load analytics.</div>`;
+        console.error("Error loading CVs", e);
     }
 }
 
-// ─── Applications Management ─────────────────────────────────────────────────
+async function uploadResume(input) {
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    const allowed = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    
+    // Fallback manual extension check for weird OS MIME mappings
+    let isAllowed = false;
+    if (allowed.includes(file.type)) isAllowed = true;
+    else if (file.name.toLowerCase().endsWith('.pdf') || file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
+        isAllowed = true;
+    }
 
-async function loadApplications() {
-    const tbody = document.getElementById("applicationsTableBody");
+    if (!isAllowed) {
+        alert("Only PDF or Word documents are allowed.");
+        input.value = "";
+        return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+        alert("File size exceeds 10MB limit.");
+        input.value = "";
+        return;
+    }
+
+    const uploadBtn = document.getElementById("cvUploadBtn");
+    const originalContent = uploadBtn.innerHTML;
+    uploadBtn.innerHTML = `<div class="spinner-border spinner-border-sm text-secondary mb-2" role="status"></div><div>Uploading...</div>`;
+    uploadBtn.style.pointerEvents = "none";
+
+    const formData = new FormData();
+    formData.append("wa_number", waNumber);
+    formData.append("session_token", sessionToken);
+    formData.append("file", file);
+
     try {
-        const url = new URL(`${JOBINFO_CONFIG.API_URL}/api/candidates/applications`);
-        url.searchParams.append("wa_number", waNumber);
-        url.searchParams.append("session_token", sessionToken);
-
-        const days = document.getElementById("filterDays")?.value;
-        const status = document.getElementById("filterStatus")?.value;
-        if (days) url.searchParams.append("days", days);
-        if (status) url.searchParams.append("status", status);
-
-        const res = await fetch(url.toString(), {
-            headers: { "Content-Type": "application/json" }
+        const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/candidates/cvs`, {
+            method: "POST",
+            body: formData
         });
 
-        if (res.status === 401 || res.status === 403) {
-            logoutSeeker();
-            return;
-        }
-
         if (res.ok) {
-            const data = await res.json();
-            tbody.innerHTML = "";
-            
-            if (!data.applications || data.applications.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#888;padding:20px;">You haven't applied for any jobs yet.</td></tr>`;
-                return;
-            }
-
-            data.applications.forEach(app => {
-                let statusClass = "status-applied";
-                let statusText = "Applied";
-                
-                if (app.status === "shortlisted") {
-                    statusClass = "status-shortlisted";
-                    statusText = "Shortlisted";
-                } else if (app.status === "rejected") {
-                    statusClass = "status-rejected";
-                    statusText = "Not Selected";
-                }
-
-                const date = new Date(app.applied_at).toLocaleDateString();
-
-                const row = `
-                    <tr>
-                        <td data-label="Job Title">
-                            <strong style="font-size:.95rem;">${app.job_title}</strong> 
-                            <span style="display:block;color:#888;font-size:0.75rem;">${app.job_code}</span>
-                        </td>
-                        <td data-label="Company">${app.company || '—'}</td>
-                        <td data-label="Location">${app.location}</td>
-                        <td data-label="Date Applied" style="color:#888;font-size:0.8rem;">${date}</td>
-                        <td data-label="Status"><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    </tr>
-                `;
-                tbody.insertAdjacentHTML('beforeend', row);
-            });
+            loadResumes(); 
+            loadProfile(); 
         } else {
-            const errorText = await res.text();
-            console.error("API returned error:", errorText);
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#e74c3c;padding:20px;">Failed to load applications. Server returned ${res.status}</td></tr>`;
+            const data = await res.json();
+            alert("Upload failed: " + (data.detail || "Unknown error"));
         }
     } catch (e) {
-        console.error("Error loading applications", e);
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#e74c3c;padding:20px;">Error loading applications.</td></tr>`;
+        console.error("Upload error", e);
+        alert("Network error during upload.");
+    } finally {
+        input.value = "";
+        uploadBtn.innerHTML = originalContent;
+        uploadBtn.style.pointerEvents = "auto";
+    }
+}
+
+async function deleteResume(resumeId) {
+    if (!confirm("Are you sure you want to delete this CV?")) return;
+
+    try {
+        const res = await fetch(`${JOBINFO_CONFIG.API_URL}/api/candidates/cvs/${resumeId}?wa_number=${waNumber}&session_token=${sessionToken}`, {
+            method: "DELETE"
+        });
+
+        if (res.ok) {
+            loadResumes();
+            loadProfile(); 
+        } else {
+            const data = await res.json();
+            alert("Notice: " + (data.detail || "Could not delete CV."));
+        }
+    } catch (e) {
+        console.error("Delete CV error", e);
+        alert("Network error during deletion.");
     }
 }
