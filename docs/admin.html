@@ -1065,13 +1065,18 @@ const AUTH_KEY = "ji_admin_creds";
 
 let currentFilter = "pending";
 let pendingRejectId = null;
+let _sessionApplied = false; // Guard: prevents duplicate _applySession() calls
 
 /* ── Persistent Session Boot-Check ───────────────────────────────────────────
    Runs synchronously before any UI interaction.  If a saved session exists in
    localStorage we immediately hide the login screen and load the dashboard.
-   The magic-link block below only fires if ?magic_token= is also present.
+   SKIPPED when a ?magic_token= is present — the magic-link IIFE handles that.
 ─────────────────────────────────────────────────────────────────────────── */
 (function bootSessionCheck() {
+  // If a magic token is in the URL, let handleMagicToken() take priority
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("magic_token") || urlParams.get("token")) return;
+
   const saved = _loadCreds();
   if (!saved) return; // no saved session → show login screen normally
 
@@ -1184,8 +1189,11 @@ function _buildAuthHeaders(creds) {
 
 /**
  * Apply a saved/verified session: hide login screen, update label, load data.
+ * Guarded by _sessionApplied to prevent duplicate calls from boot + magic-link race.
  */
 function _applySession(creds) {
+  if (_sessionApplied) return; // Prevent duplicate data loads
+  _sessionApplied = true;
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("admin-name-label").textContent =
     creds.mode === "token" ? (creds.label || "Admin") : `Hi, ${creds.user}`;
@@ -1569,9 +1577,10 @@ document.getElementById("vm-btn-reject").addEventListener("click", async () => {
   try {
     const formData = new FormData();
     formData.append("reason", reason);
+    const _authHdr = authHeaders();
     const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies/${currentVerifyVacancy.id}/reject`, {
       method: "POST",
-      headers: { "Authorization": "Basic " + btoa(`${adminUser}:${adminPass}`), "Content-Type": "application/x-www-form-urlencoded" },
+      headers: { "Authorization": _authHdr["Authorization"], "Content-Type": "application/x-www-form-urlencoded" },
       body: `reason=${encodeURIComponent(reason)}`,
     });
     if (!res.ok) throw new Error("Failed");
@@ -1598,9 +1607,10 @@ document.getElementById("confirm-reject").addEventListener("click", async () => 
   btn.disabled = true; btn.textContent = "Sending…";
 
   try {
+    const _authHdr2 = authHeaders();
     const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/vacancies/${pendingRejectId}/reject`, {
       method: "POST",
-      headers: { "Authorization": "Basic " + btoa(`${adminUser}:${adminPass}`), "Content-Type": "application/x-www-form-urlencoded" },
+      headers: { "Authorization": _authHdr2["Authorization"], "Content-Type": "application/x-www-form-urlencoded" },
       body: `reason=${encodeURIComponent(reason)}`,
     });
     if (!res.ok) throw new Error("Failed");
