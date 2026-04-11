@@ -170,7 +170,9 @@ if (!fileUrl) {
   showError("No PDF file URL provided.");
 } else {
   // Set download link to direct PDF URL
-  btnDownload.href = fileUrl;
+  if (btnDownload) {
+    btnDownload.href = fileUrl;
+  }
   loadPDF(fileUrl);
 }
 
