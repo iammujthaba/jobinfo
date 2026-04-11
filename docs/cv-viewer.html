@@ -58,15 +58,14 @@
     /* ── Canvas Container ────────────────────────── */
     .viewer-body {
       position:fixed; top:50px; bottom:46px; left:0; right:0;
-      overflow-y:auto; overflow-x:hidden;
-      background:#333; display:flex; flex-direction:column;
-      align-items:center; padding:10px 0;
+      overflow:auto; 
+      background:#333; padding:10px 0;
       -webkit-overflow-scrolling:touch;
     }
     .viewer-body canvas {
       display:block; margin:0 auto 12px;
       background:#fff;
-      max-width:100%;
+      max-width:none;
       box-shadow:0 2px 16px rgba(0,0,0,.5);
     }
 
@@ -90,6 +89,14 @@
       <i class="bi bi-arrow-left"></i> Back
     </button>
     <span class="bar-title" id="bar-title">CV Viewer</span>
+  </div>
+  <div class="bar-right">
+    <button class="bar-btn" id="btn-zoom-out" title="Zoom Out">
+      <i class="bi bi-zoom-out"></i>
+    </button>
+    <button class="bar-btn" id="btn-zoom-in" title="Zoom In">
+      <i class="bi bi-zoom-in"></i>
+    </button>
   </div>
   <!-- <div class="bar-right">
     <a class="bar-btn download" id="btn-download" href="#" download title="Download PDF">
@@ -143,6 +150,8 @@ const btnBack      = document.getElementById("btn-back");
 const btnDownload  = document.getElementById("btn-download");
 const btnPrev      = document.getElementById("btn-prev");
 const btnNext      = document.getElementById("btn-next");
+const btnZoomIn    = document.getElementById("btn-zoom-in");
+const btnZoomOut   = document.getElementById("btn-zoom-out");
 const pageInfo     = document.getElementById("page-info");
 const viewerBody   = document.getElementById("viewer-body");
 const loadingState = document.getElementById("loading-state");
@@ -154,9 +163,29 @@ let pdfDoc   = null;
 let totalPages = 0;
 let renderedPages = new Set();
 let renderingInProgress = false;
+let zoomMultiplier = 1.0;
 
 // ── Init ─────────────────────────────────────────────
 barTitle.textContent = decodeURIComponent(nameParam);
+
+btnZoomIn.addEventListener("click", () => {
+  zoomMultiplier += 0.25;
+  if (zoomMultiplier > 3.0) zoomMultiplier = 3.0;
+  rerenderPDF();
+});
+
+btnZoomOut.addEventListener("click", () => {
+  zoomMultiplier -= 0.25;
+  if (zoomMultiplier < 0.5) zoomMultiplier = 0.5;
+  rerenderPDF();
+});
+
+function rerenderPDF() {
+  if (pdfDoc) {
+    viewerBody.innerHTML = "";
+    renderAllPages();
+  }
+}
 
 btnBack.addEventListener("click", () => {
   if (window.history.length > 1) {
@@ -208,8 +237,8 @@ async function renderAllPages() {
       const page = await pdfDoc.getPage(num);
       const unscaledViewport = page.getViewport({ scale: 1 });
 
-      // Scale to fit container width
-      const scale = containerWidth / unscaledViewport.width;
+      // Scale to fit container width with zoom multiplier
+      const scale = (containerWidth / unscaledViewport.width) * zoomMultiplier;
       const viewport = page.getViewport({ scale: scale * pixelRatio });
 
       // Create canvas

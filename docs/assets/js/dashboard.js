@@ -185,7 +185,7 @@ function computeProfileStrength(data) {
         nameAge: !!(data.name && data.age),
         location: !!(data.district && data.exact_location),
         category: !!data.category,
-        cv: !!data.has_cv,
+        cv: !!(data.has_cv || data.cv_path),
         mobile: !!data.alt_phone
     };
 
