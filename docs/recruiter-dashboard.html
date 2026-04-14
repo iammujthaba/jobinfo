@@ -263,8 +263,6 @@
     <input type="text" id="edit-job-code" disabled style="background:#f5f5f5;color:#888">
     <label>Job Title <span class="required">*</span></label>
     <input type="text" id="edit-title" placeholder="e.g. Senior Accountant" maxlength="200">
-    <label>Company Name</label>
-    <input type="text" id="edit-company" placeholder="e.g. ABC Pvt Ltd" maxlength="200">
     <label>Location <span class="required">*</span></label>
     <input type="text" id="edit-location" placeholder="e.g. Kochi, Kerala" maxlength="200">
     <label>Salary Range</label>
@@ -533,7 +531,6 @@ function openEditModal(v) {
   document.getElementById("edit-vac-id").value      = v.id;
   document.getElementById("edit-job-code").value     = v.job_code || "";
   document.getElementById("edit-title").value        = v.job_title || "";
-  document.getElementById("edit-company").value      = v.company_name || "";
   document.getElementById("edit-location").value     = v.exact_location || v.district_region || "";
   document.getElementById("edit-salary").value       = v.salary_range || "";
   document.getElementById("edit-experience").value   = v.experience_required || "";
@@ -575,7 +572,6 @@ document.getElementById("submit-edit-btn").addEventListener("click", async () =>
       district_region:     location,
       exact_location:      location,
       job_title:           title,
-      company_name:        document.getElementById("edit-company").value.trim() || null,
       job_description:     document.getElementById("edit-description").value.trim() || null,
       salary_range:        document.getElementById("edit-salary").value.trim() || null,
       experience_required: document.getElementById("edit-experience").value.trim() || null,

@@ -117,7 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
         wa_number: verifiedWaNumber,
         session_token: sessionToken,
         job_category: fd.get("job_category"),
-        company_name: fd.get("company_name"),
         district_region: fd.get("district_region"),
         exact_location: fd.get("exact_location"),
         job_title: fd.get("job_title"),
