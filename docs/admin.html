@@ -969,9 +969,14 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body" style="padding: 24px; background: #f8f9fc;">
-    <button type="button" class="btn w-100 mb-4" style="font-weight:600; background:#f1c40f; color:#000; border:none; padding:10px;">
+    <a id="visoff-wa-btn" href="#" target="_blank" class="btn w-100 mb-2" style="font-weight:600; background:#f1c40f; color:#000; border:none; padding:10px; display:block; text-align:center; text-decoration:none;">
       <i class="bi bi-chat-left-dots"></i> Send Re-engagement Reminder
-    </button>
+    </a>
+    <div style="display:flex; justify-content:flex-end; margin-bottom: 20px;">
+      <button id="visoff-toggle-btn" class="btn btn-sm btn-outline-secondary" style="font-weight:600; border-radius:15px; padding:2px 10px; font-size:0.75rem;">
+        Mark as Messaged
+      </button>
+    </div>
     
     <h6 style="font-weight:700; color:#444; margin-bottom:12px;">🔍 Partial Data (Context)</h6>
     <div class="table-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05); background:#fff; border-radius:12px; overflow:hidden; padding: 16px;" id="offcanvas-visitor-details-tbody">
@@ -990,9 +995,14 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body" style="padding: 24px; background: #f8f9fc;">
-    <a id="unregoff-wa-btn" href="#" target="_blank" class="btn btn-success w-100 mb-4" style="font-weight:600; background:#e74c3c; color:#fff; border:none; padding:10px;">
+    <a id="unregoff-wa-btn" href="#" target="_blank" class="btn btn-success w-100 mb-2" style="font-weight:600; background:#e74c3c; color:#fff; border:none; padding:10px; display:block; text-align:center; text-decoration:none;">
       <i class="bi bi-chat-left-dots"></i> Send Recovery Message
     </a>
+    <div style="display:flex; justify-content:flex-end; margin-bottom: 20px;">
+      <button id="unregoff-toggle-btn" class="btn btn-sm btn-outline-secondary" style="font-weight:600; border-radius:15px; padding:2px 10px; font-size:0.75rem;">
+        Mark as Messaged
+      </button>
+    </div>
     
     <h6 style="font-weight:700; color:#444; margin-bottom:12px;">🔍 Partial Data (Context)</h6>
     <div class="table-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05); background:#fff; border-radius:12px; overflow:hidden; padding: 16px;" id="offcanvas-unregistered-details-tbody">
@@ -2418,12 +2428,13 @@ async function initVisitorsCharts() {
     
     data.visitors_table.forEach(v => {
       const regBadge = v.is_registered ? `<span class="badge-approved">Yes</span>` : `<span class="badge-pending">No</span>`;
+      const msgBadge = v.is_messaged ? ` <span class="badge-approved" style="background:#27ae60; color:#fff;">✅ Messaged</span>` : '';
       tbody.insertAdjacentHTML("beforeend", `
         <tr style="cursor:pointer;" onclick="openVisitorDetail('${v.wa_number}')">
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(v.wa_number)}</strong></td>
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(v.state)}</td>
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(v.last_active)}</td>
-          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${regBadge}</td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${regBadge}${msgBadge}</td>
         </tr>
       `);
     });
@@ -2441,6 +2452,13 @@ async function openVisitorDetail(waNumber) {
   document.getElementById('visoff-status').textContent = "Loading...";
   const tbody = document.getElementById("offcanvas-visitor-details-tbody");
   tbody.innerHTML = `<div class="spinner-border text-primary text-sm" role="status"></div> Loading...`;
+
+  const waClean = waNumber.replace('+', '');
+  const recMsg = "Hi! Need any help completing your job application or recruiter registration?";
+  const waBtn = document.getElementById('visoff-wa-btn');
+  if(waBtn) waBtn.href = `https://wa.me/${waClean}?text=${encodeURIComponent(recMsg)}`;
+  
+  setupHelpMessagedToggle(waNumber, 'visoff-toggle-btn', 'visoff-wa-btn', 'visitors');
 
   const offcanvasEl = document.getElementById('offcanvasVisitor');
   const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
@@ -2514,12 +2532,16 @@ async function initUnregisteredCharts() {
     }
     
     data.table_data.forEach(lead => {
+      const stateBadge = lead.is_messaged 
+        ? '<span class="badge-approved" style="background:#27ae60; color:#fff;">✅ Messaged</span>' 
+        : '<span class="badge" style="background:#e74c3c; color:white;">⚠️ Action Needed</span>';
+      
       tbody.insertAdjacentHTML("beforeend", `
         <tr style="cursor:pointer;" onclick="openUnregisteredDetail('${lead.wa_number}')">
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><strong>${escHtml(lead.wa_number)}</strong></td>
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${escHtml(lead.state)}</td>
           <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${fmtDate(lead.last_active)}</td>
-          <td style="padding:12px; border-bottom:1px solid #f0f2f5;"><span class="badge" style="background:#e74c3c; color:white;">Action Needed</span></td>
+          <td style="padding:12px; border-bottom:1px solid #f0f2f5;">${stateBadge}</td>
         </tr>
       `);
     });
@@ -2536,10 +2558,11 @@ async function openUnregisteredDetail(waNumber) {
   document.getElementById('unregoff-wa').textContent = waNumber;
   document.getElementById('unregoff-status').textContent = "Loading...";
   
-  // Bind WhatsApp Recovery href instantly
   const waClean = waNumber.replace('+', '');
   const recMsg = "Hi! I saw you started registering on JobInfo but didn't finish. Need any help?";
   document.getElementById('unregoff-wa-btn').href = `https://wa.me/${waClean}?text=${encodeURIComponent(recMsg)}`;
+  
+  setupHelpMessagedToggle(waNumber, 'unregoff-toggle-btn', 'unregoff-wa-btn', 'unregistered');
 
   const tbody = document.getElementById("offcanvas-unregistered-details-tbody");
   tbody.innerHTML = `<div class="spinner-border text-primary text-sm" role="status"></div> Loading...`;
@@ -2579,6 +2602,80 @@ async function openUnregisteredDetail(waNumber) {
     console.error(err);
     tbody.innerHTML = `<span style="color:#e74c3c;">Error loading details</span>`;
   }
+}
+
+function setupHelpMessagedToggle(waNumber, toggleBtnId, waBtnId, refreshChartFuncKey) {
+  const toggleBtn = document.getElementById(toggleBtnId);
+  const waBtn = document.getElementById(waBtnId);
+  if (!toggleBtn || !waBtn) return;
+  
+  // We'll read the initial state after the details endpoint returns or from the table data.
+  // We can fetch it first so we set the initial button string correctly:
+  toggleBtn.textContent = "Loading...";
+  toggleBtn.disabled = true;
+  
+  let currentMessagedState = false;
+  
+  // Load state
+  fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/visitors/${encodeURIComponent(waNumber)}/details`, { headers: authHeaders() })
+    .then(r => r.json())
+    .then(data => {
+      currentMessagedState = !!(data.context && data.context.help_messaged_at);
+      updateBtnUI();
+      toggleBtn.disabled = false;
+    }).catch(e => {
+      toggleBtn.textContent = "Error";
+    });
+
+  function updateBtnUI() {
+    if (currentMessagedState) {
+      toggleBtn.textContent = "✅ Mark as Pending";
+      toggleBtn.classList.remove('btn-outline-secondary');
+      toggleBtn.classList.add('btn-success');
+    } else {
+      toggleBtn.textContent = "Mark as Messaged";
+      toggleBtn.classList.remove('btn-success');
+      toggleBtn.classList.add('btn-outline-secondary');
+    }
+  }
+
+  async function setMessagedState(isMessaged) {
+    toggleBtn.disabled = true;
+    try {
+      const res = await fetch(`${JOBINFO_CONFIG.API_URL}/admin/api/users/${encodeURIComponent(waNumber)}/help_status`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ is_messaged: isMessaged })
+      });
+      if (res.ok) {
+        currentMessagedState = isMessaged;
+        updateBtnUI();
+        // Trigger table re-load smoothly
+        if (refreshChartFuncKey === 'unregistered') initUnregisteredCharts();
+        else initVisitorsCharts();
+      }
+    } catch(e) {
+      console.error(e);
+      alert("Failed to update status");
+    } finally {
+      toggleBtn.disabled = false;
+    }
+  }
+
+  // Clear old listeners by cloning
+  const newToggleBtn = toggleBtn.cloneNode(true);
+  toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+  newToggleBtn.addEventListener('click', () => setMessagedState(!currentMessagedState));
+  
+  // Intercept the WhatsApp button to auto-mark as messaged ONLY if not already messaged
+  const newWaBtn = waBtn.cloneNode(true);
+  waBtn.parentNode.replaceChild(newWaBtn, waBtn);
+  newWaBtn.addEventListener('click', (e) => {
+    // We let the href execute standardly, but fire API behind the scenes
+    if (!currentMessagedState) {
+      setMessagedState(true);
+    }
+  });
 }
 
 let dualChartPersona = null;
