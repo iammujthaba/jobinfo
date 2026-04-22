@@ -1829,7 +1829,9 @@ async function fetchHelpRequests() {
     let closedCount = 0;
 
     (data.results || []).forEach(req => {
-      let waReplyBtn = `<a href="https://wa.me/${req.wa_number.replace(/\\D/g, '')}" target="_blank" class="btn btn-sm" style="background-color:#25d366;color:#fff;font-size:0.8rem;padding:4px 8px;border-radius:6px;margin-right:4px;text-decoration:none;"><i class="bi bi-whatsapp"></i> Chat</a>`;
+      const helpMsg = "Hi! We received your help request on JobInfo. How can we assist you today?";
+      const encodedHelpMsg = encodeURIComponent(helpMsg);
+      let waReplyBtn = `<a href="https://wa.me/${req.wa_number.replace(/\\D/g, '')}?text=${encodedHelpMsg}" target="_blank" class="btn btn-sm" style="background-color:#25d366;color:#fff;font-size:0.8rem;padding:4px 8px;border-radius:6px;margin-right:4px;text-decoration:none;"><i class="bi bi-whatsapp"></i> Chat</a>`;
       let typeClass = req.user_type === 'Unregistered' ? 'badge-pending' : 'badge-approved';
       if (req.user_type === 'Both') typeClass = 'badge-edited'; // Use purple/blue badge for Dual Users
       
@@ -1918,7 +1920,9 @@ async function loadQuestions() {
     (data.results || []).forEach(q => {
       let waReplyBtn = "";
       if (q.wa_number) {
-        waReplyBtn = `<a href="https://wa.me/${q.wa_number.replace(/\\D/g,'')}" target="_blank" class="btn btn-sm" style="background-color:#25d366;color:#fff;font-size:0.8rem;padding:4px 8px;border-radius:6px;margin-right:4px;text-decoration:none;"><i class="bi bi-whatsapp"></i> Chat</a>`;
+        const inqMsg = "Hi! We received your inquiry on JobInfo. How can we assist you today?";
+        const encodedInqMsg = encodeURIComponent(inqMsg);
+        waReplyBtn = `<a href="https://wa.me/${q.wa_number.replace(/\\D/g,'')}?text=${encodedInqMsg}" target="_blank" class="btn btn-sm" style="background-color:#25d366;color:#fff;font-size:0.8rem;padding:4px 8px;border-radius:6px;margin-right:4px;text-decoration:none;"><i class="bi bi-whatsapp"></i> Chat</a>`;
       }
         
       const nameTxt = escHtml(q.name) || "—";
